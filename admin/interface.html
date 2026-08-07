@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administration — SHOOTBYTHEO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0b0a; --panel:#151311; --panel2:#1c1917; --ink:#f2efe9; --accent:#e2543a;
+  --muted:#948d83; --line:rgba(242,239,233,.13);
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Archivo',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;font-size:15px}
+::selection{background:var(--accent);color:var(--bg)}
+button{font-family:inherit}
+
+header{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:16px;
+  padding:14px 24px;border-bottom:1px solid var(--line);background:rgba(12,11,10,.97)}
+.marque{font-size:13px;font-weight:800;letter-spacing:.18em;text-transform:uppercase}
+.marque span{color:var(--accent)}
+#etat{margin-left:auto;font-size:13px;color:var(--muted)}
+#etat.ok{color:#7fbf7f}
+#etat.ko{color:var(--accent)}
+
+.app{display:grid;grid-template-columns:274px 1fr;min-height:calc(100vh - 57px)}
+.side{border-right:1px solid var(--line);padding:16px 14px;background:var(--panel)}
+.side h2{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+  margin:22px 8px 10px;font-weight:600}
+.nav{display:flex;align-items:center;gap:11px;width:100%;text-align:left;cursor:pointer;
+  background:none;border:none;color:var(--ink);padding:9px 10px;border-radius:8px;font-size:14px}
+.nav:hover{background:var(--panel2)}
+.nav.on{background:var(--accent);color:var(--bg);font-weight:700}
+.nav .vign{width:44px;height:30px;border-radius:4px;flex:none;background:#000 center/cover;border:1px solid var(--line)}
+.nav .nb{margin-left:auto;font-family:var(--mono);font-size:11px;opacity:.75}
+.nav-ico{width:44px;text-align:center;font-size:18px;flex:none}
+main{padding:26px 34px 90px;max-width:980px}
+
+h1{margin:0 0 6px;font-size:26px;font-weight:800;letter-spacing:-.01em}
+.fil{font-size:13px;color:var(--muted);margin:0 0 10px}
+.fil button{background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:0}
+.fil button:hover{text-decoration:underline}
+.sous{margin:0 0 24px;color:var(--muted);font-size:14px;line-height:1.6;max-width:66ch}
+.bloc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:16px}
+.bloc h3{margin:0 0 4px;font-size:16px;font-weight:700}
+.bloc .aide{margin:0 0 16px;color:var(--muted);font-size:13px;line-height:1.55}
+
+label.f{display:block;font-size:12px;font-weight:600;margin:14px 0 3px}
+label.f i{display:block;font-style:normal;font-weight:400;font-size:12px;color:var(--muted);margin-top:2px}
+input[type=text],input[type=date],textarea,select{width:100%;background:var(--bg);border:1px solid var(--line);
+  color:var(--ink);padding:10px 12px;font-size:14px;font-family:inherit;border-radius:7px;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:64px;line-height:1.55}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+@media (max-width:880px){.duo{grid-template-columns:1fr}}
+
+.b{display:inline-flex;align-items:center;gap:7px;border:none;border-radius:7px;cursor:pointer;
+  padding:10px 15px;font-size:13px;font-weight:600;background:var(--accent);color:var(--bg)}
+.b:hover{filter:brightness(1.09)}
+.b.s{background:none;border:1px solid var(--line);color:var(--ink)}
+.b.s:hover{border-color:rgba(242,239,233,.45);filter:none;background:var(--panel2)}
+.b.d{background:none;border:1px solid rgba(226,84,58,.45);color:var(--accent)}
+.b.p{padding:7px 11px;font-size:12px}
+.b[disabled]{opacity:.35;cursor:default;filter:none}
+.barre{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pousse{margin-left:auto}
+
+.diapo{position:relative;aspect-ratio:16/7;border-radius:10px;overflow:hidden;background:#000 center/cover;border:1px solid var(--line)}
+.diapo .voile{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(12,11,10,.35),transparent 30%,rgba(12,11,10,.55) 70%,rgba(12,11,10,.95))}
+.diapo .txt{position:absolute;left:0;right:0;bottom:0;padding:0 24px 20px}
+.diapo .k{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:7px;text-shadow:0 1px 10px rgba(0,0,0,.9)}
+.diapo .t{font-weight:900;font-size:clamp(24px,4vw,50px);line-height:.85;text-transform:uppercase;letter-spacing:-.02em;text-shadow:0 2px 16px rgba(0,0,0,.6)}
+.diapo .m{font-size:12px;color:rgba(242,239,233,.86);margin-top:8px;text-shadow:0 1px 10px rgba(0,0,0,.8)}
+.diapo .outils{position:absolute;top:12px;right:12px;display:flex;gap:7px;opacity:0;transition:opacity .18s}
+.diapo:hover .outils{opacity:1}
+.diapo .outils .b{background:rgba(12,11,10,.82);color:var(--ink);backdrop-filter:blur(4px)}
+.diapo .outils .b:hover{background:var(--accent);color:var(--bg)}
+.vide{aspect-ratio:16/7;border:1px dashed var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px}
+
+.zone{border:1px dashed var(--line);border-radius:10px;padding:20px;text-align:center;margin-top:14px}
+.zone.survol{border-color:var(--accent);background:rgba(226,84,58,.07)}
+.zone p{margin:0 0 12px;color:var(--muted);font-size:13px}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin-top:16px}
+.ph{position:relative;border-radius:9px;overflow:hidden;background:#100e0d;border:1px solid var(--line)}
+.ph .im{cursor:grab;position:relative}
+.ph.glisse{opacity:.35}
+.ph.cible{border-color:var(--accent);box-shadow:0 0 0 2px rgba(226,84,58,.4)}
+.ph img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover}
+.ph .outils{position:absolute;top:8px;right:8px;display:flex;gap:6px;opacity:0;transition:opacity .18s}
+.ph:hover .outils{opacity:1}
+.ph .outils .b{background:rgba(12,11,10,.85);color:var(--ink);padding:6px 9px;font-size:11px}
+.ph .outils .b:hover{background:var(--accent);color:var(--bg)}
+.ph .bas{padding:9px;display:flex;flex-direction:column;gap:7px}
+.ph .bas input,.ph .bas select{padding:7px 9px;font-size:12.5px}
+.badge{position:absolute;top:8px;left:8px;background:var(--accent);color:var(--bg);
+  font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:4px 8px;border-radius:100px}
+.rang{position:absolute;bottom:8px;left:8px;background:rgba(12,11,10,.8);color:var(--ink);
+  font-family:var(--mono);font-size:10px;padding:3px 7px;border-radius:4px}
+
+.journees{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:14px}
+.jr{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#100e0d;
+  cursor:pointer;padding:0;text-align:left;color:inherit;font:inherit;display:block;width:100%}
+.jr:hover{border-color:var(--accent)}
+.jr img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;filter:brightness(.62)}
+.jr .txt{padding:13px 14px}
+.jr .d{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.jr .t{font-weight:800;font-size:16px;margin:5px 0 4px;line-height:1.2}
+.jr .n{font-size:12px;color:var(--muted)}
+.jr .ordre{position:absolute;top:8px;right:8px;display:flex;gap:5px;opacity:0;transition:opacity .18s}
+.jr:hover .ordre{opacity:1}
+.jr .ordre span{background:rgba(12,11,10,.85);border:1px solid var(--line);border-radius:5px;
+  padding:4px 7px;font-size:11px;color:var(--ink)}
+.jr .ordre span:hover{background:var(--accent);color:var(--bg)}
+
+.bascule{display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;margin-top:12px}
+.bascule input{accent-color:var(--accent);width:17px;height:17px}
+details.avance{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+details.avance summary{cursor:pointer;font-size:13px;color:var(--muted);list-style:none}
+details.avance summary::-webkit-details-marker{display:none}
+details.avance summary:before{content:'▸ ';color:var(--accent)}
+details.avance[open] summary:before{content:'▾ '}
+.choix{position:fixed;inset:0;z-index:50;background:rgba(8,7,7,.9);display:flex;align-items:center;justify-content:center;padding:26px}
+.choix[hidden]{display:none}
+.choix .boite{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;max-width:960px;width:100%;max-height:86vh;overflow:auto}
+.choix .grp{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:18px 0 9px}
+.choix .g{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.choix .g button{padding:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;cursor:pointer;background:#000}
+.choix .g button:hover{border-color:var(--accent)}
+.choix .g img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover}
+.offreEd{border:1px solid var(--line);border-radius:9px;padding:14px;margin-bottom:10px}
+@media (max-width:780px){
+  .app{grid-template-columns:1fr}
+  .side{border-right:none;border-bottom:1px solid var(--line)}
+  main{padding:18px 16px 70px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="marque">SHOOTBYTHEO <span>· Administration</span></span>
+  <a class="b s" id="voir" href="/" target="_blank">Voir le site ↗</a>
+  <span id="etat">Chargement…</span>
+</header>
+
+<div class="app">
+  <aside class="side">
+    <button class="nav" id="navAccueil"><span class="nav-ico">🏠</span> Page d'accueil</button>
+    <h2>Mes séries</h2>
+    <div id="navSeries"></div>
+    <button class="nav" id="navPlus"><span class="nav-ico">＋</span> Nouvelle série</button>
+    <h2>Le site</h2>
+    <button class="nav" id="navApropos"><span class="nav-ico">👤</span> À propos</button>
+    <button class="nav" id="navPresta"><span class="nav-ico">€</span> Prestations</button>
+    <button class="nav" id="navReglages"><span class="nav-ico">⚙</span> Réglages</button>
+  </aside>
+  <main id="vue"></main>
+</div>
+
+<div class="choix" id="choix" hidden>
+  <div class="boite">
+    <div class="barre" style="margin-bottom:6px">
+      <h3 id="choixTitre" style="margin:0">Choisir une photo</h3>
+      <button class="b s p pousse" id="choixFermer">Annuler</button>
+    </div>
+    <div id="choixCorps"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+let D = null, LIB = { accueil:[], web:[], apropos:[] }, vue = { type:'accueil' }, minuteur = null;
+const $ = s => document.querySelector(s);
+
+/* ================= utilitaires ================= */
+function el(tag, attrs = {}, ...kids){
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)){
+    if (v === undefined || v === false || v === null) continue;
+    if (k === 'class') n.className = v;
+    else if (k === 'text') n.textContent = v;
+    else if (k === 'html') n.innerHTML = v;
+    else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+    else if (k === 'style') n.style.cssText = v;
+    else n.setAttribute(k, v);
+  }
+  for (const kid of kids) if (kid) n.appendChild(typeof kid === 'string' ? document.createTextNode(kid) : kid);
+  return n;
+}
+const nomFichier = s => (s || '').split('/').pop();
+const url = s => "url('" + encodeURI(s) + "')";
+function slug(t){
+  return String(t).normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '').toLowerCase();
+}
+function etat(txt, cls){ const e = $('#etat'); e.textContent = txt; e.className = cls || ''; }
+const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+function dateLisible(iso){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+  return m ? parseInt(m[3],10) + ' ' + MOIS[parseInt(m[2],10)-1] + ' ' + m[1] : '';
+}
+
+function champ(titre, aide, valeur, onChange, exemple, type){
+  const i = el('input', { type: type || 'text', placeholder: exemple || '' });
+  i.value = valeur || '';
+  i.addEventListener('change', () => onChange(i.value));
+  return el('div', {}, el('label', { class:'f' }, titre, aide ? el('i', { text:aide }) : null), i);
+}
+function zone(titre, aide, valeur, onChange, hauteur){
+  const t = el('textarea');
+  if (hauteur) t.style.minHeight = hauteur;
+  t.value = valeur || '';
+  t.addEventListener('change', () => onChange(t.value));
+  return el('div', {}, el('label', { class:'f' }, titre, aide ? el('i', { text:aide }) : null), t);
+}
+function listeDer(titre, aide, options, valeur, onChange){
+  const s = el('select');
+  options.forEach(o => s.appendChild(el('option', { value:o.v, text:o.l })));
+  s.value = valeur;
+  s.addEventListener('change', () => onChange(s.value));
+  return el('div', {}, el('label', { class:'f' }, titre, aide ? el('i', { text:aide }) : null), s);
+}
+function bascule(libelle, valeur, onChange){
+  const c = el('input', { type:'checkbox' });
+  c.checked = !!valeur;
+  c.addEventListener('change', () => onChange(c.checked));
+  return el('label', { class:'bascule' }, c, libelle);
+}
+
+/* ================= modèle ================= */
+const serie = k => D.series.find(s => s.key === k);
+const album = (s, id) => (s.albums || []).find(a => a.id === id);
+const photosDe = (s, id) => s.photos.filter(p => (p.album || '') === id);
+function couvAlbum(s, a){
+  if (a && a.cover) return a.cover;
+  const ph = photosDe(s, a ? a.id : '');
+  return (ph[0] && ph[0].src) || s.cover || '';
+}
+
+/* ================= enregistrement ================= */
+function enregistrer(){
+  etat('Enregistrement…');
+  clearTimeout(minuteur);
+  minuteur = setTimeout(async () => {
+    try {
+      const r = await fetch('/api/data', { method:'POST', body: JSON.stringify(D) });
+      if (!r.ok) throw new Error(r.status);
+      etat('Enregistré à ' + new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }), 'ok');
+    } catch (e) { etat('Enregistrement impossible', 'ko'); }
+  }, 350);
+}
+const maj = () => { enregistrer(); dessiner(); };
+
+/* ================= choisir / envoyer une photo ================= */
+function ouvrirChoix(titre, surChoix){
+  const corps = $('#choixCorps');
+  corps.innerHTML = '';
+  const sections = [];
+  if (LIB.accueil.length) sections.push(["Photos envoyées pour l'accueil", LIB.accueil]);
+  D.series.forEach(s => {
+    const l = [...new Set([].concat(s.cover ? [s.cover] : []).concat(s.photos.map(p => p.src)))];
+    if (l.length) sections.push(['Série ' + s.title, l]);
+  });
+  if (LIB.web.length) sections.push(["Photos d'origine du site", LIB.web]);
+  sections.forEach(([nom, srcs]) => {
+    corps.appendChild(el('div', { class:'grp', text:nom }));
+    const g = el('div', { class:'g' });
+    srcs.forEach(src => g.appendChild(el('button', { title:nomFichier(src),
+      onclick: () => { fermerChoix(); surChoix(src); } }, el('img', { src:'/' + src, loading:'lazy' }))));
+    corps.appendChild(g);
+  });
+  if (!sections.length) corps.appendChild(el('p', { class:'sous', text:'Aucune photo disponible pour l\'instant.' }));
+  $('#choixTitre').textContent = titre;
+  $('#choix').hidden = false;
+}
+const fermerChoix = () => { $('#choix').hidden = true; };
+$('#choixFermer').addEventListener('click', fermerChoix);
+$('#choix').addEventListener('click', e => { if (e.target === $('#choix')) fermerChoix(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fermerChoix(); });
+
+async function envoyer(fichiers, dest, apres){
+  for (let i = 0; i < fichiers.length; i++){
+    etat('Envoi ' + (i+1) + ' sur ' + fichiers.length + '…');
+    try {
+      const q = dest.dossier ? 'dossier=' + dest.dossier : 'serie=' + encodeURIComponent(dest.serie);
+      const r = await fetch('/api/upload?' + q + '&name=' + encodeURIComponent(fichiers[i].name),
+        { method:'POST', body: fichiers[i] });
+      const j = await r.json();
+      if (j.erreur) throw new Error(j.erreur);
+      apres(j.src, j.largeur, j.hauteur);
+    } catch (e) { alert('« ' + fichiers[i].name + ' » n\'a pas pu être envoyée : ' + e.message); }
+  }
+  try { LIB = await (await fetch('/api/images')).json(); } catch (e) {}
+  maj();
+}
+function boutonEnvoi(libelle, dest, apres, style){
+  const inp = el('input', { type:'file', multiple:true, accept:'image/*', style:'display:none' });
+  inp.addEventListener('change', () => { const f = [...inp.files]; inp.value=''; envoyer(f, dest, apres); });
+  return el('span', {}, inp, el('button', { class:'b ' + (style||''), text:libelle, onclick:() => inp.click() }));
+}
+function zoneDepot(dest, apres, texte){
+  const z = el('div', { class:'zone' },
+    el('p', { text: texte || 'Glissez vos photos ici, ou :' }),
+    boutonEnvoi('Choisir des photos sur mon ordinateur', dest, apres));
+  ['dragenter','dragover'].forEach(ev => z.addEventListener(ev, e => { e.preventDefault(); z.classList.add('survol'); }));
+  ['dragleave','drop'].forEach(ev => z.addEventListener(ev, () => z.classList.remove('survol')));
+  z.addEventListener('drop', e => {
+    e.preventDefault();
+    const f = [...e.dataTransfer.files].filter(x => x.type.startsWith('image/'));
+    if (f.length) envoyer(f, dest, apres);
+  });
+  return z;
+}
+
+/* ================= vue : page d'accueil ================= */
+function vueAccueil(){
+  const m = $('#vue');
+  m.appendChild(el('h1', { text:"Page d'accueil" }));
+  m.appendChild(el('p', { class:'sous', text:
+    'Vos photos à la une, celles qui défilent en grand à l\'arrivée sur le site. '
+    + 'Mettez ici vos journées les plus récentes : le bouton « Voir la galerie » ouvre directement la journée choisie.' }));
+  if (!D.slides.length) m.appendChild(el('div', { class:'vide', text:'Aucune photo à la une pour l\'instant.' }));
+  D.slides.forEach((sl, i) => m.appendChild(carteDiapo(sl, i)));
+  m.appendChild(el('div', { class:'barre', style:'margin-top:8px' },
+    el('button', { class:'b', text:'Ajouter une photo à la une', onclick: () => {
+      if (!D.series.length){ alert('Créez d\'abord une série.'); return; }
+      const s = D.series[0];
+      D.slides.push({ serie:s.key, album:'', img:s.cover||'', tag:'', title:s.title, meta:'', pos:'center 50%' });
+      maj();
+    } })));
+}
+
+function carteDiapo(sl, i){
+  const s = serie(sl.serie) || D.series[0] || {};
+  const pct = parseInt((String(sl.pos||'').match(/(\d+)%/) || [0,50])[1], 10);
+  const cibles = [{ v:'', l:'Toute la série' }]
+    .concat((s.albums||[]).map(a => ({ v:a.id, l:'Journée : ' + a.titre })));
+
+  const apercu = el('div', { class:'diapo',
+    style:'background-image:' + url(sl.img || s.cover || '') + ';background-position:center ' + pct + '%' },
+    el('div', { class:'voile' }),
+    el('div', { class:'txt' },
+      el('div', { class:'k', text: sl.tag || ' ' }),
+      el('div', { class:'t', text: sl.title || 'Sans titre' }),
+      el('div', { class:'m', text: sl.meta || '' })),
+    el('div', { class:'outils' },
+      el('button', { class:'b p', text:'Changer la photo',
+        onclick: () => ouvrirChoix('Photo à la une', src => { sl.img = src; maj(); }) }),
+      boutonEnvoi('Envoyer une photo', { dossier:'accueil' }, src => { sl.img = src; }, 'p')));
+
+  const curseur = el('input', { type:'range', min:'0', max:'100', step:'5', value:String(pct) });
+  curseur.addEventListener('input', () => { apercu.style.backgroundPosition = 'center ' + curseur.value + '%'; });
+  curseur.addEventListener('change', () => { sl.pos = 'center ' + curseur.value + '%'; enregistrer(); });
+
+  return el('div', { class:'bloc' }, apercu,
+    el('div', { class:'duo' },
+      champ('Grand titre', 'Le mot en très gros sur la photo.', sl.title, v => { sl.title=v; maj(); }, 'TOP 12'),
+      champ('Petite ligne orange', 'Juste au-dessus du grand titre.', sl.tag, v => { sl.tag=v; maj(); }, 'À la une · 9ᵉ journée'),
+      champ('Ligne de détail', 'Sous le grand titre, en petit.', sl.meta, v => { sl.meta=v; maj(); }, 'Interclub · Compétition'),
+      listeDer('Série', 'La série à laquelle cette photo appartient.',
+        D.series.map(x => ({ v:x.key, l:x.title })), sl.serie, v => {
+          sl.serie = v; sl.album = '';
+          const ns = serie(v); if (ns && ns.cover) sl.img = ns.cover;
+          maj();
+        }),
+      listeDer('Ouvre au clic', 'Ce que voit le visiteur en cliquant « Voir la galerie ».',
+        cibles, sl.album || '', v => { sl.album = v; maj(); })),
+    el('label', { class:'f' }, 'Partie de la photo à montrer',
+      el('i', { text:'Glissez pour remonter ou descendre le cadrage — l\'aperçu suit.' })),
+    curseur,
+    el('div', { class:'barre', style:'margin-top:16px' },
+      el('button', { class:'b s p', text:'↑ Monter', disabled: i===0 || undefined,
+        onclick: () => { D.slides.splice(i-1,0,D.slides.splice(i,1)[0]); maj(); } }),
+      el('button', { class:'b s p', text:'↓ Descendre', disabled: i===D.slides.length-1 || undefined,
+        onclick: () => { D.slides.splice(i+1,0,D.slides.splice(i,1)[0]); maj(); } }),
+      el('button', { class:'b d p pousse', text:'Retirer de la une', onclick: () => {
+        if (confirm('Retirer cette photo de la page d\'accueil ?\n(La photo elle-même est conservée.)')){
+          D.slides.splice(i,1); maj();
+        } } })));
+}
+
+/* ================= vue : une série ================= */
+function vueSerie(key){
+  const s = serie(key);
+  if (!s){ vue = { type:'accueil' }; return dessiner(); }
+  const m = $('#vue');
+  const libres = photosDe(s, '');
+  m.appendChild(el('h1', { text:s.title || 'Série sans nom' }));
+  m.appendChild(el('p', { class:'sous', text:
+    s.photos.length + ' photo(s) au total · ' + (s.albums||[]).length + ' journée(s).' }));
+
+  /* --- journées --- */
+  const bloc = el('div', { class:'bloc' },
+    el('h3', { text:'Les journées' }),
+    el('p', { class:'aide', text:'Chaque journée est une galerie datée : une compétition, un match, une séance. '
+      + 'Le visiteur les voit rangées dans cet ordre, et peut ainsi retrouver les anciennes.' }));
+  if ((s.albums||[]).length){
+    const g = el('div', { class:'journees' });
+    s.albums.forEach((a, j) => g.appendChild(carteJournee(s, a, j)));
+    bloc.appendChild(g);
+  } else {
+    bloc.appendChild(el('p', { class:'aide', style:'margin:0', text:
+      'Aucune journée : toutes les photos de la série s\'affichent ensemble.' }));
+  }
+  bloc.appendChild(el('div', { class:'barre', style:'margin-top:14px' },
+    el('button', { class:'b', text:'+ Nouvelle journée', onclick: () => {
+      const nom = prompt('Nom de la journée ?\n(ex : TOP 12 — 10ᵉ journée, Championnat régional…)');
+      if (!nom) return;
+      const id = slug(nom);
+      if (!id || album(s, id)){ alert('Ce nom est déjà utilisé ou invalide.'); return; }
+      s.albums.unshift({ id, titre:nom.trim(), date:'', cover:'', prive:false });
+      vue = { type:'album', key:s.key, id };
+      maj();
+    } }),
+    (s.albums||[]).length > 1 ? el('button', { class:'b s', text:'Trier par date (récentes d\'abord)',
+      onclick: () => {
+        s.albums.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+        maj();
+      } }) : null));
+  m.appendChild(bloc);
+
+  /* --- photos non classées --- */
+  const blocL = el('div', { class:'bloc' },
+    el('h3', { text: (s.albums||[]).length ? 'Photos hors journée' : 'Les photos' }),
+    el('p', { class:'aide', text: (s.albums||[]).length
+      ? 'Ces photos s\'affichent sous les journées, en bas de la galerie.'
+      : 'Faites glisser une photo sur une autre pour changer l\'ordre.' }),
+    zoneDepot({ serie:s.key }, (src, w, h) => {
+      s.photos.push({ src, album:'', legende:'', w, h });
+      if (!s.cover) s.cover = src;
+    }));
+  if (libres.length){
+    const g = el('div', { class:'photos' });
+    libres.forEach((p) => g.appendChild(cartePhoto(s, p, '')));
+    blocL.appendChild(g);
+  }
+  m.appendChild(blocL);
+
+  /* --- présentation --- */
+  m.appendChild(el('div', { class:'bloc' },
+    el('h3', { text:'Présentation' }),
+    el('p', { class:'aide', text:'Ce que le visiteur lit sur la page « Le Travail » et en haut de la galerie.' }),
+    champ('Nom de la série', 'Le grand titre de la galerie.', s.title, v => { s.title=v; maj(); }),
+    champ('Petite ligne au-dessus du nom', 'En orange, discrète.', s.kicker, v => { s.kicker=v; maj(); }, 'ex : Interclubs'),
+    zone('Phrase de présentation', 'Une ou deux lignes, affichées dans « Le Travail ».', s.blurb, v => { s.blurb=v; maj(); }),
+    el('div', { class:'barre', style:'margin-top:14px' },
+      el('button', { class:'b s p', text:'Changer la photo de couverture',
+        onclick: () => ouvrirChoix('Couverture de ' + s.title, src => { s.cover = src; maj(); }) })),
+    bascule('Montrer cette série dans la page « Le Travail »', s.travail, v => { s.travail=v; maj(); }),
+    bascule('Série privée (accessible seulement par son lien)', s.prive, v => { s.prive=v; maj(); }),
+    el('details', { class:'avance' },
+      el('summary', { text:'Réglages avancés' }),
+      el('p', { class:'aide', style:'margin-top:12px', text:'Adresse : ' + location.origin + '/#/serie/' + s.key }),
+      el('div', { class:'barre' },
+        el('button', { class:'b d p', text:'Supprimer la série', onclick: () => supprimerSerie(s) })))));
+}
+
+function carteJournee(s, a, j){
+  const n = photosDe(s, a.id).length;
+  const bouger = d => { s.albums.splice(j+d, 0, s.albums.splice(j,1)[0]); maj(); };
+  return el('button', { class:'jr', onclick: () => { vue = { type:'album', key:s.key, id:a.id }; dessiner(); } },
+    el('img', { src:'/' + (couvAlbum(s, a) || 'image/favicon.png'), loading:'lazy' }),
+    el('div', { class:'ordre' },
+      el('span', { text:'←', title:'Avancer', onclick: e => { e.stopPropagation(); if (j>0) bouger(-1); } }),
+      el('span', { text:'→', title:'Reculer', onclick: e => { e.stopPropagation(); if (j<s.albums.length-1) bouger(1); } })),
+    a.prive ? el('span', { class:'badge', text:'Privée' }) : null,
+    el('div', { class:'txt' },
+      el('div', { class:'d', text: dateLisible(a.date) || 'Sans date' }),
+      el('div', { class:'t', text:a.titre }),
+      el('div', { class:'n', text: n + (n>1 ? ' photos' : ' photo') })));
+}
+
+/* ================= vue : une journée ================= */
+function vueAlbum(key, id){
+  const s = serie(key);
+  const a = s && album(s, id);
+  if (!a){ vue = { type:'serie', key }; return dessiner(); }
+  const m = $('#vue');
+  const photos = photosDe(s, a.id);
+
+  m.appendChild(el('p', { class:'fil' },
+    el('button', { text:s.title, onclick: () => { vue = { type:'serie', key:s.key }; dessiner(); } }),
+    ' › journée'));
+  m.appendChild(el('h1', { text:a.titre }));
+  m.appendChild(el('p', { class:'sous', text: (dateLisible(a.date) ? dateLisible(a.date) + ' · ' : '')
+    + photos.length + ' photo(s).' }));
+
+  const bloc = el('div', { class:'bloc' },
+    el('h3', { text:'Les photos de cette journée' }),
+    el('p', { class:'aide', text:'Glissez une photo sur une autre pour changer l\'ordre. '
+      + 'La légende s\'affiche sous la photo sur le site et dans la visionneuse.' }),
+    zoneDepot({ serie:s.key }, (src, w, h) => {
+      s.photos.push({ src, album:a.id, legende:'', w, h });
+      if (!a.cover) a.cover = src;
+      if (!s.cover) s.cover = src;
+    }));
+  if (photos.length){
+    const g = el('div', { class:'photos' });
+    photos.forEach(p => g.appendChild(cartePhoto(s, p, a.id)));
+    bloc.appendChild(g);
+  }
+  m.appendChild(bloc);
+
+  m.appendChild(el('div', { class:'bloc' },
+    el('h3', { text:'Informations' }),
+    champ('Nom de la journée', 'Le grand titre affiché en haut de la galerie.', a.titre, v => {
+      if (v.trim()) a.titre = v.trim();
+      maj();
+    }),
+    champ('Date', 'Sert à ranger les journées de la plus récente à la plus ancienne.',
+      a.date, v => { a.date = v; maj(); }, '', 'date'),
+    bascule('Journée privée (visible seulement par son lien)', a.prive, v => { a.prive=v; maj(); }),
+    el('details', { class:'avance' },
+      el('summary', { text:'Réglages avancés' }),
+      el('p', { class:'aide', style:'margin-top:12px',
+        text:'Lien à partager : ' + location.origin + '/#/serie/' + s.key + '/' + a.id }),
+      el('div', { class:'barre' },
+        el('button', { class:'b s p', text:'Copier le lien', onclick: () => {
+          navigator.clipboard.writeText(location.origin + '/#/serie/' + s.key + '/' + a.id);
+          etat('Lien copié', 'ok');
+        } }),
+        el('button', { class:'b d p', text:'Supprimer la journée', onclick: () => supprimerJournee(s, a) })))));
+}
+
+function cartePhoto(s, p, albumId){
+  const liste = photosDe(s, albumId);
+  const j = liste.indexOf(p);
+  const estCouv = s.cover === p.src || (albumId && album(s, albumId) && album(s, albumId).cover === p.src);
+  const carte = el('div', { class:'ph' },
+    el('div', { class:'im', draggable:'true' },
+      el('img', { src:'/' + p.src, loading:'lazy' }),
+      estCouv ? el('span', { class:'badge', text:'Couverture' }) : null,
+      el('span', { class:'rang', text:(j+1) + '/' + liste.length }),
+      el('div', { class:'outils' },
+        el('button', { class:'b p', text:'Couverture', title:'Image de couverture',
+          onclick: () => {
+            if (albumId && album(s, albumId)) album(s, albumId).cover = p.src;
+            else s.cover = p.src;
+            maj();
+          } }),
+        el('button', { class:'b p', text:'Supprimer', onclick: () => supprimerPhoto(s, p) }))),
+    el('div', { class:'bas' },
+      (() => {
+        const i = el('input', { type:'text', placeholder:'Légende (facultatif)' });
+        i.value = p.legende || '';
+        i.addEventListener('change', () => { p.legende = i.value; enregistrer(); });
+        return i;
+      })(),
+      (s.albums||[]).length ? (() => {
+        const sel = el('select');
+        [{ v:'', l:'— hors journée —' }].concat(s.albums.map(a => ({ v:a.id, l:a.titre })))
+          .forEach(o => sel.appendChild(el('option', { value:o.v, text:o.l })));
+        sel.value = p.album || '';
+        sel.addEventListener('change', () => { p.album = sel.value; maj(); });
+        return sel;
+      })() : null));
+
+  const im = carte.querySelector('.im');
+  im.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', String(s.photos.indexOf(p)));
+    e.dataTransfer.effectAllowed = 'move';
+    carte.classList.add('glisse');
+  });
+  im.addEventListener('dragend', () => carte.classList.remove('glisse'));
+  carte.addEventListener('dragover', e => {
+    if (e.dataTransfer.types.includes('Files')) return;
+    e.preventDefault(); carte.classList.add('cible');
+  });
+  carte.addEventListener('dragleave', () => carte.classList.remove('cible'));
+  carte.addEventListener('drop', e => {
+    carte.classList.remove('cible');
+    const de = parseInt(e.dataTransfer.getData('text/plain'), 10);
+    const vers = s.photos.indexOf(p);
+    if (isNaN(de) || de === vers) return;
+    e.preventDefault();
+    s.photos.splice(vers, 0, s.photos.splice(de, 1)[0]);
+    maj();
+  });
+  return carte;
+}
+
+/* ================= vues : site ================= */
+function vueApropos(){
+  const a = D.apropos, m = $('#vue');
+  m.appendChild(el('h1', { text:'À propos' }));
+  m.appendChild(el('p', { class:'sous', text:
+    'La page qui vous présente. Un club qui cherche un photographe veut savoir à qui il confie sa saison : '
+    + 'quelques lignes sincères valent mieux qu\'un long texte.' }));
+  m.appendChild(el('div', { class:'bloc' },
+    bascule('Afficher cette page sur le site', a.actif, v => { a.actif=v; maj(); }),
+    champ('Titre de la page', '', a.titre, v => { a.titre=v; maj(); }),
+    zone('Votre texte', 'Laissez une ligne vide entre deux paragraphes.', a.texte, v => { a.texte=v; maj(); }, '220px'),
+    el('label', { class:'f' }, 'Votre photo', el('i', { text:'Un portrait, ou vous en action.' })),
+    a.photo ? el('img', { src:'/' + a.photo, style:'max-width:220px;border-radius:8px;margin-bottom:10px' }) : null,
+    el('div', { class:'barre' },
+      boutonEnvoi(a.photo ? 'Changer la photo' : 'Envoyer une photo', { dossier:'apropos' },
+        src => { a.photo = src; }, 's'),
+      a.photo ? el('button', { class:'b s p', text:'Retirer', onclick: () => { a.photo=''; maj(); } }) : null)));
+}
+
+function vuePresta(){
+  const p = D.prestations, m = $('#vue');
+  m.appendChild(el('h1', { text:'Prestations' }));
+  m.appendChild(el('p', { class:'sous', text:
+    'Beaucoup de clubs n\'osent pas demander un devis. Afficher ce que vous proposez, même en fourchette, débloque les contacts.' }));
+  m.appendChild(el('div', { class:'bloc' },
+    bascule('Afficher cette page sur le site', p.actif, v => { p.actif=v; maj(); }),
+    champ('Titre de la page', '', p.titre, v => { p.titre=v; maj(); }),
+    zone('Phrase d\'introduction', '', p.intro, v => { p.intro=v; maj(); })));
+
+  const bloc = el('div', { class:'bloc' }, el('h3', { text:'Vos offres' }),
+    el('p', { class:'aide', text:'Trois offres tiennent bien côte à côte sur le site.' }));
+  (p.offres || []).forEach((o, i) => {
+    bloc.appendChild(el('div', { class:'offreEd' },
+      champ('Titre', '', o.titre, v => { o.titre=v; maj(); }),
+      champ('Prix', 'Une fourchette suffit : « à partir de 150 € ».', o.prix, v => { o.prix=v; maj(); }),
+      zone('Description', '', o.texte, v => { o.texte=v; maj(); }),
+      el('div', { class:'barre', style:'margin-top:12px' },
+        el('button', { class:'b s p', text:'↑', disabled: i===0 || undefined,
+          onclick: () => { p.offres.splice(i-1,0,p.offres.splice(i,1)[0]); maj(); } }),
+        el('button', { class:'b s p', text:'↓', disabled: i===p.offres.length-1 || undefined,
+          onclick: () => { p.offres.splice(i+1,0,p.offres.splice(i,1)[0]); maj(); } }),
+        el('button', { class:'b d p pousse', text:'Supprimer cette offre',
+          onclick: () => { if (confirm('Supprimer « ' + o.titre + ' » ?')){ p.offres.splice(i,1); maj(); } } }))));
+  });
+  bloc.appendChild(el('button', { class:'b', text:'+ Ajouter une offre',
+    onclick: () => { p.offres.push({ titre:'Nouvelle offre', prix:'', texte:'' }); maj(); } }));
+  m.appendChild(bloc);
+}
+
+function vueReglages(){
+  const s = D.site, m = $('#vue');
+  m.appendChild(el('h1', { text:'Réglages du site' }));
+  m.appendChild(el('p', { class:'sous', text:'Les informations communes à toutes les pages.' }));
+  m.appendChild(el('div', { class:'bloc' },
+    champ('Phrase à côté du logo', 'En haut de chaque page.', s.baseline, v => { s.baseline=v; maj(); }, 'Sport · Documentaire'),
+    champ('Adresse e-mail', 'Affichée sur le site et reliée au formulaire.', s.email, v => { s.email=v; maj(); }),
+    champ('Lien Instagram', '', s.instagram, v => { s.instagram=v; maj(); }),
+    champ('Lien de téléchargement HD', 'Le bouton « Télécharger en HD ».', s.lienHD, v => { s.lienHD=v; maj(); })));
+  m.appendChild(el('div', { class:'bloc' },
+    el('h3', { text:'Référencement' }),
+    el('p', { class:'aide', text:'Utilisé pour que Google et les réseaux sociaux présentent correctement votre site.' }),
+    champ('Adresse du site en ligne', 'À renseigner le jour de la mise en ligne.', s.domaine,
+      v => { s.domaine=v; maj(); }, 'https://shootbytheo.com'),
+    champ('Ville / secteur', 'Aide à être trouvé localement.', s.ville, v => { s.ville=v; maj(); }, 'ex : Chambly, Oise'),
+    zone('Description du site', 'La phrase affichée sous le titre dans les résultats de recherche.',
+      s.description, v => { s.description=v; maj(); })));
+}
+
+/* ================= suppressions ================= */
+async function supprimerPhoto(s, p){
+  if (!confirm('Supprimer cette photo ?\n\nElle part dans « image/corbeille » : rien n\'est perdu.')) return;
+  try { await fetch('/api/trash', { method:'POST', body: JSON.stringify({ src:p.src }) }); } catch (e) {}
+  s.photos = s.photos.filter(x => x !== p);
+  if (s.cover === p.src) s.cover = (s.photos[0]||{}).src || '';
+  (s.albums||[]).forEach(a => { if (a.cover === p.src) a.cover = ''; });
+  D.slides.forEach(sl => { if (sl.img === p.src) sl.img = s.cover || ''; });
+  maj();
+}
+async function supprimerJournee(s, a){
+  const ph = photosDe(s, a.id);
+  if (!confirm('Supprimer la journée « ' + a.titre + ' » ?\n\n'
+    + (ph.length ? 'Ses ' + ph.length + ' photo(s) partent dans « image/corbeille ».' : 'Elle ne contient aucune photo.'))) return;
+  if (ph.length){
+    try { await fetch('/api/trash', { method:'POST', body: JSON.stringify({ srcs: ph.map(p => p.src) }) }); } catch (e) {}
+    s.photos = s.photos.filter(p => (p.album||'') !== a.id);
+  }
+  s.albums = s.albums.filter(x => x !== a);
+  D.slides = D.slides.filter(sl => !(sl.serie === s.key && sl.album === a.id));
+  vue = { type:'serie', key:s.key };
+  maj();
+}
+async function supprimerSerie(s){
+  const n = s.photos.length;
+  if (!confirm('Supprimer la série « ' + s.title + ' » ?\n\n'
+    + (n ? 'Ses ' + n + ' photo(s) partent dans « image/corbeille ».\n' : '')
+    + 'Ses journées et ses photos à la une seront retirées.')) return;
+  if (n) try { await fetch('/api/trash', { method:'POST', body: JSON.stringify({ srcs:s.photos.map(p => p.src) }) }); } catch (e) {}
+  D.slides = D.slides.filter(sl => sl.serie !== s.key);
+  D.series = D.series.filter(x => x !== s);
+  vue = { type:'accueil' };
+  maj();
+}
+
+/* ================= navigation ================= */
+function dessiner(){
+  const nav = $('#navSeries');
+  nav.innerHTML = '';
+  D.series.forEach(s => {
+    nav.appendChild(el('button', {
+      class:'nav' + ((vue.type==='serie'||vue.type==='album') && vue.key===s.key ? ' on' : ''),
+      onclick: () => { vue = { type:'serie', key:s.key }; dessiner(); } },
+      el('span', { class:'vign', style: s.cover ? 'background-image:'+url(s.cover) : '' }),
+      el('span', { text:s.title || '(sans nom)' }),
+      el('span', { class:'nb', text:String(s.photos.length) })));
+  });
+  [['navAccueil','accueil'],['navApropos','apropos'],['navPresta','presta'],['navReglages','reglages']]
+    .forEach(([id, t]) => { $('#'+id).className = 'nav' + (vue.type===t ? ' on' : ''); });
+
+  const m = $('#vue');
+  m.innerHTML = '';
+  $('#voir').href = '/';
+  if (vue.type === 'serie'){ vueSerie(vue.key); $('#voir').href = '/#/serie/' + vue.key; }
+  else if (vue.type === 'album'){ vueAlbum(vue.key, vue.id); $('#voir').href = '/#/serie/' + vue.key + '/' + vue.id; }
+  else if (vue.type === 'apropos'){ vueApropos(); $('#voir').href = '/#/a-propos'; }
+  else if (vue.type === 'presta'){ vuePresta(); $('#voir').href = '/#/prestations'; }
+  else if (vue.type === 'reglages') vueReglages();
+  else vueAccueil();
+  window.scrollTo(0, 0);
+}
+
+$('#navAccueil').addEventListener('click', () => { vue = { type:'accueil' }; dessiner(); });
+$('#navApropos').addEventListener('click', () => { vue = { type:'apropos' }; dessiner(); });
+$('#navPresta').addEventListener('click', () => { vue = { type:'presta' }; dessiner(); });
+$('#navReglages').addEventListener('click', () => { vue = { type:'reglages' }; dessiner(); });
+$('#navPlus').addEventListener('click', () => {
+  const nom = prompt('Nom de la nouvelle série ?\n(ex : Rugby, Trail, Mariage…)');
+  if (!nom) return;
+  const key = slug(nom);
+  if (!key || serie(key)){ alert('Ce nom est déjà utilisé ou invalide.'); return; }
+  D.series.push({ key, title:nom.trim(), kicker:'', blurb:'', cover:'', albums:[], travail:true, prive:false, photos:[] });
+  vue = { type:'serie', key };
+  maj();
+});
+
+/* ================= démarrage ================= */
+(async function(){
+  try {
+    D = await (await fetch('/api/data')).json();
+    if (!D || !Array.isArray(D.series)) D = { series:[], slides:[] };
+    D.slides = D.slides || [];
+    D.site = D.site || {};
+    D.apropos = D.apropos || { actif:false, titre:'À propos', texte:'', photo:'' };
+    D.prestations = D.prestations || { actif:false, titre:'Prestations', intro:'', offres:[] };
+    D.series.forEach(s => { s.albums = s.albums || []; s.photos = s.photos || []; });
+    try { LIB = await (await fetch('/api/images')).json(); } catch (e) {}
+    etat('Prêt', 'ok');
+    dessiner();
+  } catch (e) {
+    etat('Serveur injoignable', 'ko');
+    $('#vue').appendChild(el('p', { class:'sous',
+      text:'Impossible de joindre le serveur. Fermez cette page, relancez « Administration.command », puis rouvrez-la.' }));
+  }
+})();
+
+})();
+</script>
+
+</body>
+</html>

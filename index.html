@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHOOTBYTHEO — Photographie sport &amp; documentaire</title>
+<meta name="description" content="SHOOTBYTHEO — photographie sportive et documentaire : judo, aviation, badminton, street.">
+<link rel="icon" href="image/favicon.png">
+<link rel="apple-touch-icon" href="image/favicon.png">
+<!-- Aperçu lors d'un partage (Instagram, WhatsApp, Facebook…).
+     Les adresses deviennent absolues automatiquement à la publication. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SHOOTBYTHEO">
+<meta property="og:title" content="SHOOTBYTHEO — Photographie sport &amp; documentaire">
+<meta property="og:description" content="Judo, aviation, badminton, street : reportage sportif et documentaire.">
+<meta property="og:image" content="image/web/top12.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0b0a;
+  --ink:#f2efe9;
+  --accent:#e2543a;
+  --muted:#928c82;
+  --line:rgba(242,239,233,.14);
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Archivo','Helvetica Neue',Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+img{display:block}
+input,textarea,button{font-family:inherit}
+::selection{background:var(--accent);color:var(--bg)}
+input::placeholder,textarea::placeholder{color:#a29c91}
+@keyframes sbtFade{from{opacity:0}to{opacity:1}}
+
+/* ---------- Header ---------- */
+.hdr{
+  position:fixed;top:0;left:0;right:0;z-index:60;
+  display:flex;align-items:center;justify-content:space-between;gap:24px;
+  padding:34px 48px;
+  background:linear-gradient(to bottom,rgba(12,11,10,.8),rgba(12,11,10,0));
+}
+.hdr-brand{cursor:pointer;display:flex;align-items:center;gap:18px;background:none;border:none;padding:0}
+.hdr-logo{height:88px;width:auto;filter:drop-shadow(0 1px 10px rgba(0,0,0,.5))}
+.hdr-baseline{
+  font-size:11px;letter-spacing:.26em;text-transform:uppercase;
+  color:rgba(242,239,233,.62);
+  border-left:1px solid rgba(242,239,233,.28);padding-left:20px;
+}
+.hdr-nav{display:flex;align-items:center;gap:32px}
+.navlink{
+  font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
+  cursor:pointer;padding:8px 0;background:none;border:none;
+  border-bottom:1.5px solid transparent;
+  color:rgba(242,239,233,.68);
+  transition:color .2s;
+  text-shadow:0 1px 8px rgba(0,0,0,.4);
+}
+.navlink:hover{color:var(--ink)}
+.navlink.is-active{border-bottom-color:var(--accent);color:var(--ink)}
+
+/* ---------- Boutons ---------- */
+.btn-accent{
+  display:inline-block;background:var(--accent);color:var(--bg);border:none;
+  font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  padding:15px 28px;cursor:pointer;text-decoration:none;transition:filter .2s;
+}
+.btn-accent:hover{filter:brightness(1.1)}
+.btn-ghost{
+  display:inline-block;text-decoration:none;color:var(--ink);
+  border:1px solid rgba(242,239,233,.4);
+  font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  padding:15px 28px;transition:background .2s,border-color .2s;
+}
+.btn-ghost:hover{background:rgba(242,239,233,.1);border-color:rgba(242,239,233,.7)}
+.kicker{
+  font-family:var(--mono);font-size:12px;letter-spacing:.28em;
+  text-transform:uppercase;color:var(--accent);
+}
+.view{animation:sbtFade .5s ease both}
+.view[hidden]{display:none}
+
+/* ---------- Home : diaporama ---------- */
+.hero{position:relative;height:100vh;min-height:660px;overflow:hidden;background:var(--bg)}
+.hero-layer{
+  position:absolute;inset:0;opacity:0;transition:opacity 1.1s ease;
+  background-size:cover;
+}
+.hero-layer.is-on{opacity:1}
+/* le dégradé doit tenir même sous une photo très claire : le texte reste lisible */
+.hero-veil{
+  position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(12,11,10,.45),transparent 22%,rgba(12,11,10,.18) 46%,rgba(12,11,10,.72) 72%,rgba(12,11,10,.96));
+}
+.hero-bar{
+  position:absolute;left:0;right:0;bottom:0;
+  display:flex;align-items:flex-end;justify-content:space-between;gap:40px;
+  padding:0 40px 46px;
+}
+.hero-copy{max-width:60%;text-shadow:0 2px 24px rgba(12,11,10,.65)}
+.hero-tag{margin-bottom:16px;text-shadow:0 1px 14px rgba(12,11,10,.95)}
+.hero-title{
+  font-weight:900;font-size:clamp(60px,10vw,144px);line-height:.84;
+  letter-spacing:-.03em;text-transform:uppercase;margin:0;
+}
+.hero-meta{margin-top:18px;font-size:15px;letter-spacing:.04em;color:rgba(242,239,233,.82)}
+.hero-cta{margin-top:26px;display:flex;gap:14px;flex-wrap:wrap}
+.hero-side{text-align:right;flex:none}
+.hero-nav{display:flex;align-items:center;justify-content:flex-end;gap:16px;margin-bottom:18px}
+.arrow{
+  background:rgba(242,239,233,.1);border:1px solid rgba(242,239,233,.25);
+  color:var(--ink);width:38px;height:38px;border-radius:100px;cursor:pointer;
+  font-size:15px;line-height:1;transition:background .2s;
+}
+.arrow:hover{background:rgba(242,239,233,.22)}
+.counter{font-family:var(--mono);font-size:13px;letter-spacing:.16em;color:rgba(242,239,233,.85)}
+.thumbs{display:flex;gap:10px}
+.thumb{
+  width:92px;height:58px;cursor:pointer;transition:all .3s ease;
+  border:2px solid rgba(242,239,233,.2);opacity:.5;padding:0;
+  background-size:cover;background-position:center;
+}
+.thumb.is-on{border-color:var(--accent);opacity:1}
+.progress{position:absolute;left:40px;right:40px;bottom:30px;display:flex;gap:8px}
+.progress span{flex:1;height:2px;background:rgba(242,239,233,.25);transition:background .4s ease}
+.progress span.is-on{background:var(--accent)}
+
+/* ---------- Travail : bandes ---------- */
+/* 186px = hauteur du header fixe (34+88+34) + 30, sinon le kicker passe dessous */
+.work-head{padding:186px 40px 34px}
+.work-head .kicker{display:block;margin-bottom:16px}
+.big-title{
+  margin:0;font-weight:900;font-size:clamp(48px,8vw,128px);line-height:.86;
+  letter-spacing:-.03em;text-transform:uppercase;
+}
+.band{
+  position:relative;height:60vh;min-height:400px;overflow:hidden;cursor:pointer;
+  border-top:1px solid rgba(242,239,233,.16);display:block;width:100%;
+  padding:0;background:none;border-left:none;border-right:none;border-bottom:none;
+  color:inherit;text-align:left;font:inherit;
+}
+.band-img{
+  position:absolute;inset:0;background-size:cover;background-position:center;
+  filter:brightness(.5);transition:transform 1s ease,filter .5s ease;
+}
+.band:hover .band-img,.band:focus-visible .band-img{transform:scale(1.05);filter:brightness(.72)}
+.band-veil{
+  position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to right,rgba(12,11,10,.5),transparent 60%);
+}
+.band-inner{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;
+  gap:32px;padding:0 48px;pointer-events:none;
+}
+.band-left{display:flex;align-items:center;gap:36px}
+.band-n{font-family:var(--mono);font-size:15px;letter-spacing:.14em;color:var(--accent)}
+.band-kicker{
+  font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+  color:rgba(242,239,233,.7);margin-bottom:10px;
+}
+.band-name{
+  font-weight:900;font-size:clamp(44px,7vw,96px);line-height:.9;
+  text-transform:uppercase;letter-spacing:-.02em;
+}
+.band-right{text-align:right;max-width:30%}
+.band-blurb{font-size:14px;line-height:1.55;color:rgba(242,239,233,.8);margin:0 0 16px}
+.tags{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.tag{
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(242,239,233,.85);border:1px solid rgba(242,239,233,.3);
+  border-radius:100px;padding:6px 13px;
+}
+
+/* ---------- Galerie ---------- */
+.gal-hero{position:relative;height:86vh;min-height:560px;overflow:hidden}
+.gal-img{position:absolute;inset:0;background-size:cover;background-position:center}
+.gal-veil{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,rgba(12,11,10,.45),transparent 35%,transparent 55%,rgba(12,11,10,.95));
+}
+.gal-bar{position:absolute;left:40px;right:40px;bottom:44px}
+.back{
+  background:none;border:none;color:rgba(242,239,233,.7);font-family:var(--mono);
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;
+  padding:0 0 14px;display:block;transition:color .2s;
+}
+.back:hover{color:var(--ink)}
+.gal-kicker{
+  font-family:var(--mono);font-size:12px;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:14px;
+}
+.gal-title{
+  margin:0;font-weight:900;font-size:clamp(48px,8vw,128px);line-height:.84;
+  text-transform:uppercase;letter-spacing:-.03em;
+}
+.chips{display:flex;gap:10px;flex-wrap:wrap;padding:24px 40px;border-bottom:1px solid rgba(242,239,233,.14)}
+.chip{
+  font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.1em;
+  text-transform:uppercase;cursor:pointer;padding:9px 18px;border-radius:100px;
+  border:1px solid rgba(242,239,233,.18);background:transparent;color:var(--muted);
+  transition:all .2s;
+}
+.chip:hover{color:var(--ink);border-color:rgba(242,239,233,.4)}
+.chip.is-on{border-color:var(--accent);background:var(--accent);color:var(--bg)}
+/* mosaïque : colonnes adaptatives, chaque photo garde ses proportions.
+   La hauteur est calée en JS (calerGrille) sur une trame de 8px. */
+.gal-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+  column-gap:18px;row-gap:0;grid-auto-rows:8px;align-items:start;
+  padding:26px 40px 10px;
+}
+.slot{
+  aspect-ratio:3/2;
+  background:repeating-linear-gradient(135deg,#141210,#141210 11px,#191715 11px,#191715 22px);
+  display:flex;align-items:center;justify-content:center;
+}
+.slot span{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:#5c574e}
+/* portrait comme paysage : l'image garde son format, la légende suit dessous */
+.gal-grid .ph{cursor:pointer;margin:0 0 18px}
+.gal-grid .ph img{width:100%;height:auto;display:block;background:#141210;transition:opacity .3s ease}
+.gal-grid .ph:hover img{opacity:.86}
+.gal-grid .slot{margin:0 0 18px}
+
+/* ---------- Lightbox ---------- */
+.lb{position:fixed;inset:0;z-index:100;background:rgba(12,11,10,.96);display:flex;align-items:center;justify-content:center}
+.lb[hidden]{display:none}
+.lb img{max-width:90vw;max-height:86vh;object-fit:contain}
+.lb .arrow{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px}
+.lb .lb-prev{left:22px}
+.lb .lb-next{right:22px}
+.lb .lb-x{top:24px;right:26px;left:auto;transform:none}
+.lb-count{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:rgba(242,239,233,.8)}
+.gal-foot{
+  display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  padding:28px 40px 70px;
+}
+.gal-foot p{margin:0;font-size:13px;color:var(--muted);max-width:44ch;line-height:1.6}
+
+/* ---------- Contact ---------- */
+.contact{position:relative;min-height:100vh;overflow:hidden}
+.contact-bg{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:brightness(.32) grayscale(.2);
+}
+.contact-veil{position:absolute;inset:0;background:linear-gradient(to right,rgba(12,11,10,.9),rgba(12,11,10,.55))}
+.contact-grid{
+  position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:56px;
+  padding:140px 48px 70px;min-height:100vh;align-items:center;
+}
+.contact-grid .kicker{display:block;margin-bottom:18px}
+.contact-title{
+  margin:0;font-weight:900;font-size:clamp(44px,7vw,108px);line-height:.86;
+  text-transform:uppercase;letter-spacing:-.03em;
+}
+.contact-lead{margin:26px 0 0;max-width:40ch;font-size:15px;line-height:1.65;color:rgba(242,239,233,.82)}
+.contact-mail{
+  display:block;font-weight:800;font-size:clamp(18px,2vw,28px);color:var(--ink);
+  text-decoration:none;letter-spacing:-.01em;
+}
+.contact-mail:hover{color:var(--accent)}
+.socials{margin-top:18px;display:flex;gap:16px}
+.socials a{
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(242,239,233,.75);text-decoration:none;
+  border-bottom:1px solid rgba(242,239,233,.3);padding-bottom:3px;transition:color .2s;
+}
+.socials a:hover{color:var(--ink)}
+.card{
+  background:rgba(20,18,16,.72);backdrop-filter:blur(6px);
+  border:1px solid rgba(242,239,233,.14);padding:36px;
+}
+.card form{display:flex;flex-direction:column;gap:14px}
+.card input,.card textarea{
+  width:100%;background:rgba(12,11,10,.6);border:1px solid rgba(242,239,233,.18);
+  color:var(--ink);font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s;
+}
+.card textarea{resize:vertical;min-height:120px}
+.card input:focus,.card textarea:focus{border-color:var(--accent)}
+.card button{align-self:flex-start;letter-spacing:.16em;padding:16px 32px}
+.card .note{margin:14px 0 0;font-size:11px;color:#8f8a80}
+.card .note.ok{color:var(--accent);font-size:13px;font-weight:600}
+.card .note.ko{color:#e2a03a;font-size:12px}
+.card button[disabled]{opacity:.5;cursor:default}
+
+/* ---------- Footer ---------- */
+.ftr{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  padding:26px 40px;border-top:1px solid var(--line);color:var(--muted);
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;background:var(--bg);
+}
+.ftr a{color:var(--muted);text-decoration:none}
+.ftr a:hover{color:var(--ink)}
+
+/* ---------- Journées d'une série ---------- */
+.journees{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;padding:26px 40px 10px}
+.jr{position:relative;display:block;width:100%;aspect-ratio:16/9;overflow:hidden;cursor:pointer;
+  border:none;padding:0;background:#141210;text-align:left;color:inherit;font:inherit}
+.jr img{width:100%;height:100%;object-fit:cover;filter:brightness(.5);transition:transform .8s ease,filter .4s ease}
+.jr:hover img,.jr:focus-visible img{transform:scale(1.04);filter:brightness(.7)}
+.jr .veil{position:absolute;inset:0;background:linear-gradient(to top,rgba(12,11,10,.92),transparent 62%)}
+.jr .txt{position:absolute;left:0;right:0;bottom:0;padding:22px 26px}
+.jr .d{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.jr .t{font-weight:900;font-size:clamp(21px,2.5vw,36px);line-height:.98;text-transform:uppercase;letter-spacing:-.01em}
+.jr .n{margin-top:9px;font-size:12px;letter-spacing:.06em;color:rgba(242,239,233,.72)}
+.sect-lbl{padding:34px 40px 0;font-family:var(--mono);font-size:11px;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--muted)}
+
+/* ---------- Légendes ---------- */
+.ph figcaption{padding:9px 2px 0;font-size:12.5px;line-height:1.5;color:var(--muted)}
+.lb-leg{position:absolute;left:50%;transform:translateX(-50%);bottom:52px;max-width:70ch;
+  text-align:center;font-size:13.5px;line-height:1.6;color:rgba(242,239,233,.9);padding:0 20px}
+
+/* ---------- À propos ---------- */
+.apropos{display:grid;grid-template-columns:.85fr 1.15fr;gap:56px;padding:186px 40px 80px;align-items:start}
+.apropos-photo{width:100%;aspect-ratio:4/5;object-fit:cover;background:#141210}
+.apropos-txt p{font-size:16px;line-height:1.75;color:rgba(242,239,233,.86);margin:0 0 18px;max-width:62ch}
+.apropos-txt p:first-of-type{font-size:19px;color:var(--ink)}
+
+/* ---------- Prestations ---------- */
+.presta{padding:186px 40px 30px}
+.presta-lead{margin:22px 0 0;max-width:62ch;font-size:16px;line-height:1.7;color:rgba(242,239,233,.84)}
+.offres{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:34px 40px 30px}
+.offre{border:1px solid var(--line);padding:28px 26px;display:flex;flex-direction:column;gap:12px}
+.offre h3{margin:0;font-size:19px;font-weight:800;letter-spacing:-.01em}
+.offre .prix{font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:var(--accent)}
+.offre p{margin:0;font-size:14px;line-height:1.6;color:rgba(242,239,233,.78)}
+.presta-fin{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  padding:10px 40px 80px}
+.presta-fin p{margin:0;font-size:14px;color:var(--muted)}
+
+/* ---------- Responsive ---------- */
+@media (max-width:900px){
+  .hdr{padding:16px 20px;gap:14px}
+  .hdr-logo{height:52px}
+  .hdr-baseline{display:none}
+  .hdr-nav{gap:18px}
+  .navlink{font-size:10px;letter-spacing:.14em}
+
+  .hero{height:100svh;min-height:560px}
+  .hero-bar{flex-direction:column;align-items:flex-start;gap:26px;padding:0 20px 44px}
+  .hero-copy{max-width:100%}
+  .hero-side{text-align:left;width:100%}
+  .hero-nav{justify-content:flex-start}
+  .thumb{width:64px;height:42px}
+  .progress{left:20px;right:20px;bottom:22px}
+
+  .work-head{padding:100px 20px 24px}
+  .band{height:auto;min-height:0}
+  .band-inner{
+    position:relative;inset:auto;flex-direction:column;align-items:flex-start;
+    gap:18px;padding:34px 20px;
+  }
+  .band-left{gap:18px}
+  .band-right{text-align:left;max-width:100%}
+  .tags{justify-content:flex-start}
+
+  .gal-hero{height:56vh;min-height:320px}
+  .gal-bar{left:20px;right:20px;bottom:28px}
+  .chips{padding:18px 20px}
+  .gal-grid{grid-template-columns:1fr;padding:20px 20px 0}
+  .gal-foot{padding:24px 20px 56px}
+
+  .contact-grid{grid-template-columns:1fr;gap:34px;padding:100px 20px 60px}
+  .card{padding:24px}
+
+  .ftr{padding:20px;gap:10px;font-size:10px}
+
+  .journees{grid-template-columns:1fr;padding:20px 20px 0}
+  .sect-lbl{padding:26px 20px 0}
+  .apropos{grid-template-columns:1fr;gap:28px;padding:110px 20px 60px}
+  .apropos-photo{aspect-ratio:3/2}
+  .presta{padding:110px 20px 20px}
+  .offres{grid-template-columns:1fr;padding:24px 20px 20px}
+  .presta-fin{padding:10px 20px 60px}
+  .lb-leg{bottom:46px;font-size:12.5px}
+}
+@media (max-width:600px){
+  /* les clamp du design ont un plancher pensé pour le desktop : on le rabaisse */
+  .hero-title,.big-title,.gal-title{font-size:clamp(34px,11vw,60px)}
+  .band-name{font-size:clamp(32px,9vw,52px)}
+  .contact-title{font-size:clamp(32px,10vw,60px)}
+  .hero-cta .btn-accent,.hero-cta .btn-ghost{padding:14px 20px;font-size:11px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <button class="hdr-brand" data-go="home" aria-label="SHOOTBYTHEO — à la une">
+    <img class="hdr-logo" src="image/logo.png" alt="SHOOTBYTHEO">
+    <span class="hdr-baseline">Sport · Documentaire</span>
+  </button>
+  <nav class="hdr-nav">
+    <button class="navlink" data-go="home">À la une</button>
+    <button class="navlink" data-go="travail">Travail</button>
+    <button class="navlink" data-go="prestations" id="navPresta" hidden>Prestations</button>
+    <button class="navlink" data-go="a-propos" id="navApropos" hidden>À propos</button>
+    <button class="navlink" data-go="contact">Contact</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ============== HOME : DIAPORAMA IMMERSIF ============== -->
+  <section class="view" id="view-home">
+    <div class="hero">
+      <div id="heroLayers"></div>
+      <div class="hero-veil"></div>
+
+      <div class="hero-bar">
+        <div class="hero-copy">
+          <div class="kicker hero-tag" id="heroTag"></div>
+          <h1 class="hero-title" id="heroTitle"></h1>
+          <div class="hero-meta" id="heroMeta"></div>
+          <div class="hero-cta">
+            <button class="btn-accent" id="heroOpen">Voir la galerie →</button>
+            <a class="btn-ghost" href="https://urls.fr/mzLZHU" target="_blank" rel="noopener">Télécharger en HD ↓</a>
+          </div>
+        </div>
+        <div class="hero-side">
+          <div class="hero-nav">
+            <button class="arrow" id="prevSlide" aria-label="Image précédente">←</button>
+            <span class="counter" id="counter"></span>
+            <button class="arrow" id="nextSlide" aria-label="Image suivante">→</button>
+          </div>
+          <div class="thumbs" id="thumbs"></div>
+        </div>
+      </div>
+
+      <div class="progress" id="progress"></div>
+    </div>
+  </section>
+
+  <!-- ============== TRAVAIL : BANDES IMMERSIVES ============== -->
+  <section class="view" id="view-travail" hidden>
+    <div class="work-head">
+      <span class="kicker" id="workKicker">Portfolio</span>
+      <h1 class="big-title">Le Travail</h1>
+    </div>
+    <div id="bands"></div>
+  </section>
+
+  <!-- ============== GALERIE : PLEIN CADRE ============== -->
+  <section class="view" id="view-gallery" hidden>
+    <div class="gal-hero">
+      <div class="gal-img" id="galImg"></div>
+      <div class="gal-veil"></div>
+      <div class="gal-bar">
+        <button class="back" id="galBack">← Retour au travail</button>
+        <div class="gal-kicker" id="galKicker"></div>
+        <h1 class="gal-title" id="galTitle"></h1>
+      </div>
+    </div>
+    <div class="sect-lbl" id="galLbl" hidden></div>
+    <div class="journees" id="galJournees" hidden></div>
+    <div class="sect-lbl" id="galLbl2" hidden></div>
+    <div class="gal-grid" id="galGrid"></div>
+    <div class="gal-foot">
+      <p>La galerie complète en haute définition est disponible au téléchargement.</p>
+      <a class="btn-accent" id="galHD" href="#" target="_blank" rel="noopener">Télécharger en HD ↓</a>
+    </div>
+  </section>
+
+  <!-- ============== À PROPOS ============== -->
+  <section class="view" id="view-a-propos" hidden>
+    <div class="apropos">
+      <img class="apropos-photo" id="aproposPhoto" alt="" hidden>
+      <div class="apropos-txt">
+        <span class="kicker" style="display:block;margin-bottom:16px">Le photographe</span>
+        <h1 class="big-title" id="aproposTitre" style="margin-bottom:28px">À propos</h1>
+        <div id="aproposTexte"></div>
+        <div style="margin-top:34px" class="hero-cta">
+          <button class="btn-accent" data-go="contact">Me contacter →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== PRESTATIONS ============== -->
+  <section class="view" id="view-prestations" hidden>
+    <div class="presta">
+      <span class="kicker">Travailler ensemble</span>
+      <h1 class="big-title" id="prestaTitre" style="margin-top:16px">Prestations</h1>
+      <p class="presta-lead" id="prestaIntro"></p>
+    </div>
+    <div class="offres" id="prestaOffres"></div>
+    <div class="presta-fin">
+      <p>Un besoin particulier ? Écrivez-moi, on en parle.</p>
+      <button class="btn-accent" data-go="contact">Demander un devis →</button>
+    </div>
+  </section>
+
+  <!-- ============== CONTACT : SUR IMAGE ============== -->
+  <section class="view contact" id="view-contact" hidden>
+    <img class="contact-bg" src="image/web/street.jpg" alt="" loading="lazy">
+    <div class="contact-veil"></div>
+    <div class="contact-grid">
+      <div>
+        <span class="kicker">Contact</span>
+        <h1 class="contact-title">Travaillons<br>ensemble</h1>
+        <p class="contact-lead">Prestation, reportage sportif, collaboration ou simple échange — écrivez-moi, je réponds vite.</p>
+        <div style="margin-top:36px">
+          <a class="contact-mail" href="mailto:contact@shootbytheo.com">contact@shootbytheo.com</a>
+          <div class="socials">
+            <a href="https://www.instagram.com/shootby.theo/" target="_blank" rel="noopener">Instagram</a>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <form action="https://formspree.io/f/xpznqkgb" method="POST" id="contactForm">
+          <input name="nom" placeholder="Nom" required>
+          <input name="email" type="email" placeholder="Adresse e-mail" required>
+          <input name="instagram" placeholder="Votre Instagram">
+          <textarea name="message" placeholder="Message" rows="5" required></textarea>
+          <input name="ville" placeholder="Ville">
+          <button class="btn-accent" type="submit" id="contactSend">Envoyer</button>
+        </form>
+        <p class="note" id="contactNote">Les messages sont envoyés à contact@shootbytheo.com</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="ftr">
+  <span>© 2026 SHOOTBYTHEO</span>
+  <a href="mailto:contact@shootbytheo.com">contact@shootbytheo.com</a>
+  <a href="https://www.instagram.com/shootby.theo/" target="_blank" rel="noopener">@shootby.theo</a>
+</footer>
+
+<div class="lb" id="lb" hidden>
+  <img id="lbImg" alt="">
+  <div class="lb-leg" id="lbLeg"></div>
+  <button class="arrow lb-prev" id="lbPrev" aria-label="Photo précédente">←</button>
+  <button class="arrow lb-next" id="lbNext" aria-label="Photo suivante">→</button>
+  <button class="arrow lb-x" id="lbX" aria-label="Fermer">✕</button>
+  <div class="lb-count" id="lbCount"></div>
+</div>
+
+<script src="data.js"></script>
+<script>
+(function(){
+  'use strict';
+
+  /* ---------- Données (data.js, écrit par l'administration) ---------- */
+  var D      = window.SITE_DATA || {};
+  var SITE   = D.site || {};
+  var SERIES = D.series || [];
+  var SLIDES = (D.slides || []).slice();
+  var APROPOS = D.apropos || {};
+  var PRESTA  = D.prestations || {};
+  var idx = {};
+  SERIES.forEach(function(s){
+    s.albums = s.albums || [];
+    s.photos = s.photos || [];
+    idx[s.key] = s;
+  });
+
+  var $ = function(id){ return document.getElementById(id); };
+  var views = {
+    home:$('view-home'), travail:$('view-travail'), gallery:$('view-gallery'),
+    'a-propos':$('view-a-propos'), prestations:$('view-prestations'), contact:$('view-contact')
+  };
+  function pad2(n){ return ('0' + n).slice(-2); }
+  function vide(el){ while (el.firstChild) el.removeChild(el.firstChild); }
+
+  var MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août',
+              'septembre','octobre','novembre','décembre'];
+  function dateLisible(iso){
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+    if (!m) return '';
+    return parseInt(m[3], 10) + ' ' + MOIS[parseInt(m[2], 10) - 1] + ' ' + m[1];
+  }
+
+  /* ---------- Mosaïque : chaque photo occupe la hauteur qu'il lui faut ----------
+     La grille avance par tranches de 8px ; on dit à chaque photo combien de
+     tranches elle occupe, une fois sa hauteur réelle connue. */
+  var TRANCHE = 8, INTERLIGNE = 18, minuteurCale = null;
+  function calerGrille(){
+    var g = $('galGrid');
+    if (!g) return;
+    [].forEach.call(g.children, function(item){
+      var h = item.getBoundingClientRect().height;
+      if (!h) return;
+      item.style.gridRowEnd = 'span ' + Math.ceil((h + INTERLIGNE) / TRANCHE);
+    });
+  }
+  function calerBientot(){
+    clearTimeout(minuteurCale);
+    minuteurCale = setTimeout(calerGrille, 60);
+  }
+  window.addEventListener('resize', calerBientot);
+
+  /* ---------- Lecture du modèle ---------- */
+  function photosDe(s, albumId){
+    return s.photos.filter(function(p){ return (p.album || '') === albumId; });
+  }
+  function albumsRemplis(s){          // journées listées : celles qui ont des photos
+    return s.albums.filter(function(a){ return !a.prive && photosDe(s, a.id).length; });
+  }
+  function albumDe(s, id){
+    return s.albums.filter(function(a){ return a.id === id; })[0];
+  }
+  function couvertureAlbum(s, a){
+    if (a && a.cover) return a.cover;
+    var ph = photosDe(s, a ? a.id : '');
+    return (ph[0] && ph[0].src) || s.cover || '';
+  }
+  function seriesPubliques(){
+    return SERIES.filter(function(s){ return s.travail && !s.prive; });
+  }
+
+  /* ---------- État ---------- */
+  var etat = { page:'home', slide:0, serie:'', album:'' };
+  var chrono = null;
+  var sobre = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Réglages du site ---------- */
+  (function reglages(){
+    if (SITE.baseline) document.querySelector('.hdr-baseline').textContent = SITE.baseline;
+    if (SITE.email){
+      document.querySelectorAll('a[href^="mailto:"]').forEach(function(a){
+        a.href = 'mailto:' + SITE.email;
+        if (a.textContent.indexOf('@') > -1) a.textContent = SITE.email;
+      });
+      var note = $('contactNote');
+      if (note) note.textContent = 'Les messages sont envoyés à ' + SITE.email;
+    }
+    if (SITE.instagram){
+      document.querySelectorAll('a[href*="instagram.com"]').forEach(function(a){ a.href = SITE.instagram; });
+    }
+    if (SITE.lienHD){
+      document.querySelectorAll('.btn-ghost[href], #galHD').forEach(function(a){ a.href = SITE.lienHD; });
+    }
+    $('navApropos').hidden = !APROPOS.actif;
+    $('navPresta').hidden  = !PRESTA.actif;
+  })();
+
+  /* ================= ACCUEIL : diaporama ================= */
+  var couches = [], vignettes = [], segments = [];
+
+  SLIDES.forEach(function(sl, i){
+    var s = idx[sl.serie];
+    if (!sl.img && s) sl.img = couvertureAlbum(s, albumDe(s, sl.album || ''));
+
+    var c = document.createElement('div');
+    c.className = 'hero-layer';
+    c.style.backgroundImage = "url('" + sl.img + "')";
+    c.style.backgroundPosition = sl.pos || 'center';
+    $('heroLayers').appendChild(c);
+    couches.push(c);
+
+    var v = document.createElement('button');
+    v.className = 'thumb';
+    v.style.backgroundImage = "url('" + sl.img + "')";
+    v.setAttribute('aria-label', sl.title || '');
+    v.addEventListener('click', function(){ allerSlide(i); });
+    $('thumbs').appendChild(v);
+    vignettes.push(v);
+
+    var g = document.createElement('span');
+    $('progress').appendChild(g);
+    segments.push(g);
+  });
+
+  function peindreSlide(){
+    var sl = SLIDES[etat.slide];
+    if (!sl) return;
+    $('heroTag').textContent = sl.tag || '';
+    $('heroTitle').textContent = sl.title || '';
+    $('heroMeta').textContent = sl.meta || '';
+    $('counter').textContent = pad2(etat.slide + 1) + ' / ' + pad2(SLIDES.length);
+    couches.forEach(function(el, i){ el.classList.toggle('is-on', i === etat.slide); });
+    vignettes.forEach(function(el, i){ el.classList.toggle('is-on', i === etat.slide); });
+    segments.forEach(function(el, i){ el.classList.toggle('is-on', i <= etat.slide); });
+  }
+  function allerSlide(i){
+    etat.slide = (i + SLIDES.length) % SLIDES.length;
+    peindreSlide();
+    lancerChrono();
+  }
+  function lancerChrono(){
+    clearInterval(chrono);
+    if (sobre || etat.page !== 'home' || SLIDES.length < 2) return;
+    chrono = setInterval(function(){
+      etat.slide = (etat.slide + 1) % SLIDES.length;
+      peindreSlide();
+    }, 6000);
+  }
+
+  $('nextSlide').addEventListener('click', function(){ allerSlide(etat.slide + 1); });
+  $('prevSlide').addEventListener('click', function(){ allerSlide(etat.slide - 1); });
+  $('heroOpen').addEventListener('click', function(){
+    var sl = SLIDES[etat.slide];
+    if (sl) aller('serie/' + sl.serie + (sl.album ? '/' + sl.album : ''));
+  });
+
+  /* ================= TRAVAIL : bandes ================= */
+  (function bandes(){
+    var pubs = seriesPubliques();
+    $('workKicker').textContent = 'Portfolio · ' + pubs.length
+      + (pubs.length > 1 ? ' séries' : ' série');
+    pubs.forEach(function(s, i){
+      var nbJ = albumsRemplis(s).length;
+      var bande = document.createElement('button');
+      bande.className = 'band';
+      bande.innerHTML =
+        '<div class="band-img"></div><div class="band-veil"></div>' +
+        '<div class="band-inner"><div class="band-left">' +
+        '<span class="band-n"></span><div><div class="band-kicker"></div><div class="band-name"></div></div>' +
+        '</div><div class="band-right"><p class="band-blurb"></p><div class="tags"></div></div></div>';
+      if (s.cover) bande.querySelector('.band-img').style.backgroundImage = "url('" + s.cover + "')";
+      bande.querySelector('.band-n').textContent = pad2(i + 1);
+      bande.querySelector('.band-kicker').textContent = s.kicker || '';
+      bande.querySelector('.band-name').textContent = s.title || '';
+      bande.querySelector('.band-blurb').textContent = s.blurb || '';
+      var tags = bande.querySelector('.tags');
+      if (nbJ){
+        var t = document.createElement('span');
+        t.className = 'tag';
+        t.textContent = nbJ + (nbJ > 1 ? ' journées' : ' journée');
+        tags.appendChild(t);
+      }
+      var nb = s.photos.length;
+      if (nb){
+        var t2 = document.createElement('span');
+        t2.className = 'tag';
+        t2.textContent = nb + (nb > 1 ? ' photos' : ' photo');
+        tags.appendChild(t2);
+      }
+      bande.addEventListener('click', function(){ aller('serie/' + s.key); });
+      $('bands').appendChild(bande);
+    });
+  })();
+
+  /* ================= GALERIE ================= */
+  var photosCourantes = [], iLb = 0;
+
+  function peindreGalerie(){
+    var s = idx[etat.serie];
+    if (!s) return aller('travail');
+    var a = etat.album ? albumDe(s, etat.album) : null;
+    var journees = albumsRemplis(s);
+    var libres = photosDe(s, '');
+
+    /* en-tête */
+    var couv = a ? couvertureAlbum(s, a) : (s.cover || couvertureAlbum(s, journees[0]));
+    $('galImg').style.backgroundImage = couv ? "url('" + couv + "')" : 'none';
+    $('galKicker').textContent = a
+      ? (dateLisible(a.date) || s.title)
+      : (s.kicker || '');
+    $('galTitle').textContent = a ? a.titre : (s.title || '');
+    $('galBack').textContent = a ? '← ' + s.title : '← Retour au travail';
+    $('galBack').onclick = function(){ aller(a ? 'serie/' + s.key : 'travail'); };
+
+    /* corps */
+    var listeJ = $('galJournees'), lbl = $('galLbl'), lbl2 = $('galLbl2'), grille = $('galGrid');
+    vide(listeJ); vide(grille);
+    lbl2.hidden = true;
+
+    if (!a && journees.length){
+      lbl.hidden = false;
+      lbl.textContent = journees.length + (journees.length > 1 ? ' journées' : ' journée');
+      listeJ.hidden = false;
+      journees.forEach(function(j){
+        var n = photosDe(s, j.id).length;
+        var carte = document.createElement('button');
+        carte.className = 'jr';
+        carte.innerHTML = '<img loading="lazy"><div class="veil"></div><div class="txt">' +
+          '<div class="d"></div><div class="t"></div><div class="n"></div></div>';
+        carte.querySelector('img').src = couvertureAlbum(s, j);
+        carte.querySelector('img').alt = j.titre;
+        carte.querySelector('.d').textContent = dateLisible(j.date) || 'Série';
+        carte.querySelector('.t').textContent = j.titre;
+        carte.querySelector('.n').textContent = n + (n > 1 ? ' photos' : ' photo');
+        carte.addEventListener('click', function(){ aller('serie/' + s.key + '/' + j.id); });
+        listeJ.appendChild(carte);
+      });
+      photosCourantes = libres;
+      if (libres.length){
+        lbl2.hidden = false;
+        lbl2.textContent = libres.length + ' autres photos';
+      }
+    } else {
+      lbl.hidden = true;
+      listeJ.hidden = true;
+      photosCourantes = a ? photosDe(s, a.id) : s.photos.slice();
+    }
+
+    if (photosCourantes.length){
+      photosCourantes.forEach(function(p, i){
+        var fig = document.createElement('figure');
+        fig.className = 'ph';
+        fig.style.margin = '0';
+        var im = document.createElement('img');
+        im.loading = 'lazy';
+        /* proportions connues d'avance : la mosaïque est juste dès le premier rendu */
+        if (p.w && p.h) im.style.aspectRatio = p.w + ' / ' + p.h;
+        im.src = p.src;
+        im.alt = p.legende || (a ? a.titre : s.title);
+        im.addEventListener('load', calerBientot);
+        fig.appendChild(im);
+        if (p.legende){
+          var lg = document.createElement('figcaption');
+          lg.textContent = p.legende;
+          fig.appendChild(lg);
+        }
+        fig.addEventListener('click', function(){ ouvrirLb(i); });
+        grille.appendChild(fig);
+      });
+    } else if (!journees.length || a){
+      for (var i = 0; i < 6; i++){
+        var slot = document.createElement('div');
+        slot.className = 'slot';
+        slot.innerHTML = '<span>SBT · À VENIR</span>';
+        grille.appendChild(slot);
+      }
+    }
+  }
+  /* ================= Visionneuse ================= */
+  function ouvrirLb(i){
+    iLb = i;
+    peindreLb();
+    $('lb').hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function fermerLb(){
+    $('lb').hidden = true;
+    document.body.style.overflow = '';
+  }
+  function pasLb(d){
+    if (!photosCourantes.length) return;
+    iLb = (iLb + d + photosCourantes.length) % photosCourantes.length;
+    peindreLb();
+  }
+  function peindreLb(){
+    var p = photosCourantes[iLb];
+    if (!p) return;
+    $('lbImg').src = p.src;
+    $('lbLeg').textContent = p.legende || '';
+    $('lbCount').textContent = pad2(iLb + 1) + ' / ' + pad2(photosCourantes.length);
+    $('lbPrev').hidden = $('lbNext').hidden = photosCourantes.length < 2;
+  }
+  $('lbPrev').addEventListener('click', function(){ pasLb(-1); });
+  $('lbNext').addEventListener('click', function(){ pasLb(1); });
+  $('lbX').addEventListener('click', fermerLb);
+  $('lb').addEventListener('click', function(e){ if (e.target === $('lb')) fermerLb(); });
+
+  document.addEventListener('keydown', function(e){
+    if (!$('lb').hidden){
+      if (e.key === 'Escape') fermerLb();
+      if (e.key === 'ArrowRight') pasLb(1);
+      if (e.key === 'ArrowLeft') pasLb(-1);
+      return;
+    }
+    if (etat.page !== 'home') return;
+    if (e.key === 'ArrowRight') allerSlide(etat.slide + 1);
+    if (e.key === 'ArrowLeft') allerSlide(etat.slide - 1);
+  });
+
+  /* ================= À propos & prestations ================= */
+  (function pages(){
+    if (APROPOS.actif){
+      $('aproposTitre').textContent = APROPOS.titre || 'À propos';
+      if (APROPOS.photo){
+        $('aproposPhoto').src = APROPOS.photo;
+        $('aproposPhoto').hidden = false;
+      }
+      var box = $('aproposTexte');
+      (APROPOS.texte || '').split(/\n\s*\n/).forEach(function(par){
+        if (!par.trim()) return;
+        var p = document.createElement('p');
+        p.textContent = par.trim();
+        box.appendChild(p);
+      });
+    }
+    if (PRESTA.actif){
+      $('prestaTitre').textContent = PRESTA.titre || 'Prestations';
+      $('prestaIntro').textContent = PRESTA.intro || '';
+      (PRESTA.offres || []).forEach(function(o){
+        var d = document.createElement('div');
+        d.className = 'offre';
+        d.innerHTML = '<h3></h3><div class="prix"></div><p></p>';
+        d.querySelector('h3').textContent = o.titre || '';
+        d.querySelector('.prix').textContent = o.prix || '';
+        d.querySelector('p').textContent = o.texte || '';
+        $('prestaOffres').appendChild(d);
+      });
+    }
+  })();
+
+  /* ================= Formulaire de contact ================= */
+  var form = $('contactForm'), note = $('contactNote'), envoi = $('contactSend');
+  var noteTxt = note.textContent;
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    envoi.disabled = true;
+    envoi.textContent = 'Envoi…';
+    note.className = 'note';
+    note.textContent = noteTxt;
+    fetch(form.action, { method:'POST', body:new FormData(form), headers:{ Accept:'application/json' } })
+      .then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(){
+        form.reset();
+        note.className = 'note ok';
+        note.textContent = '✓ Message envoyé — merci, je vous réponds vite.';
+        envoi.textContent = 'Envoyer';
+      })
+      .catch(function(){
+        note.className = 'note ko';
+        note.innerHTML = 'L\'envoi a échoué. Écrivez-moi directement à ' +
+          '<a href="mailto:' + (SITE.email || '') + '" style="color:inherit">' + (SITE.email || '') + '</a>.';
+        envoi.textContent = 'Réessayer';
+      })
+      .then(function(){ envoi.disabled = false; });
+  });
+
+  /* ================= Navigation ================= */
+  var TITRE = 'SHOOTBYTHEO';
+  function majTitre(){
+    var t = '';
+    if (etat.page === 'travail') t = 'Le Travail';
+    else if (etat.page === 'contact') t = 'Contact';
+    else if (etat.page === 'a-propos') t = APROPOS.titre || 'À propos';
+    else if (etat.page === 'prestations') t = PRESTA.titre || 'Prestations';
+    else if (etat.page === 'gallery'){
+      var s = idx[etat.serie];
+      var a = s && etat.album ? albumDe(s, etat.album) : null;
+      t = a ? a.titre + ' · ' + s.title : (s ? s.title : '');
+    }
+    document.title = t ? t + ' · ' + TITRE : TITRE + ' — Photographie sport & documentaire';
+  }
+
+  function aller(route){
+    if (('#/' + route) === window.location.hash) return appliquer();
+    window.location.hash = '#/' + route;
+  }
+  document.querySelectorAll('[data-go]').forEach(function(el){
+    el.addEventListener('click', function(){ aller(el.getAttribute('data-go')); });
+  });
+
+  function appliquer(){
+    /* __ROUTE__ est posé par les pages générées à la publication (adresses réelles) */
+    var route = (window.location.hash || '#/' + (window.__ROUTE__ || '')).replace(/^#\/?/, '');
+    var bouts = route.split('/');
+
+    if (bouts[0] === 'travail') etat.page = 'travail';
+    else if (bouts[0] === 'contact') etat.page = 'contact';
+    else if (bouts[0] === 'a-propos' && APROPOS.actif) etat.page = 'a-propos';
+    else if (bouts[0] === 'prestations' && PRESTA.actif) etat.page = 'prestations';
+    else if (bouts[0] === 'serie' && idx[bouts[1]]){
+      etat.page = 'gallery';
+      etat.serie = bouts[1];
+      etat.album = (bouts[2] && albumDe(idx[bouts[1]], bouts[2])) ? bouts[2] : '';
+    }
+    else etat.page = 'home';
+
+    fermerLb();
+    Object.keys(views).forEach(function(k){ if (views[k]) views[k].hidden = (k !== etat.page); });
+    document.querySelectorAll('.navlink').forEach(function(el){
+      var cible = el.getAttribute('data-go');
+      el.classList.toggle('is-active', cible === etat.page ||
+        (etat.page === 'gallery' && cible === 'travail'));
+    });
+
+    if (etat.page === 'gallery'){ peindreGalerie(); calerBientot(); }
+    majTitre();
+    lancerChrono();
+    window.scrollTo(0, 0);
+  }
+
+  window.addEventListener('hashchange', appliquer);
+  peindreSlide();
+  appliquer();
+})();
+</script>
+
+</body>
+</html>

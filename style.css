@@ -1,0 +1,751 @@
+/* --- Fichier de style global --- */
+/* Contient :
+   - style page principale "À la une" (header, grille catégorie, logos)
+   - style galeries (gallery-hero, gallery-grid)
+   - responsive pour mobile / tablette
+   - styles contact / boutons
+*/
+
+/* --- Styles Généraux --- */
+body {
+    background-color: #000000; /* Fond noir total */
+    color: #ffffff; /* Texte blanc */
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Police minimaliste type Adobe */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* --- Header / Logo --- */
+header {
+    text-align: center;
+    padding: 40px 0;
+}
+
+header h1 {
+    font-size: 24px;
+    font-weight: 300;
+    letter-spacing: 4px; /* Espacement des lettres comme sur tes captures */
+    text-transform: uppercase;
+    margin: 0;
+}
+
+/* --- Menu de Navigation --- */
+nav ul {
+    list-style: none;
+    padding: 0;
+    text-align: center;
+    margin-top: 20px;
+}
+
+nav ul li {
+    display: inline;
+    margin: 0 15px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #aaaaaa; /* Gris clair par défaut */
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 2px;
+    transition: color 0.3s ease;
+}
+
+nav ul li a:hover, nav ul li a.active {
+    color: #ffffff; /* Blanc au survol et page active */
+}
+
+/* --- Grille de Portfolio (Page Accueil) --- */
+.portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Responsive */
+    gap: 10px; /* Petit espace entre les photos */
+    padding: 10px;
+}
+
+/* --- Liens Portfolio --- */
+.portfolio-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.portfolio-item {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 1 / 1; /* Force les carrés */
+}
+
+.portfolio-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Remplit le carré sans déformer */
+    transition: transform 0.5s ease;
+}
+
+/* Effet de zoom au survol (Hover) */
+.portfolio-item:hover img {
+    transform: scale(1.05);
+}
+
+/* Texte au survol (Ex: "JUDO 2026") */
+.portfolio-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Fond noir semi-transparent */
+    color: #ffffff;
+    padding: 15px;
+    text-align: center;
+    opacity: 0; /* Caché par défaut */
+    transition: opacity 0.3s ease;
+}
+
+.portfolio-item:hover .portfolio-overlay {
+    opacity: 1; /* Visible au survol */
+}
+
+.portfolio-overlay h3 {
+    margin: 0;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* --- Page Contact --- */
+.contact-container {
+    display: flex;
+    justify-content: center;
+    padding: 50px;
+}
+
+.contact-form {
+    flex: 1;
+    max-width: 600px;
+}
+
+.contact-info {
+    flex: 1;
+    max-width: 400px;
+    padding-left: 50px;
+    text-align: right; /* Aligné à droite comme sur ta capture */
+}
+
+/* Formulaire Styles */
+.contact-form input, .contact-form textarea, .contact-form select {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #1a1a1a; /* Fond gris très sombre */
+    border: 1px solid #333333; /* Bordure discrète */
+    color: #ffffff;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.contact-form button {
+    background-color: #ffffff;
+    color: #000000;
+    border: none;
+    padding: 15px 30px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.contact-form button:hover {
+    background-color: #aaaaaa;
+}
+
+/* --- Boutons Catégories / Sous-catégories --- */
+.category-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 40px 20px;
+}
+
+.category-button {
+    display: inline-block;
+    padding: 18px 40px;
+    border: 2px solid #ffffff;
+    border-radius: 40px;
+    text-decoration: none;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-size: 15px;
+    letter-spacing: 2px;
+    font-weight: 300;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.category-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+    z-index: -1;
+    transition: left 0.4s ease;
+}
+
+.category-button:hover {
+    color: #000000;
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+}
+
+.category-button:hover::before {
+    left: 0;
+}
+
+/* --- Boutons Arrondis (Navigation dans les catégories) --- */
+.button-navigation {
+    text-align: center;
+    padding: 30px 0;
+}
+
+.btn-rounded {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 10px;
+    border: 2px solid #ffffff;
+    border-radius: 25px; /* Arrondi */
+    text-decoration: none;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-rounded:hover {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+/* --- Bouton Téléchargement --- */
+.download-section {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.btn-download {
+    display: inline-block;
+    padding: 15px 30px;
+    border: 2px solid #ffffff;
+    border-radius: 30px;
+    text-decoration: none;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-size: 16px;
+    letter-spacing: 2px;
+    font-weight: 300;
+    transition: all 0.3s ease;
+}
+
+.btn-download:hover {
+    background-color: #ffffff;
+    color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
+}
+
+/* --- Logo Principal --- */
+.logo-section {
+    text-align: center;
+    padding: 5px 20px 10px;
+}
+
+.main-logo {
+    max-width: 120px;
+    height: auto;
+    filter: brightness(0) invert(1); /* Rend le logo blanc si il est noir */
+}
+
+/* --- Catégories Dernières publications --- */
+.hero-title {
+    text-align: center;
+    padding: 10px 20px 15px;
+}
+.hero-title h2 {
+    font-size: 28px;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.gallery-hero {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 140px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.8);
+    border-bottom: 1px solid #ffffff;
+}
+.gallery-hero h2 {
+    color: #ffffff;
+    margin: 0;
+    font-size: 32px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 15px;
+    padding: 25px 15px 30px;
+}
+
+.gallery-item {
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.05);
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+    padding: 30px 10px 30px;
+}
+
+.category-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    min-height: 200px;
+}
+
+.category-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.category-card:hover img {
+    transform: scale(1.05);
+}
+
+.category-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.7); /* Fond blanc semi-transparent */
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+.category-card:hover .category-overlay {
+    opacity: 1;
+}
+
+.category-overlay h3 {
+    margin: 0;
+    font-size: 24px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #000000;
+    text-align: center;
+}
+
+/* --- Responsive (Mobile & Tablet) --- */
+
+/* Ultra petit écran (moins de 320px) */
+@media (max-width: 319px) {
+    body {
+        font-size: 13px;
+    }
+
+    header h1 {
+        font-size: 14px;
+        letter-spacing: 0.5px;
+    }
+
+    nav ul li a {
+        font-size: 10px;
+        padding: 6px 8px;
+    }
+
+    .category-card {
+        min-height: 140px;
+    }
+
+    .category-overlay h3 {
+        font-size: 12px;
+    }
+
+    .hero-title h2 {
+        font-size: 16px;
+    }
+
+    .btn-download {
+        padding: 8px 12px;
+        font-size: 10px;
+        max-width: 250px;
+    }
+
+    .main-logo {
+        max-width: 50px;
+    }
+}
+
+/* Très petit écran (320px - 480px) */
+@media (max-width: 480px) {
+    /* Overlay toujours visible sur mobile */
+    .category-overlay {
+        opacity: 1 !important;
+    }
+
+    .category-card:hover .category-overlay {
+        opacity: 1;
+    }
+
+    body {
+        font-size: 14px;
+    }
+
+    header {
+        padding: 15px 0;
+    }
+
+    header h1 {
+        font-size: 16px;
+        letter-spacing: 1px;
+    }
+
+    nav ul {
+        text-align: center;
+        padding: 0;
+    }
+
+    nav ul li {
+        display: block;
+        margin: 5px 0;
+        padding: 0;
+    }
+
+    nav ul li a {
+        font-size: 11px;
+        padding: 8px 12px;
+        display: inline-block;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    nav ul li a:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .portfolio-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .category-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 15px 8px 15px;
+    }
+
+    .category-card {
+        min-height: 160px;
+    }
+
+    .category-overlay h3 {
+        font-size: 14px;
+        letter-spacing: 0.5px;
+    }
+
+    .hero-title {
+        padding: 8px 15px 8px;
+    }
+
+    .hero-title h2 {
+        font-size: 18px;
+        letter-spacing: 1px;
+    }
+
+    .download-section {
+        padding: 15px 8px;
+    }
+
+    .btn-download {
+        padding: 10px 16px;
+        font-size: 11px;
+        letter-spacing: 0.5px;
+        display: block;
+        margin: 0 auto;
+        max-width: 280px;
+    }
+
+    .contact-container {
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    .contact-form, .contact-info {
+        max-width: 100%;
+        padding-left: 0;
+    }
+
+    .contact-form input, .contact-form textarea {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .contact-form button {
+        padding: 12px 24px;
+        font-size: 14px;
+    }
+
+    .main-logo {
+        max-width: 60px;
+    }
+
+    .logo-section {
+        padding: 10px 15px 5px;
+    }
+}
+
+/* Petit écran (481px - 768px) */
+@media (max-width: 768px) {
+    /* Overlay toujours visible sur tablette petite */
+    .category-overlay {
+        opacity: 1 !important;
+    }
+
+    .category-card:hover .category-overlay {
+        opacity: 1;
+    }
+
+    body {
+        font-size: 15px;
+    }
+
+    header {
+        padding: 20px 0;
+    }
+
+    header h1 {
+        font-size: 18px;
+        letter-spacing: 2px;
+    }
+
+    nav ul li {
+        display: inline-block;
+        margin: 0 8px;
+    }
+
+    nav ul li a {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    .portfolio-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 15px;
+        padding: 20px 10px 20px;
+    }
+
+    .category-card {
+        min-height: 180px;
+    }
+
+    .category-overlay h3 {
+        font-size: 16px;
+        letter-spacing: 1px;
+    }
+
+    .hero-title h2 {
+        font-size: 20px;
+    }
+
+    .download-section {
+        padding: 20px 10px;
+    }
+
+    .btn-download {
+        padding: 12px 20px;
+        font-size: 12px;
+        display: block;
+        margin: 0 auto;
+        max-width: 300px;
+    }
+
+    .contact-container {
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .contact-info {
+        padding-left: 0;
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .contact-form input, .contact-form textarea {
+        padding: 14px;
+    }
+
+    .main-logo {
+        max-width: 70px;
+    }
+
+    .logo-section {
+        padding: 15px 20px 10px;
+    }
+}
+
+/* Écran moyen (769px - 1024px) - Tablette */
+@media (min-width: 769px) and (max-width: 1024px) {
+    body {
+        font-size: 16px;
+    }
+
+    .portfolio-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 12px;
+        padding: 12px;
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 18px;
+        padding: 25px 15px 25px;
+    }
+
+    .category-card {
+        min-height: 200px;
+    }
+
+    .contact-container {
+        padding: 30px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .main-logo {
+        max-width: 100px;
+    }
+}
+
+/* Grand écran (1025px - 1440px) - Desktop */
+@media (min-width: 1025px) and (max-width: 1440px) {
+    body {
+        font-size: 16px;
+    }
+
+    .portfolio-grid {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        padding: 30px 20px 30px;
+    }
+
+    .category-card {
+        min-height: 220px;
+    }
+
+    .contact-container {
+        padding: 40px;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .main-logo {
+        max-width: 120px;
+    }
+}
+
+/* Très grand écran (1441px+) - Desktop large */
+@media (min-width: 1441px) {
+    body {
+        font-size: 17px;
+    }
+
+    .portfolio-grid {
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        gap: 20px;
+        padding: 20px;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 25px;
+        padding: 40px 30px 40px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .category-card {
+        min-height: 250px;
+    }
+
+    .contact-container {
+        padding: 50px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .main-logo {
+        max-width: 150px;
+    }
+
+    header {
+        padding: 50px 0;
+    }
+
+    .hero-title {
+        padding: 50px 40px 30px;
+    }
+
+    .download-section {
+        padding: 50px 40px;
+    }
+}

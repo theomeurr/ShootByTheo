@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+._*
+
+# Dossiers de travail locaux
+image/corbeille/
+_sauvegarde-*/
+
+# Photos originales pleine résolution (5568 × 3712).
+# Elles ne servent pas au site — seules les versions web de image/web/
+# et image/galerie/ sont affichées — et ce dépôt est public : les publier
+# reviendrait à distribuer gratuitement ce que vend le bouton « HD ».
+# Elles restent sur le disque, à sauvegarder ailleurs.
+image/*.jpg
+image/*.jpeg
+image/*.png
+!image/logo.png
+!image/favicon.png
