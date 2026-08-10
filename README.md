@@ -86,9 +86,17 @@ onglet *Secrets* :
 | `OVH_FTP_USERNAME` | même page — l'identifiant du compte FTP |
 | `OVH_FTP_PASSWORD` | défini à la création du compte FTP, réinitialisable depuis la même page |
 
-Si le domaine ne pointe pas vers `/www` mais vers un sous-dossier (mode
-multisite), ajoutez dans l'onglet *Variables* la variable `OVH_FTP_DIR` avec
-le chemin voulu, barre oblique finale comprise — par exemple `/www/shootbytheo/`.
+Le transfert se fait en **SFTP** : l'hébergement mutualisé OVH ne gère pas le
+FTPS, il refuse `AUTH TLS`. Deux réglages facultatifs, dans l'onglet
+*Variables* (et non *Secrets*) :
+
+| Variable | À définir si |
+|---|---|
+| `OVH_FTP_DIR` | le domaine pointe vers un sous-dossier plutôt que `/www` — indiquez le chemin, barre oblique finale comprise, par exemple `/www/shootbytheo/` |
+| `OVH_PROTOCOLE` | votre offre n'ouvre pas le SSH : mettez `ftp`. Les identifiants circulent alors en clair sur le réseau |
+
+Rien n'est supprimé sur le serveur : les fichiers de l'ancien site restent
+en place tant que vous ne les retirez pas vous-même par FTP.
 
 Côté OVH, activez le **certificat SSL gratuit** (Hébergements → Multisite) :
 le site force `https://` et l'adresse unique déclarée dans les réglages.

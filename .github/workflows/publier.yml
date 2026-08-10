@@ -49,18 +49,31 @@ jobs:
           test "$pages" -ge 5 || { echo "::error::trop peu de pages générées ($pages)"; exit 1; }
           test "$images" -ge 10 || { echo "::error::trop peu d'images ($images)"; exit 1; }
 
+      # L'hébergement mutualisé OVH ne gère pas le FTPS : il répond
+      # « 500 This security scheme is not implemented » à AUTH TLS. Le dépôt
+      # passe donc par SFTP, qui chiffre aussi bien la connexion.
+      # Si l'offre souscrite n'ouvre pas le SSH, basculez la variable
+      # OVH_PROTOCOLE sur « ftp » — au prix d'identifiants circulant en clair.
       - name: Déposer chez OVH
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.OVH_FTP_SERVER }}
-          username: ${{ secrets.OVH_FTP_USERNAME }}
-          password: ${{ secrets.OVH_FTP_PASSWORD }}
-          protocol: ftps
-          port: 21
-          local-dir: ./_site/
-          server-dir: ${{ vars.OVH_FTP_DIR || '/www/' }}
-          # Seuls les fichiers modifiés sont transférés : l'état du dernier
-          # dépôt est conservé sur le serveur dans ce fichier.
-          state-name: .publication-ovh.json
-          # Rien n'est supprimé sur le serveur sans une intervention explicite.
-          dangerous-clean-slate: false
+        env:
+          SERVEUR: ${{ secrets.OVH_FTP_SERVER }}
+          UTILISATEUR: ${{ secrets.OVH_FTP_USERNAME }}
+          LFTP_PASSWORD: ${{ secrets.OVH_FTP_PASSWORD }}
+          PROTOCOLE: ${{ vars.OVH_PROTOCOLE || 'sftp' }}
+          CIBLE: ${{ vars.OVH_FTP_DIR || '/www/' }}
+        run: |
+          set -e
+          test -n "$SERVEUR" || { echo "::error::le secret OVH_FTP_SERVER est vide"; exit 1; }
+          sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+          # --env-password : le mot de passe ne passe ni par la ligne de
+          # commande ni par le script, donc jamais par la liste des processus.
+          lftp --env-password -u "$UTILISATEUR" "$PROTOCOLE://$SERVEUR" <<LFTP
+            set cmd:fail-exit yes
+            set sftp:auto-confirm yes
+            set net:max-retries 3
+            set net:timeout 20
+            set ftp:ssl-allow no
+            # Sans --delete : rien n'est retiré du serveur sans intervention.
+            mirror --reverse --continue --verbose --parallel=4 _site/ "$CIBLE"
+            bye
+          LFTP
