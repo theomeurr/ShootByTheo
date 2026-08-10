@@ -60,7 +60,10 @@ jobs:
           UTILISATEUR: ${{ secrets.OVH_FTP_USERNAME }}
           LFTP_PASSWORD: ${{ secrets.OVH_FTP_PASSWORD }}
           PROTOCOLE: ${{ vars.OVH_PROTOCOLE || 'sftp' }}
-          CIBLE: ${{ vars.OVH_FTP_DIR || '/www/' }}
+          # Chemin relatif au dossier de connexion. En SFTP, « /www » désigne
+          # la racine du serveur, où ce dossier n'existe pas ; « www » vise
+          # bien le dossier web, et reste valable en FTP.
+          CIBLE: ${{ vars.OVH_FTP_DIR || 'www/' }}
         run: |
           set -e
           test -n "$SERVEUR" || { echo "::error::le secret OVH_FTP_SERVER est vide"; exit 1; }

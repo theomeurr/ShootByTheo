@@ -92,7 +92,7 @@ FTPS, il refuse `AUTH TLS`. Deux réglages facultatifs, dans l'onglet
 
 | Variable | À définir si |
 |---|---|
-| `OVH_FTP_DIR` | le domaine pointe vers un sous-dossier plutôt que `/www` — indiquez le chemin, barre oblique finale comprise, par exemple `/www/shootbytheo/` |
+| `OVH_FTP_DIR` | le domaine pointe vers un sous-dossier plutôt que `www` — indiquez le chemin **relatif au dossier de connexion**, barre oblique finale comprise, par exemple `www/shootbytheo/`. Un chemin commençant par `/` désignerait la racine du serveur et échouerait en SFTP |
 | `OVH_PROTOCOLE` | votre offre n'ouvre pas le SSH : mettez `ftp`. Les identifiants circulent alors en clair sur le réseau |
 
 Rien n'est supprimé sur le serveur : les fichiers de l'ancien site restent
