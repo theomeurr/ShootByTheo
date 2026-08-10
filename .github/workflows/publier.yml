@@ -1,0 +1,66 @@
+name: Publier sur OVH
+
+# Chaque fois que le contenu du site change sur « main », le dossier public est
+# régénéré puis déposé chez OVH par FTPS. Le déclenchement manuel est possible
+# depuis l'onglet Actions (bouton « Run workflow »).
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '*.command'
+      - 'admin/interface.html'
+      - 'admin/serveur.py'
+  workflow_dispatch:
+
+# Deux dépôts FTP simultanés laisseraient le site à moitié mis à jour.
+concurrency:
+  group: publier-ovh
+  cancel-in-progress: false
+
+jobs:
+  publier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Générer le dossier public
+        run: python3 admin/publier.py _site
+
+      - name: Vérifier avant de déposer
+        # Un site incomplet mis en ligne est pire qu'un déploiement échoué :
+        # on s'arrête ici plutôt que d'écraser la version en place.
+        run: |
+          set -e
+          for f in _site/index.html _site/data.js _site/robots.txt _site/.htaccess; do
+            test -s "$f" || { echo "::error::$f manquant ou vide"; exit 1; }
+          done
+          if ! test -s _site/sitemap.xml; then
+            echo "::error::sitemap.xml absent — l'adresse du site n'est pas renseignée dans data.js (site.domaine)."
+            exit 1
+          fi
+          pages=$(find _site -name index.html | wc -l)
+          images=$(find _site/image -type f | wc -l)
+          echo "$pages page(s), $images image(s), $(du -sh _site | cut -f1)"
+          test "$pages" -ge 5 || { echo "::error::trop peu de pages générées ($pages)"; exit 1; }
+          test "$images" -ge 10 || { echo "::error::trop peu d'images ($images)"; exit 1; }
+
+      - name: Déposer chez OVH
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.OVH_FTP_SERVER }}
+          username: ${{ secrets.OVH_FTP_USERNAME }}
+          password: ${{ secrets.OVH_FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: ./_site/
+          server-dir: ${{ vars.OVH_FTP_DIR || '/www/' }}
+          # Seuls les fichiers modifiés sont transférés : l'état du dernier
+          # dépôt est conservé sur le serveur dans ce fichier.
+          state-name: .publication-ovh.json
+          # Rien n'est supprimé sur le serveur sans une intervention explicite.
+          dangerous-clean-slate: false
