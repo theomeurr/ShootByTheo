@@ -23,3 +23,7 @@ image/*.jpeg
 image/*.png
 !image/logo.png
 !image/favicon.png
+
+# Configuration de l'administration en ligne : contient des secrets
+admin-web/config.php
+sbt-config.php

@@ -1,0 +1,20 @@
+# L'administration ne doit jamais être indexée.
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow, noarchive"
+  Header always set X-Frame-Options "DENY"
+</IfModule>
+
+# Le fichier de configuration est normalement déposé hors de la racine web.
+# S'il devait se trouver ici, il ne doit en aucun cas être servi en clair :
+# il contient le jeton d'accès à GitHub.
+<FilesMatch "^(config|commun)\.php$">
+  Require all denied
+</FilesMatch>
+
+# Repli pour les Apache 2.2 encore en service chez certains hébergeurs.
+<IfModule !mod_authz_core.c>
+  <FilesMatch "^(config|commun)\.php$">
+    Order allow,deny
+    Deny from all
+  </FilesMatch>
+</IfModule>
