@@ -9,6 +9,10 @@ _sauvegarde-*/
 # Dossier public régénéré à chaque publication (localement et en CI)
 _site/
 
+# Cache d'octets de Python
+__pycache__/
+*.pyc
+
 # Photos originales pleine résolution (5568 × 3712).
 # Elles ne servent pas au site — seules les versions web de image/web/
 # et image/galerie/ sont affichées — et ce dépôt est public : les publier
