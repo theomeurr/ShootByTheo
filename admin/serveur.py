@@ -16,10 +16,12 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 import threading
 import unicodedata
 import webbrowser
+from datetime import datetime
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
@@ -75,6 +77,96 @@ def unique_path(dirpath, base, ext):
     return out
 
 
+# ---------------------------------------------------------------- publication
+# « Publier en ligne » enregistre le contenu dans l'historique du projet et
+# l'envoie sur GitHub, qui se charge de mettre le site à jour.
+# Seul ce que l'administration modifie est publié : le reste du dossier
+# (code, essais en cours) n'est jamais emporté par mégarde.
+CONTENU = ['data.js', 'image']
+
+
+def git(args, timeout=60):
+    env = dict(os.environ)
+    # sans cela, une demande de mot de passe bloquerait le serveur
+    # indéfiniment au lieu de renvoyer une erreur lisible.
+    env['GIT_TERMINAL_PROMPT'] = '0'
+    return subprocess.run(['git'] + args, cwd=ROOT, env=env, timeout=timeout,
+                          capture_output=True, text=True)
+
+
+def message_git(r):
+    """Traduit les échecs courants de Git en consigne actionnable."""
+    txt = ((r.stderr or '') + (r.stdout or '')).strip()
+    b = txt.lower()
+    if 'please tell me who you are' in b or 'author identity unknown' in b:
+        return ("Git ne sait pas qui vous êtes. Dans le Terminal :\n"
+                "  git config --global user.name \"Votre nom\"\n"
+                "  git config --global user.email \"vous@exemple.com\"")
+    if 'could not read username' in b or 'authentication failed' in b or 'permission denied' in b:
+        return ("GitHub a refusé la connexion. Vérifiez vos identifiants "
+                "(ou votre clé SSH) puis réessayez.\n\n" + txt)
+    if 'non-fast-forward' in b or 'rejected' in b or 'behind' in b:
+        return ("Le projet a changé sur GitHub depuis votre dernière "
+                "publication. Dans le Terminal : git pull\n\n" + txt)
+    if 'could not resolve host' in b or 'network is unreachable' in b or 'timed out' in b:
+        return "Pas de connexion à GitHub. Vérifiez votre accès à Internet."
+    if 'no upstream' in b or 'no configured push destination' in b:
+        return ("Ce dossier n'est relié à aucun projet GitHub : la publication "
+                "en ligne n'est pas disponible.\n\n" + txt)
+    return txt or 'Git a échoué sans message.'
+
+
+def etat_git():
+    """Ce qui reste à publier : fichiers modifiés et publications en attente."""
+    if not os.path.isdir(os.path.join(ROOT, '.git')):
+        return {'actif': False}
+    try:
+        r = git(['rev-parse', '--abbrev-ref', 'HEAD'], timeout=15)
+    except (OSError, subprocess.SubprocessError):
+        return {'actif': False}
+    if r.returncode:
+        return {'actif': False}
+    # sans dépôt distant, il n'y a nulle part où publier : plutôt que de
+    # laisser le bouton échouer, on le laisse caché.
+    if git(['remote', 'get-url', 'origin'], timeout=15).returncode:
+        return {'actif': False}
+    s = git(['status', '--porcelain', '--'] + CONTENU, timeout=30)
+    fichiers = [l[3:] for l in s.stdout.splitlines() if len(l) > 3]
+    av = git(['rev-list', '--count', '@{u}..HEAD'], timeout=15)
+    avance = int(av.stdout.strip()) if av.returncode == 0 and av.stdout.strip().isdigit() else 0
+    return {'actif': True, 'branche': r.stdout.strip(),
+            'fichiers': fichiers, 'avance': avance}
+
+
+def publier_en_ligne():
+    e = etat_git()
+    if not e.get('actif'):
+        raise RuntimeError("Ce dossier n'est pas relié à un projet GitHub : "
+                           "la publication en ligne n'est pas disponible.")
+    a = git(['add', '-A', '--'] + CONTENU, timeout=60)
+    if a.returncode:
+        raise RuntimeError(message_git(a))
+
+    nouveau = git(['diff', '--cached', '--quiet'], timeout=30).returncode != 0
+    if nouveau:
+        titre = 'Contenu du site — ' + datetime.now().strftime('%d/%m/%Y à %H:%M')
+        c = git(['commit', '-m', titre], timeout=60)
+        if c.returncode:
+            raise RuntimeError(message_git(c))
+    elif not e['avance']:
+        return {'ok': True, 'message': 'Tout est déjà en ligne', 'change': False}
+
+    p = git(['push', 'origin', 'HEAD'], timeout=300)
+    if p.returncode:
+        raise RuntimeError(message_git(p))
+
+    n = len(e['fichiers'])
+    detail = ('%d modification%s envoyée%s' % (n, 's' if n > 1 else '', 's' if n > 1 else '')
+              if n else 'Publication envoyée')
+    return {'ok': True, 'message': detail + ' — le site sera à jour dans quelques minutes',
+            'change': True}
+
+
 class Admin(SimpleHTTPRequestHandler):
 
     def log_message(self, fmt, *a):
@@ -107,6 +199,8 @@ class Admin(SimpleHTTPRequestHandler):
             return self._json(read_data())
         if path == '/api/images':
             return self._json(self._images())
+        if path == '/api/git':
+            return self._json(etat_git())
         return super().do_GET()
 
     def _images(self):
@@ -120,11 +214,20 @@ class Admin(SimpleHTTPRequestHandler):
                     for n in noms]
         return {'accueil': lister(ACCUEIL_DIR), 'web': lister(WEB_DIR)}
 
+    def _origine_sure(self):
+        """Une page web ouverte par ailleurs ne doit pas pouvoir commander
+        l'administration : le navigateur joint l'origine à toute requête
+        POST inter-site, il suffit de refuser celles qui ne viennent pas d'ici."""
+        o = self.headers.get('Origin')
+        return not o or urlparse(o).hostname in ('127.0.0.1', 'localhost', '::1')
+
     def do_POST(self):
         u = urlparse(self.path)
         q = parse_qs(u.query)
         length = int(self.headers.get('Content-Length') or 0)
         body = self.rfile.read(length)
+        if not self._origine_sure():
+            return self._json({'erreur': 'origine refusée'}, 403)
         try:
             if u.path == '/api/data':
                 write_data(json.loads(body.decode('utf-8')))
@@ -133,6 +236,10 @@ class Admin(SimpleHTTPRequestHandler):
                 return self._json(self._upload(q, body))
             if u.path == '/api/trash':
                 return self._json(self._trash(json.loads(body.decode('utf-8'))))
+            if u.path == '/api/publier':
+                return self._json(publier_en_ligne())
+        except subprocess.TimeoutExpired:
+            return self._json({'erreur': 'GitHub ne répond pas — réessayez.'}, 500)
         except Exception as e:  # renvoyé à l'interface, jamais silencieux
             return self._json({'erreur': str(e)}, 500)
         self._json({'erreur': 'requête inconnue'}, 404)

@@ -65,7 +65,14 @@ publication : sans elle, pas de sitemap ni d'aperçus de partage corrects.
 
 ## Mise en ligne automatique
 
-Chaque `git push` sur `main` régénère le site et le dépose chez OVH par FTPS
+Dans l'administration, le bouton **Publier en ligne ↑** met le site public à
+jour. Enregistrer écrit sur votre Mac ; publier envoie le contenu sur GitHub,
+qui régénère le site et le dépose chez OVH — comptez quelques minutes. Le
+bouton indique « Tout est en ligne » quand il n'y a rien à envoyer, et reste
+caché si le dossier n'est pas relié à GitHub. Seuls `data.js` et `image/` sont
+publiés : le reste du dossier ne part jamais par mégarde.
+
+Le même enchaînement se déclenche à chaque `git push` sur `main`
 (`.github/workflows/publier.yml`). Le dépôt n'a lieu que si le dossier généré
 est complet ; sinon le déploiement échoue et l'ancienne version reste en place.
 Un déclenchement manuel est possible depuis l'onglet **Actions** de GitHub.
