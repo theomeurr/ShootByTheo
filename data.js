@@ -250,19 +250,19 @@ window.SITE_DATA = {
     }
   ],
   "site": {
-    "baseline": "Sport ",
+    "baseline": "Sport · Documentaire",
     "email": "contact@shootbytheo.com",
     "instagram": "https://www.instagram.com/shootby.theo/",
     "lienHD": "https://drive.google.com/drive/folders/185HtoSYGZeth0i646EzUK2G8l4wLdEMs?usp=share_link",
-    "domaine": "",
+    "domaine": "https://www.shootbytheo.com",
     "ville": "",
-    "description": "SHOOTBYTHEO — Photographie sportive"
+    "description": "SHOOTBYTHEO — photographie sportive et documentaire : badminton, judo, reportage de compétition."
   },
   "apropos": {
-    "actif": false,
+    "actif": true,
     "titre": "À propos",
     "photo": "",
-    "texte": "Racontez ici votre parcours : depuis quand vous photographiez, ce qui vous attire dans le sport, les disciplines que vous suivez, votre façon de travailler un jour de compétition."
+    "texte": "Je photographie le sport là où il se joue vraiment : dans les gymnases, au bord des tapis, entre deux échanges. Pas les podiums léchés — l’effort, la concentration, la seconde qui bascule.\n\nTout est parti du badminton. Les interclubs, le TOP 12, la Nationale 2 : des journées entières à suivre une équipe, à apprendre à lire un match assez tôt pour être au bon endroit quand le point se gagne. Le judo est venu ensuite, avec la même exigence — un ippon ne se rejoue pas.\n\nUn jour de compétition, je travaille avec la lumière de la salle, sans flash : rien ne doit gêner les joueurs ni les arbitres. Je reste discret, je bouge peu, j’attends. Les photos sont triées et retouchées dans la foulée, puis livrées en haute définition aux clubs, aux joueurs et à leurs familles.\n\nUne compétition à couvrir, un entraînement, des portraits d’équipe ? Écrivez-moi, on en parle."
   },
   "prestations": {
     "actif": true,

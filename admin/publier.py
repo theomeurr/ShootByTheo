@@ -232,7 +232,19 @@ def main():
         adresses.append(route)
 
     # ---- anciennes adresses ----
+    # ALIAS garde les séries d'hier (aviation, street…) : si l'une d'elles n'est
+    # plus publiée, son ancienne adresse pointerait vers une page inexistante.
+    # On renvoie alors vers « Le Travail » plutôt que vers un 404.
+    publiees = {s['key'] for s in d.get('series', [])
+                if s.get('travail') and not s.get('prive')}
+
+    def cible_valide(c):
+        if c.startswith('serie/') and c.split('/')[1] not in publiees:
+            return 'travail'
+        return c
+
     redirections = 0
+    perdues = []
     for name in sorted(os.listdir(ROOT)):
         if not name.endswith('.html') or name in ('index.html', 'ancien-index.html') or name.startswith('.'):
             continue
@@ -243,8 +255,11 @@ def main():
                 if re.search(r'(^|-)' + re.escape(cle) + r'(-|$)', base):
                     cible = r
                     break
+        retenue = cible_valide(cible)
+        if retenue != cible:
+            perdues.append(name)
         with open(os.path.join(OUT, name), 'w', encoding='utf-8') as f:
-            f.write(REDIR.format(c=(cible + '/') if cible else ''))
+            f.write(REDIR.format(c=(retenue + '/') if retenue else ''))
         redirections += 1
 
     # ---- sitemap + robots ----
@@ -287,6 +302,9 @@ def main():
     else:
         print("  ⚠ Adresse du site non renseignée (Administration → Réglages) :")
         print("    pas de sitemap, et les aperçus de partage resteront incomplets.")
+    if perdues:
+        print('\n  ℹ %d ancienne(s) adresse(s) sans série correspondante,' % len(perdues))
+        print('    redirigée(s) vers « Le Travail » : %s' % ', '.join(perdues))
     if manquantes:
         print('\n  ⚠ Images introuvables :')
         for m in sorted(set(manquantes)):

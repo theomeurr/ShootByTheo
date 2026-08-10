@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SHOOTBYTHEO — Photographie sport &amp; documentaire</title>
-<meta name="description" content="SHOOTBYTHEO — photographie sportive et documentaire : judo, aviation, badminton, street.">
+<meta name="description" content="SHOOTBYTHEO — photographie sportive et documentaire : badminton, judo, reportage de compétition.">
 <link rel="icon" href="image/favicon.png">
 <link rel="apple-touch-icon" href="image/favicon.png">
 <!-- Aperçu lors d'un partage (Instagram, WhatsApp, Facebook…).
@@ -12,7 +12,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="SHOOTBYTHEO">
 <meta property="og:title" content="SHOOTBYTHEO — Photographie sport &amp; documentaire">
-<meta property="og:description" content="Judo, aviation, badminton, street : reportage sportif et documentaire.">
+<meta property="og:description" content="Badminton, judo : reportage sportif et documentaire, du service au salut d’arbitrage.">
 <meta property="og:image" content="image/web/top12.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,6 +36,10 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 img{display:block}
+/* les règles d'affichage ci-dessous (img, .journees…) l'emportent sur le
+   display:none que le navigateur applique à [hidden] : on le rétablit ici,
+   sinon un élément masqué continue d'occuper la place. */
+[hidden]{display:none !important}
 input,textarea,button{font-family:inherit}
 ::selection{background:var(--accent);color:var(--bg)}
 input::placeholder,textarea::placeholder{color:#a29c91}
@@ -320,6 +324,8 @@ input::placeholder,textarea::placeholder{color:#a29c91}
 
 /* ---------- À propos ---------- */
 .apropos{display:grid;grid-template-columns:.85fr 1.15fr;gap:56px;padding:186px 40px 80px;align-items:start}
+/* sans photo, l'image sort de la grille : le texte prendrait la colonne étroite */
+.apropos.is-seul{grid-template-columns:1fr}
 .apropos-photo{width:100%;aspect-ratio:4/5;object-fit:cover;background:#141210}
 .apropos-txt p{font-size:16px;line-height:1.75;color:rgba(242,239,233,.86);margin:0 0 18px;max-width:62ch}
 .apropos-txt p:first-of-type{font-size:19px;color:var(--ink)}
@@ -876,6 +882,8 @@ input::placeholder,textarea::placeholder{color:#a29c91}
       if (APROPOS.photo){
         $('aproposPhoto').src = APROPOS.photo;
         $('aproposPhoto').hidden = false;
+      } else {
+        document.querySelector('.apropos').classList.add('is-seul');
       }
       var box = $('aproposTexte');
       (APROPOS.texte || '').split(/\n\s*\n/).forEach(function(par){
