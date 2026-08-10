@@ -58,9 +58,33 @@ absentes des menus et du sitemap — pratique pour une galerie réservée à un 
   avec son titre, sa description et son aperçu de partage
 - `sitemap.xml`, `robots.txt` et les données structurées pour les moteurs de recherche
 - les redirections des anciennes adresses, pour ne casser aucun lien existant
+- `.htaccess` : redirection vers l'adresse unique du site, compression, cache
 
 Renseignez l'adresse du site dans **Administration → Réglages** avant la première
 publication : sans elle, pas de sitemap ni d'aperçus de partage corrects.
+
+## Mise en ligne automatique
+
+Chaque `git push` sur `main` régénère le site et le dépose chez OVH par FTPS
+(`.github/workflows/publier.yml`). Le dépôt n'a lieu que si le dossier généré
+est complet ; sinon le déploiement échoue et l'ancienne version reste en place.
+Un déclenchement manuel est possible depuis l'onglet **Actions** de GitHub.
+
+Trois secrets sont à créer dans **Settings → Secrets and variables → Actions**,
+onglet *Secrets* :
+
+| Secret | Où le trouver chez OVH |
+|---|---|
+| `OVH_FTP_SERVER` | Espace client → Hébergements → FTP-SSH (`ftp.clusterXXX.hosting.ovh.net`) |
+| `OVH_FTP_USERNAME` | même page — l'identifiant du compte FTP |
+| `OVH_FTP_PASSWORD` | défini à la création du compte FTP, réinitialisable depuis la même page |
+
+Si le domaine ne pointe pas vers `/www` mais vers un sous-dossier (mode
+multisite), ajoutez dans l'onglet *Variables* la variable `OVH_FTP_DIR` avec
+le chemin voulu, barre oblique finale comprise — par exemple `/www/shootbytheo/`.
+
+Côté OVH, activez le **certificat SSL gratuit** (Hébergements → Multisite) :
+le site force `https://` et l'adresse unique déclarée dans les réglages.
 
 ## Prérequis
 

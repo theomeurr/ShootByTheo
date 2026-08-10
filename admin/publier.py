@@ -17,6 +17,7 @@ import re
 import shutil
 import subprocess
 import sys
+from urllib.parse import urlparse
 
 ADMIN_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(ADMIN_DIR)
@@ -40,6 +41,50 @@ REDIR = """<!DOCTYPE html>
 <body style="background:#0c0b0a;color:#f2efe9;font-family:Helvetica,Arial,sans-serif;padding:40px">
 <p>Cette page a déménagé. <a href="/{c}" style="color:#e2543a">Continuer vers le site →</a></p>
 <script>location.replace('/{c}');</script></body></html>
+"""
+
+# Règles Apache pour l'hébergement (OVH mutualisé et compatibles).
+# Les photos portent un nom stable : on les met en cache un an. Les pages et
+# data.js changent à chaque publication : cache court, sinon le visiteur
+# garderait l'ancienne galerie plusieurs jours.
+HTACCESS_BASE = """# Fichier généré par admin/publier.py — les modifications seront écrasées.
+
+ErrorDocument 404 /index.html
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/xml text/plain application/javascript application/xml image/svg+xml
+</IfModule>
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png  "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType text/css   "access plus 1 week"
+  ExpiresByType application/javascript "access plus 1 hour"
+  ExpiresByType text/html  "access plus 0 seconds"
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+"""
+
+# Une seule adresse doit répondre, celle des balises canonical : tout le reste
+# y est redirigé. Les deux conditions HTTPS couvrent les hébergements qui
+# terminent le TLS en amont (sinon, boucle de redirection).
+HTACCESS_CANON = """
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  RewriteCond %{{HTTPS}} !=on
+  RewriteCond %{{HTTP:X-Forwarded-Proto}} !=https
+  RewriteRule ^ https://{host}%{{REQUEST_URI}} [L,R=301]
+
+  RewriteCond %{{HTTP_HOST}} !^{host_re}$ [NC]
+  RewriteRule ^ https://{host}%{{REQUEST_URI}} [L,R=301]
+</IfModule>
 """
 
 
@@ -114,6 +159,11 @@ def main():
     d = donnees()
     site = d.get('site', {})
     domaine = (site.get('domaine') or '').strip().rstrip('/')
+    # l'adresse peut être saisie sans « https:// » : les URL absolues des
+    # aperçus de partage et du sitemap seraient alors invalides.
+    if domaine and '//' not in domaine:
+        domaine = 'https://' + domaine
+    hote = urlparse(domaine).netloc if domaine else ''
     desc_site = site.get('description') or 'Photographie sportive et documentaire.'
 
     if os.path.isdir(OUT):
@@ -232,7 +282,19 @@ def main():
         adresses.append(route)
 
     # ---- anciennes adresses ----
+    # ALIAS garde les séries d'hier (aviation, street…) : si l'une d'elles n'est
+    # plus publiée, son ancienne adresse pointerait vers une page inexistante.
+    # On renvoie alors vers « Le Travail » plutôt que vers un 404.
+    publiees = {s['key'] for s in d.get('series', [])
+                if s.get('travail') and not s.get('prive')}
+
+    def cible_valide(c):
+        if c.startswith('serie/') and c.split('/')[1] not in publiees:
+            return 'travail'
+        return c
+
     redirections = 0
+    perdues = []
     for name in sorted(os.listdir(ROOT)):
         if not name.endswith('.html') or name in ('index.html', 'ancien-index.html') or name.startswith('.'):
             continue
@@ -243,8 +305,11 @@ def main():
                 if re.search(r'(^|-)' + re.escape(cle) + r'(-|$)', base):
                     cible = r
                     break
+        retenue = cible_valide(cible)
+        if retenue != cible:
+            perdues.append(name)
         with open(os.path.join(OUT, name), 'w', encoding='utf-8') as f:
-            f.write(REDIR.format(c=(cible + '/') if cible else ''))
+            f.write(REDIR.format(c=(retenue + '/') if retenue else ''))
         redirections += 1
 
     # ---- sitemap + robots ----
@@ -261,6 +326,13 @@ def main():
         robots = 'User-agent: *\nAllow: /\n'
     with open(os.path.join(OUT, 'robots.txt'), 'w', encoding='utf-8') as f:
         f.write(robots)
+
+    # ---- règles serveur ----
+    htaccess = HTACCESS_BASE
+    if hote:
+        htaccess += HTACCESS_CANON.format(host=hote, host_re=re.escape(hote))
+    with open(os.path.join(OUT, '.htaccess'), 'w', encoding='utf-8') as f:
+        f.write(htaccess)
 
     # ---- contrôles ----
     manquantes = []
@@ -287,6 +359,9 @@ def main():
     else:
         print("  ⚠ Adresse du site non renseignée (Administration → Réglages) :")
         print("    pas de sitemap, et les aperçus de partage resteront incomplets.")
+    if perdues:
+        print('\n  ℹ %d ancienne(s) adresse(s) sans série correspondante,' % len(perdues))
+        print('    redirigée(s) vers « Le Travail » : %s' % ', '.join(perdues))
     if manquantes:
         print('\n  ⚠ Images introuvables :')
         for m in sorted(set(manquantes)):
