@@ -9,6 +9,8 @@
 declare(strict_types=1);
 
 const DEPOT_FICHIER_DONNEES = 'data.js';
+const LARGEUR_MAX  = 2000;   // côté long des photos publiées, comme le serveur local
+const QUALITE_JPEG = 80;
 
 /** Emplacements possibles du fichier de secrets, du plus sûr au moins sûr. */
 function chemins_config(): array
@@ -178,7 +180,9 @@ function oublier_echecs(): void
  */
 function github(string $methode, string $chemin, ?array $corps = null): array
 {
-    $ch = curl_init('https://api.github.com' . $chemin);
+    // l'adresse est réglable pour pouvoir éprouver ces appels hors ligne
+    $base = reglage('api_base', '') ?: 'https://api.github.com';
+    $ch = curl_init($base . $chemin);
     $entetes = [
         'Accept: application/vnd.github+json',
         'Authorization: Bearer ' . reglage('github_token'),

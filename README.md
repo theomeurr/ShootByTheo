@@ -98,6 +98,32 @@ FTPS, il refuse `AUTH TLS`. Deux réglages facultatifs, dans l'onglet
 Rien n'est supprimé sur le serveur : les fichiers de l'ancien site restent
 en place tant que vous ne les retirez pas vous-même par FTP.
 
+## Administration en ligne
+
+La même interface est accessible depuis n'importe où — un téléphone suffit —
+sur `https://votre-site/admin/`, derrière un mot de passe. Elle n'écrit pas
+sur l'hébergeur : elle enregistre dans GitHub, qui régénère puis redéploie.
+Le site public est donc à jour quelques minutes après, et l'historique
+conserve chaque version. Une photo supprimée reste récupérable dans
+l'historique du dépôt : c'est la corbeille de l'administration locale.
+
+Elle n'est déposée que si deux secrets existent, dans
+**Settings → Secrets and variables → Actions** :
+
+| Secret | Comment l'obtenir |
+|---|---|
+| `ADMIN_MDP_HASH` | L'empreinte de votre mot de passe — jamais le mot de passe. Dans un Terminal : `php -r 'echo password_hash("votre mot de passe", PASSWORD_DEFAULT), "\n";'` puis copiez la ligne obtenue |
+| `ADMIN_GITHUB_TOKEN` | Un jeton GitHub *fine-grained* limité à ce seul dépôt, avec l'autorisation **Contents : Read and write** — https://github.com/settings/personal-access-tokens |
+
+Le fichier de configuration qui les porte n'est pas dans ce dépôt : il est
+écrit à chaque publication et déposé **à côté** du dossier web, donc hors de
+portée d'Apache. Trois protections se superposent, car un serveur mal
+configuré suffirait à livrer le jeton : cet emplacement, un refus explicite
+dans `admin/.htaccess`, et un contenu qui n'affiche rien même exécuté.
+
+Sans ces deux secrets, l'administration en ligne n'est pas déposée du tout —
+seul le site public l'est.
+
 Côté OVH, activez le **certificat SSL gratuit** (Hébergements → Multisite) :
 le site force `https://` et l'adresse unique déclarée dans les réglages.
 

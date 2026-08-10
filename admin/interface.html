@@ -14,6 +14,10 @@
   --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
 }
 *{box-sizing:border-box}
+/* Les règles d'affichage ci-dessous (.b, .choix…) l'emportent sur le
+   display:none que le navigateur applique à [hidden] : sans cela, un
+   élément masqué reste visible et cliquable. */
+[hidden]{display:none !important}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:'Archivo',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;font-size:15px}
 ::selection{background:var(--accent);color:var(--bg)}
 button{font-family:inherit}
@@ -195,6 +199,32 @@ function el(tag, attrs = {}, ...kids){
   return n;
 }
 const nomFichier = s => (s || '').split('/').pop();
+
+/* ---------- Adresse des points d'accès ----------
+   L'administration locale (admin/serveur.py) répond sur /api/… ; celle en
+   ligne (admin-web/api.php) sur api.php?r=… . Une seule interface, deux
+   adresses : la page en ligne pose SBT_API et SBT_CSRF avant de la servir. */
+const API_BASE = window.SBT_API || '/api/';
+const EN_LIGNE = !!window.SBT_API;
+function api(nom, params){
+  let u = API_BASE + nom;
+  if (params) u += (u.indexOf('?') > -1 ? '&' : '?') + params;
+  return u;
+}
+function ecriture(opts){
+  opts = Object.assign({ method:'POST' }, opts || {});
+  if (window.SBT_CSRF) opts.headers = Object.assign({ 'X-CSRF': window.SBT_CSRF }, opts.headers || {});
+  return opts;
+}
+/* Session close côté serveur : inutile de continuer à saisir dans le vide. */
+function sessionPerdue(r){
+  if (r && r.status === 401 && EN_LIGNE){
+    alert('Votre session a expiré. Vous allez être invité à vous reconnecter.');
+    location.reload();
+    return true;
+  }
+  return false;
+}
 const url = s => "url('" + encodeURI(s) + "')";
 function slug(t){
   return String(t).normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -250,7 +280,8 @@ function enregistrer(){
   clearTimeout(minuteur);
   minuteur = setTimeout(async () => {
     try {
-      const r = await fetch('/api/data', { method:'POST', body: JSON.stringify(D) });
+      const r = await fetch(api('data'), ecriture({ body: JSON.stringify(D) }));
+      if (sessionPerdue(r)) return;
       if (!r.ok) throw new Error(r.status);
       etat('Enregistré à ' + new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }), 'ok');
       majGit();
@@ -266,7 +297,7 @@ const maj = () => { enregistrer(); dessiner(); };
 let GIT = { actif:false };
 
 async function majGit(){
-  try { GIT = await (await fetch('/api/git')).json(); }
+  try { GIT = await (await fetch(api('git'))).json(); }
   catch (e) { GIT = { actif:false }; }
   const b = $('#publier');
   b.hidden = !GIT.actif;
@@ -288,7 +319,7 @@ async function publierEnLigne(){
   b.disabled = true;
   etat('Publication en cours…');
   try {
-    const r = await fetch('/api/publier', { method:'POST', body:'{}' });
+    const r = await fetch(api('publier'), ecriture({ body:'{}' }));
     const j = await r.json();
     if (!r.ok || j.erreur) throw new Error(j.erreur || ('erreur ' + r.status));
     etat(j.message, 'ok');
@@ -332,14 +363,14 @@ async function envoyer(fichiers, dest, apres){
     etat('Envoi ' + (i+1) + ' sur ' + fichiers.length + '…');
     try {
       const q = dest.dossier ? 'dossier=' + dest.dossier : 'serie=' + encodeURIComponent(dest.serie);
-      const r = await fetch('/api/upload?' + q + '&name=' + encodeURIComponent(fichiers[i].name),
-        { method:'POST', body: fichiers[i] });
+      const r = await fetch(api('upload', q + '&name=' + encodeURIComponent(fichiers[i].name)),
+        ecriture({ body: fichiers[i] }));
       const j = await r.json();
       if (j.erreur) throw new Error(j.erreur);
       apres(j.src, j.largeur, j.hauteur);
     } catch (e) { alert('« ' + fichiers[i].name + ' » n\'a pas pu être envoyée : ' + e.message); }
   }
-  try { LIB = await (await fetch('/api/images')).json(); } catch (e) {}
+  try { LIB = await (await fetch(api('images'))).json(); } catch (e) {}
   maj();
 }
 function boutonEnvoi(libelle, dest, apres, style){
@@ -699,7 +730,7 @@ function vueReglages(){
 /* ================= suppressions ================= */
 async function supprimerPhoto(s, p){
   if (!confirm('Supprimer cette photo ?\n\nElle part dans « image/corbeille » : rien n\'est perdu.')) return;
-  try { await fetch('/api/trash', { method:'POST', body: JSON.stringify({ src:p.src }) }); } catch (e) {}
+  try { await fetch(api('trash'), ecriture({ body: JSON.stringify({ src:p.src }) })); } catch (e) {}
   s.photos = s.photos.filter(x => x !== p);
   if (s.cover === p.src) s.cover = (s.photos[0]||{}).src || '';
   (s.albums||[]).forEach(a => { if (a.cover === p.src) a.cover = ''; });
@@ -711,7 +742,7 @@ async function supprimerJournee(s, a){
   if (!confirm('Supprimer la journée « ' + a.titre + ' » ?\n\n'
     + (ph.length ? 'Ses ' + ph.length + ' photo(s) partent dans « image/corbeille ».' : 'Elle ne contient aucune photo.'))) return;
   if (ph.length){
-    try { await fetch('/api/trash', { method:'POST', body: JSON.stringify({ srcs: ph.map(p => p.src) }) }); } catch (e) {}
+    try { await fetch(api('trash'), ecriture({ body: JSON.stringify({ srcs: ph.map(p => p.src) }) })); } catch (e) {}
     s.photos = s.photos.filter(p => (p.album||'') !== a.id);
   }
   s.albums = s.albums.filter(x => x !== a);
@@ -724,7 +755,7 @@ async function supprimerSerie(s){
   if (!confirm('Supprimer la série « ' + s.title + ' » ?\n\n'
     + (n ? 'Ses ' + n + ' photo(s) partent dans « image/corbeille ».\n' : '')
     + 'Ses journées et ses photos à la une seront retirées.')) return;
-  if (n) try { await fetch('/api/trash', { method:'POST', body: JSON.stringify({ srcs:s.photos.map(p => p.src) }) }); } catch (e) {}
+  if (n) try { await fetch(api('trash'), ecriture({ body: JSON.stringify({ srcs:s.photos.map(p => p.src) }) })); } catch (e) {}
   D.slides = D.slides.filter(sl => sl.serie !== s.key);
   D.series = D.series.filter(x => x !== s);
   vue = { type:'accueil' };
@@ -775,14 +806,14 @@ $('#navPlus').addEventListener('click', () => {
 /* ================= démarrage ================= */
 (async function(){
   try {
-    D = await (await fetch('/api/data')).json();
+    D = await (await fetch(api('data'))).json();
     if (!D || !Array.isArray(D.series)) D = { series:[], slides:[] };
     D.slides = D.slides || [];
     D.site = D.site || {};
     D.apropos = D.apropos || { actif:false, titre:'À propos', texte:'', photo:'' };
     D.prestations = D.prestations || { actif:false, titre:'Prestations', intro:'', offres:[] };
     D.series.forEach(s => { s.albums = s.albums || []; s.photos = s.photos || []; });
-    try { LIB = await (await fetch('/api/images')).json(); } catch (e) {}
+    try { LIB = await (await fetch(api('images'))).json(); } catch (e) {}
     etat('Prêt', 'ok');
     dessiner();
     majGit();

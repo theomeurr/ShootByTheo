@@ -40,10 +40,16 @@ if (connecte()) {
     header('Cache-Control: no-store');
     header('X-Content-Type-Options: nosniff');
     header('Referrer-Policy: same-origin');
-    // L'interface adaptée à cette API n'est pas encore livrée : tant qu'elle
-    // manque, on le dit plutôt que de servir une page dont rien ne marche.
+    // L'interface est celle de l'administration locale, servie telle quelle.
+    // Ces deux valeurs lui suffisent pour viser api.php au lieu de /api/.
     if (is_file(__DIR__ . '/interface.html')) {
-        readfile(__DIR__ . '/interface.html');
+        $tete = '<script>window.SBT_API=' . json_encode('api.php?r=')
+              . ';window.SBT_CSRF=' . json_encode(jeton_csrf()) . ';</script>';
+        $html = (string) file_get_contents(__DIR__ . '/interface.html');
+        // avant le script de l'interface, qui lit ces valeurs au chargement
+        $pos = strpos($html, '<script>');
+        echo $pos === false ? $tete . $html
+                            : substr($html, 0, $pos) . $tete . substr($html, $pos);
     } else {
         echo '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">'
            , '<meta name="viewport" content="width=device-width,initial-scale=1">'
