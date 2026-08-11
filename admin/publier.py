@@ -190,6 +190,27 @@ def main():
                 copier(p, os.path.join(OUT, os.path.relpath(p, ROOT)))
                 n += 1
 
+    # ---- administration en ligne ----
+    # Elle est en PHP, donc servie par l'hébergeur ; le fichier de
+    # configuration, lui, ne passe jamais par ici : il contient des secrets et
+    # sera déposé hors de la racine web. L'interface est celle de
+    # l'administration locale, servie telle quelle.
+    src_admin = os.path.join(ROOT, 'admin-web')
+    if os.path.isdir(src_admin):
+        dest_admin = os.path.join(OUT, 'admin')
+        os.makedirs(dest_admin, exist_ok=True)
+        for name in sorted(os.listdir(src_admin)):
+            if name in ('config.php', 'config-exemple.php') or name.startswith('._'):
+                continue
+            p = os.path.join(src_admin, name)
+            if os.path.isfile(p):
+                copier(p, os.path.join(dest_admin, name))
+                n += 1
+        iface = os.path.join(ROOT, 'admin', 'interface.html')
+        if os.path.isfile(iface):
+            copier(iface, os.path.join(dest_admin, 'interface.html'))
+            n += 1
+
     with open(os.path.join(ROOT, 'index.html'), encoding='utf-8') as f:
         gabarit = f.read()
 
