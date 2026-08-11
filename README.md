@@ -107,22 +107,37 @@ Le site public est donc à jour quelques minutes après, et l'historique
 conserve chaque version. Une photo supprimée reste récupérable dans
 l'historique du dépôt : c'est la corbeille de l'administration locale.
 
-Elle n'est déposée que si deux secrets existent, dans
+Un seul secret est nécessaire, dans
 **Settings → Secrets and variables → Actions** :
 
 | Secret | Comment l'obtenir |
 |---|---|
-| `ADMIN_MDP_HASH` | Double-cliquez sur **`Mot-de-passe.command`**, tapez le mot de passe voulu, copiez la ligne affichée. C'est une empreinte : le mot de passe lui-même n'y figure pas et ne peut pas en être déduit |
 | `ADMIN_GITHUB_TOKEN` | Un jeton GitHub *fine-grained* limité à ce seul dépôt, avec l'autorisation **Contents : Read and write** — https://github.com/settings/personal-access-tokens |
 
-Le fichier de configuration qui les porte n'est pas dans ce dépôt : il est
-écrit à chaque publication et déposé **à côté** du dossier web, donc hors de
-portée d'Apache. Trois protections se superposent, car un serveur mal
-configuré suffirait à livrer le jeton : cet emplacement, un refus explicite
-dans `admin/.htaccess`, et un contenu qui n'affiche rien même exécuté.
+**Le mot de passe se choisit sur la page elle-même.** À la première visite de
+`/admin/`, l'administration constate qu'aucun mot de passe n'existe et vous
+invite à en créer un ; il est enregistré sur le serveur, hors du dossier web,
+et survit aux publications suivantes.
 
-Sans ces deux secrets, l'administration en ligne n'est pas déposée du tout —
-seul le site public l'est.
+Cet écran ne reste ouvert que 24 heures après une publication : sans cette
+limite, une administration installée puis oubliée resterait indéfiniment à la
+portée du premier venu. Passé ce délai, relancez la publication depuis
+l'onglet **Actions** de GitHub pour rouvrir la fenêtre.
+
+Le secret `ADMIN_MDP_HASH` reste accepté pour qui préfère fixer le mot de
+passe d'avance : `admin/motdepasse.html`, ouvert dans un navigateur, produit
+la ligne à y coller.
+
+Le fichier de configuration qui porte le jeton n'est pas dans ce dépôt : il
+est écrit à chaque publication et déposé **à côté** du dossier web, donc hors
+de portée d'Apache. Trois protections se superposent, car un serveur mal
+configuré suffirait à livrer le jeton : cet emplacement, un refus explicite
+dans `admin/.htaccess`, et un contenu qui n'affiche rien même exécuté. Le mot
+de passe vit dans un second fichier au même endroit, que la publication ne
+réécrit jamais.
+
+Sans le jeton, l'administration en ligne n'est pas déposée du tout — seul
+le site public l'est.
 
 Côté OVH, activez le **certificat SSL gratuit** (Hébergements → Multisite) :
 le site force `https://` et l'adresse unique déclarée dans les réglages.

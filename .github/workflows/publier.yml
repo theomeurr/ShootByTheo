@@ -60,11 +60,17 @@ jobs:
           JETON: ${{ secrets.ADMIN_GITHUB_TOKEN }}
         run: |
           set -e
-          if [ -z "$MDP_HASH" ] || [ -z "$JETON" ]; then
-            echo "administration en ligne non configurée — elle ne sera pas déposée"
+          # Seul le jeton est indispensable : c'est une clé que personne d'autre
+          # ne peut créer. Le mot de passe, lui, se choisit à la première visite
+          # de /admin/ — le secret ADMIN_MDP_HASH reste possible mais facultatif.
+          if [ -z "$JETON" ]; then
+            echo "jeton GitHub absent — l'administration en ligne ne sera pas déposée"
             rm -rf _site/admin
             echo "config=non" >> "$GITHUB_OUTPUT"
             exit 0
+          fi
+          if [ -z "$MDP_HASH" ]; then
+            echo "mot de passe à choisir à la première visite de /admin/"
           fi
           # Les valeurs sont encodées avant d'être écrites : un hash bcrypt ou
           # un jeton contient $, / et parfois une apostrophe, qu'il faudrait

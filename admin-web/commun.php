@@ -43,8 +43,42 @@ function config(): array
 
 function reglage(string $cle, string $defaut = ''): string
 {
+    if ($cle === 'mdp_hash') {
+        // le mot de passe choisi sur la page prime, et vit dans son propre
+        // fichier : la publication réécrit la configuration, pas celui-ci
+        $p = chemin_mdp();
+        if ($p !== null) {
+            $m = require $p;
+            if (is_array($m) && !empty($m['mdp_hash']) && is_string($m['mdp_hash'])) {
+                return $m['mdp_hash'];
+            }
+        }
+    }
     $c = config();
     return isset($c[$cle]) && is_string($c[$cle]) ? $c[$cle] : $defaut;
+}
+
+/** Emplacement du mot de passe choisi depuis la page, s'il existe. */
+function chemin_mdp(): ?string
+{
+    foreach (chemins_config() as $p) {
+        $m = dirname($p) . '/sbt-mdp.php';
+        if (is_file($m)) {
+            return $m;
+        }
+    }
+    return null;
+}
+
+/** Où l'écrire : à côté du fichier de configuration trouvé. */
+function chemin_mdp_a_creer(): ?string
+{
+    foreach (chemins_config() as $p) {
+        if (is_file($p)) {
+            return dirname($p) . '/sbt-mdp.php';
+        }
+    }
+    return null;
 }
 
 /** L'administration n'est utilisable que si elle a été configurée. */
@@ -52,6 +86,49 @@ function configuree(): bool
 {
     return reglage('mdp_hash') !== '' && reglage('github_token') !== ''
         && reglage('depot') !== '';
+}
+
+/**
+ * Le mot de passe peut-il encore être choisi depuis la page ?
+ *
+ * Seulement s'il n'en existe aucun, et dans les heures qui suivent une
+ * publication : sans cette limite, une administration installée puis
+ * oubliée resterait indéfiniment ouverte au premier venu.
+ */
+const DELAI_INSTALLATION = 86400;   // 24 heures
+
+function installation_possible(): bool
+{
+    if (reglage('mdp_hash') !== '' || reglage('github_token') === '') {
+        return false;
+    }
+    return temps_restant_installation() > 0;
+}
+
+function temps_restant_installation(): int
+{
+    foreach (chemins_config() as $p) {
+        if (is_file($p)) {
+            return max(0, DELAI_INSTALLATION - (time() - (int) filemtime($p)));
+        }
+    }
+    return 0;
+}
+
+/** Enregistre le mot de passe choisi. Renvoie null si tout s'est bien passé. */
+function enregistrer_mdp(string $clair): ?string
+{
+    $p = chemin_mdp_a_creer();
+    if ($p === null) {
+        return "Le fichier de configuration est introuvable sur ce serveur.";
+    }
+    $contenu = "<?php return ['mdp_hash' => "
+             . var_export(password_hash($clair, PASSWORD_DEFAULT), true) . "];\n";
+    if (@file_put_contents($p, $contenu, LOCK_EX) === false) {
+        return "Le serveur n'autorise pas l'écriture du mot de passe.";
+    }
+    @chmod($p, 0600);
+    return null;
 }
 
 /**

@@ -14,8 +14,33 @@ if ($action === 'sortie') {
 }
 
 $erreur = '';
+$installer = installation_possible();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !connecte()) {
+// Premier lancement : le mot de passe se choisit ici, une seule fois.
+if ($installer && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $a = (string) ($_POST['mdp'] ?? '');
+    $b = (string) ($_POST['mdp2'] ?? '');
+    if (!csrf_valide($_POST['csrf'] ?? null)) {
+        $erreur = 'Formulaire expiré. Réessayez.';
+    } elseif ($a !== $b) {
+        $erreur = 'Les deux saisies sont différentes.';
+    } elseif (mb_strlen($a) < 10) {
+        $erreur = 'Trop court : 10 caractères au minimum. Cette page est '
+                . 'accessible depuis Internet.';
+    } else {
+        $souci = enregistrer_mdp($a);
+        if ($souci !== null) {
+            $erreur = $souci;
+        } else {
+            oublier_echecs();
+            connecter();
+            header('Location: ./');
+            exit;
+        }
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$installer && !connecte()) {
     $attente = attente_requise();
     if ($attente > 0) {
         $erreur = 'Trop de tentatives. Réessayez dans '
@@ -105,13 +130,35 @@ button:hover{filter:brightness(1.08)}
 <body>
 <div class="boite">
   <div class="marque">SBT <span>· Administration</span></div>
-  <p class="sous">Réservé au photographe</p>
+  <p class="sous"><?= $installer ? 'Premier lancement' : 'Réservé au photographe' ?></p>
 <?php if ($erreur !== ''): ?>
   <div class="ko"><?= htmlspecialchars($erreur, ENT_QUOTES) ?></div>
 <?php endif; ?>
-<?php if (!configuree()): ?>
-  <div class="ko">Le fichier de configuration est absent sur ce serveur.
-    L'administration en ligne ne peut pas fonctionner.</div>
+<?php if ($installer): ?>
+  <p class="sous" style="text-align:left">Choisissez le mot de passe qui protégera
+    l'administration. C'est le seul à retenir : notez-le quelque part.</p>
+  <form method="POST" autocomplete="off">
+    <input type="hidden" name="csrf" value="<?= htmlspecialchars($jeton, ENT_QUOTES) ?>">
+    <label for="mdp">Nouveau mot de passe</label>
+    <input id="mdp" name="mdp" type="password" autocomplete="new-password"
+           minlength="10" required autofocus>
+    <label for="mdp2">Répétez-le</label>
+    <input id="mdp2" name="mdp2" type="password" autocomplete="new-password"
+           minlength="10" required>
+    <button type="submit">Enregistrer et entrer</button>
+  </form>
+  <div class="pied">10 caractères au minimum. Cette page est accessible
+    depuis Internet.</div>
+<?php elseif (!configuree()): ?>
+  <div class="ko">
+<?php if (reglage('github_token') === ''): ?>
+    L'administration n'est pas configurée sur ce serveur.
+<?php else: ?>
+    Le mot de passe n'a pas été choisi dans les 24 heures qui ont suivi
+    l'installation. Relancez la publication depuis GitHub — onglet
+    <em>Actions</em>, bouton <em>Run workflow</em> — puis revenez ici.
+<?php endif; ?>
+  </div>
 <?php else: ?>
   <form method="POST" autocomplete="on">
     <input type="hidden" name="csrf" value="<?= htmlspecialchars($jeton, ENT_QUOTES) ?>">
