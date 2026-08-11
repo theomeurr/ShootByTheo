@@ -112,7 +112,7 @@ Elle n'est déposée que si deux secrets existent, dans
 
 | Secret | Comment l'obtenir |
 |---|---|
-| `ADMIN_MDP_HASH` | L'empreinte de votre mot de passe — jamais le mot de passe. Dans un Terminal : `php -r 'echo password_hash("votre mot de passe", PASSWORD_DEFAULT), "\n";'` puis copiez la ligne obtenue |
+| `ADMIN_MDP_HASH` | Double-cliquez sur **`Mot-de-passe.command`**, tapez le mot de passe voulu, copiez la ligne affichée. C'est une empreinte : le mot de passe lui-même n'y figure pas et ne peut pas en être déduit |
 | `ADMIN_GITHUB_TOKEN` | Un jeton GitHub *fine-grained* limité à ce seul dépôt, avec l'autorisation **Contents : Read and write** — https://github.com/settings/personal-access-tokens |
 
 Le fichier de configuration qui les porte n'est pas dans ce dépôt : il est

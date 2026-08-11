@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !connecte()) {
         $erreur = 'Formulaire expiré. Réessayez.';
     } elseif (!configuree()) {
         $erreur = "L'administration n'est pas configurée sur ce serveur.";
-    } elseif (password_verify((string) ($_POST['mdp'] ?? ''), reglage('mdp_hash'))) {
+    } elseif (mdp_correct((string) ($_POST["mdp"] ?? ""), reglage("mdp_hash"))) {
         oublier_echecs();
         connecter();
         header('Location: ./');

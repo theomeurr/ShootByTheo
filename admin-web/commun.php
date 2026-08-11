@@ -54,6 +54,32 @@ function configuree(): bool
         && reglage('depot') !== '';
 }
 
+/**
+ * Vérifie le mot de passe contre son empreinte.
+ *
+ * Deux formes sont acceptées : celle produite par admin/motdepasse.py, qui
+ * n'exige que Python — absent des Mac récents, PHP ne peut pas être supposé
+ * présent — et celle de password_hash() pour qui l'a sous la main.
+ */
+function mdp_correct(string $saisi, string $empreinte): bool
+{
+    if (str_starts_with($empreinte, 'pbkdf2$')) {
+        $p = explode('$', $empreinte);
+        if (count($p) !== 5) {
+            return false;
+        }
+        [, $algo, $tours, $sel, $attendu] = $p;
+        if (!in_array($algo, ['sha256', 'sha512'], true)
+            || !ctype_xdigit($sel) || !ctype_xdigit($attendu)
+            || (int) $tours < 1000) {
+            return false;
+        }
+        $calcule = hash_pbkdf2($algo, $saisi, (string) hex2bin($sel), (int) $tours, 0, false);
+        return hash_equals($attendu, $calcule);
+    }
+    return password_verify($saisi, $empreinte);
+}
+
 /* ------------------------------------------------------------------ session */
 
 function demarrer_session(): void
