@@ -10,6 +10,7 @@ En plus de rassembler les fichiers publics, ce script génère :
 
 Usage : python3 admin/publier.py [dossier_de_sortie]
 """
+import hashlib
 import html
 import json
 import os
@@ -108,6 +109,10 @@ def copier(src, dst):
     shutil.copy2(src, dst)
 
 
+# Empreinte du contenu de data.js, jointe à son adresse dans les pages.
+VERSION_DONNEES = ''
+
+
 # ------------------------------------------------------------------ vignettes
 # La mosaïque affiche les photos dans des colonnes de 320 à 500 px mais
 # chargeait les fichiers de 2000 px : une série entière pesait plusieurs
@@ -190,6 +195,13 @@ def page(gabarit, domaine, route, titre, description, image, corps_noscript, ind
         h = h.replace('<script src="data.js"></script>',
                       '<script>window.__ROUTE__=%s;</script>\n<script src="data.js"></script>'
                       % json.dumps(route.strip('/')), 1)
+    # data.js porte tout le contenu du site et change à chaque enregistrement.
+    # Son adresse reçoit l'empreinte de son contenu : le navigateur peut le
+    # garder en cache sans risque, puisqu'une modification change l'adresse.
+    # Sans cela, une modification restait invisible tant que le cache tenait.
+    if VERSION_DONNEES:
+        h = h.replace('<script src="data.js"></script>',
+                      '<script src="data.js?v=%s"></script>' % VERSION_DONNEES, 1)
     return h
 
 
@@ -253,9 +265,12 @@ def main():
         sorted({c for c in a_reduire if c}), OUT)
     n += len(vignettes)
     d['vignettes'] = vignettes
+    contenu_donnees = ('window.SITE_DATA = '
+                       + json.dumps(d, ensure_ascii=False, indent=2) + ';\n')
     with open(os.path.join(OUT, 'data.js'), 'w', encoding='utf-8') as f:
-        f.write('window.SITE_DATA = '
-                + json.dumps(d, ensure_ascii=False, indent=2) + ';\n')
+        f.write(contenu_donnees)
+    global VERSION_DONNEES
+    VERSION_DONNEES = hashlib.sha1(contenu_donnees.encode('utf-8')).hexdigest()[:10]
     n += 1
 
     # ---- administration en ligne ----
