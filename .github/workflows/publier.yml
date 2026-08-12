@@ -28,6 +28,12 @@ jobs:
         with:
           python-version: '3.12'
 
+      # Pillow réduit les photos en vignettes pour la mosaïque. Sans lui, la
+      # publication réussit quand même mais sert les originaux : les pages
+      # galerie repassent de 0,6 à 2,6 Mo.
+      - name: Installer Pillow
+        run: python3 -m pip install --quiet --disable-pip-version-check Pillow
+
       - name: Générer le dossier public
         run: python3 admin/publier.py _site
 
@@ -45,7 +51,11 @@ jobs:
           fi
           pages=$(find _site -name index.html | wc -l)
           images=$(find _site/image -type f | wc -l)
-          echo "$pages page(s), $images image(s), $(du -sh _site | cut -f1)"
+          vignettes=$(find _site/image -type d -name vignettes -exec find {} -type f \; | wc -l)
+          echo "$pages page(s), $images image(s) dont $vignettes vignette(s), $(du -sh _site | cut -f1)"
+          if [ "$vignettes" -eq 0 ]; then
+            echo "::warning::aucune vignette produite — les galeries seront servies en pleine taille"
+          fi
           test "$pages" -ge 5 || { echo "::error::trop peu de pages générées ($pages)"; exit 1; }
           test "$images" -ge 10 || { echo "::error::trop peu d'images ($images)"; exit 1; }
 

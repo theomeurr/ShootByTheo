@@ -24,7 +24,9 @@ ROOT = os.path.dirname(ADMIN_DIR)
 OUT = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else \
     os.path.expanduser('~/Desktop/shootbytheo_en_ligne')
 
-FICHIERS = ['index.html', 'data.js']
+# data.js n'est pas copié tel quel : il est réécrit plus bas pour y joindre
+# la table des vignettes produites à la publication.
+FICHIERS = ['index.html']
 DOSSIERS = [os.path.join('image', d) for d in ('web', 'galerie', 'accueil', 'apropos')]
 IMAGES = [os.path.join('image', 'logo.png'), os.path.join('image', 'favicon.png')]
 
@@ -104,6 +106,57 @@ def photos_de(s, aid):
 def copier(src, dst):
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     shutil.copy2(src, dst)
+
+
+# ------------------------------------------------------------------ vignettes
+# La mosaïque affiche les photos dans des colonnes de 320 à 500 px mais
+# chargeait les fichiers de 2000 px : une série entière pesait plusieurs
+# mégaoctets pour des images grandes comme une carte postale. On produit ici
+# une version réduite, servie dans la mosaïque et dans les cartes de journée ;
+# la visionneuse continue d'ouvrir la photo pleine taille.
+#
+# Ces vignettes ne sont pas versionnées : elles se recalculent à chaque
+# publication à partir des originaux du dépôt. Rien à lancer à la main, et
+# le dépôt ne double pas de volume.
+LARGEUR_VIGNETTE = 800
+QUALITE_VIGNETTE = 78
+
+
+def chemin_vignette(src):
+    d, nom = os.path.split(src)
+    return '/'.join([d, 'vignettes', nom]) if d else os.path.join('vignettes', nom)
+
+
+def fabriquer_vignettes(chemins, out):
+    """Réduit chaque image citée. Renvoie la table source -> vignette."""
+    try:
+        from PIL import Image
+    except ImportError:
+        return {}, 0, "Pillow n'est pas installé : les photos seront servies " \
+                      'en pleine taille (pages plus lourdes).'
+    table, gagne = {}, 0
+    for src in chemins:
+        entree = os.path.join(out, src)
+        if not os.path.isfile(entree):
+            continue
+        cible_rel = chemin_vignette(src)
+        cible = os.path.join(out, cible_rel)
+        try:
+            with Image.open(entree) as im:
+                if im.width <= LARGEUR_VIGNETTE:
+                    continue          # déjà petite : la réduire ne gagnerait rien
+                im = im.convert('RGB')
+                h = round(im.height * LARGEUR_VIGNETTE / im.width)
+                im = im.resize((LARGEUR_VIGNETTE, h), Image.LANCZOS)
+                os.makedirs(os.path.dirname(cible), exist_ok=True)
+                im.save(cible, 'JPEG', quality=QUALITE_VIGNETTE,
+                        optimize=True, progressive=True)
+        except Exception as e:      # une image illisible ne doit pas tout arrêter
+            print('  ! vignette impossible pour %s (%s)' % (src, e))
+            continue
+        table[src] = cible_rel
+        gagne += os.path.getsize(entree) - os.path.getsize(cible)
+    return table, gagne, None
 
 
 def abs_url(domaine, chemin):
@@ -189,6 +242,21 @@ def main():
                 p = os.path.join(dirpath, name)
                 copier(p, os.path.join(OUT, os.path.relpath(p, ROOT)))
                 n += 1
+
+    # ---- vignettes, puis data.js qui les référence ----
+    a_reduire = []
+    for s in d.get('series', []):
+        a_reduire += [p.get('src', '') for p in s.get('photos', [])]
+        a_reduire += [a.get('cover', '') for a in s.get('albums', [])]
+        a_reduire.append(s.get('cover', ''))
+    vignettes, gagne, souci_vignettes = fabriquer_vignettes(
+        sorted({c for c in a_reduire if c}), OUT)
+    n += len(vignettes)
+    d['vignettes'] = vignettes
+    with open(os.path.join(OUT, 'data.js'), 'w', encoding='utf-8') as f:
+        f.write('window.SITE_DATA = '
+                + json.dumps(d, ensure_ascii=False, indent=2) + ';\n')
+    n += 1
 
     # ---- administration en ligne ----
     # Elle est en PHP, donc servie par l'hébergeur ; le fichier de
@@ -380,6 +448,11 @@ def main():
     else:
         print("  ⚠ Adresse du site non renseignée (Administration → Réglages) :")
         print("    pas de sitemap, et les aperçus de partage resteront incomplets.")
+    if souci_vignettes:
+        print('\n  ⚠ %s' % souci_vignettes)
+    elif vignettes:
+        print('  %d vignette(s) · %.1f Mo économisés au chargement des galeries'
+              % (len(vignettes), gagne / 1e6))
     if perdues:
         print('\n  ℹ %d ancienne(s) adresse(s) sans série correspondante,' % len(perdues))
         print('    redirigée(s) vers « Le Travail » : %s' % ', '.join(perdues))

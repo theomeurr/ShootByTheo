@@ -609,6 +609,14 @@ input::placeholder,textarea::placeholder{color:#a29c91}
   window.addEventListener('resize', calerBientot);
 
   /* ---------- Lecture du modèle ---------- */
+  /* Version réduite d'une image, produite à la publication. La mosaïque et
+     les cartes de journée affichent des vignettes de quelques centaines de
+     pixels : y charger le fichier de 2000 px alourdissait la page sans rien
+     apporter. La visionneuse, elle, ouvre toujours l'original.
+     Hors publication (aperçu local), la table est vide et on sert l'original. */
+  var VIGNETTES = D.vignettes || {};
+  function petite(src){ return VIGNETTES[src] || src; }
+
   function photosDe(s, albumId){
     return s.photos.filter(function(p){ return (p.album || '') === albumId; });
   }
@@ -785,7 +793,7 @@ input::placeholder,textarea::placeholder{color:#a29c91}
         carte.className = 'jr';
         carte.innerHTML = '<img loading="lazy"><div class="veil"></div><div class="txt">' +
           '<div class="d"></div><div class="t"></div><div class="n"></div></div>';
-        carte.querySelector('img').src = couvertureAlbum(s, j);
+        carte.querySelector('img').src = petite(couvertureAlbum(s, j));
         carte.querySelector('img').alt = j.titre;
         carte.querySelector('.d').textContent = dateLisible(j.date) || 'Série';
         carte.querySelector('.t').textContent = j.titre;
@@ -813,7 +821,12 @@ input::placeholder,textarea::placeholder{color:#a29c91}
         im.loading = 'lazy';
         /* proportions connues d'avance : la mosaïque est juste dès le premier rendu */
         if (p.w && p.h) im.style.aspectRatio = p.w + ' / ' + p.h;
-        im.src = p.src;
+        im.src = petite(p.src);
+        /* si la vignette manque (publication sans Pillow), on retombe
+           sur l'original plutôt que d'afficher un cadre vide */
+        im.addEventListener('error', function(){
+          if (im.src.indexOf(p.src) === -1) im.src = p.src;
+        });
         im.alt = p.legende || (a ? a.titre : s.title);
         im.addEventListener('load', calerBientot);
         fig.appendChild(im);

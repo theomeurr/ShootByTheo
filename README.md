@@ -59,6 +59,11 @@ absentes des menus et du sitemap — pratique pour une galerie réservée à un 
 - `sitemap.xml`, `robots.txt` et les données structurées pour les moteurs de recherche
 - les redirections des anciennes adresses, pour ne casser aucun lien existant
 - `.htaccess` : redirection vers l'adresse unique du site, compression, cache
+- une **vignette de 800 px par photo**, servie dans les mosaïques et les cartes
+  de journée — la visionneuse ouvre toujours l'original. Une page galerie passe
+  ainsi de 2,6 à 0,6 Mo. Ces vignettes ne sont pas versionnées : elles se
+  recalculent à chaque publication, et exigent Pillow. Sans lui la publication
+  réussit quand même, mais sert les photos en pleine taille
 
 Renseignez l'adresse du site dans **Administration → Réglages** avant la première
 publication : sans elle, pas de sitemap ni d'aperçus de partage corrects.
