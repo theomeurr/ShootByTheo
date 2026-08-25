@@ -5,7 +5,7 @@ window.SITE_DATA = {
             "img": "image/web/top12.jpg",
             "tag": "À la une · 9ᵉ journée",
             "title": "TOP 12",
-            "meta": "Interclub · Compétition",
+            "meta": "Saison 2025-2027",
             "pos": "center 60%",
             "album": "top-12-9e-journee"
         },
