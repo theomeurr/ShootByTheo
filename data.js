@@ -152,7 +152,7 @@ window.SITE_DATA = {
             "blurb": "",
             "cover": "image/galerie/judo/dsc-1031-01.jpg",
             "albums": [],
-            "travail": true,
+            "travail": false,
             "prive": false,
             "photos": [
                 {
