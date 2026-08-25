@@ -256,7 +256,7 @@ window.SITE_DATA = {
         "lienHD": "https://drive.google.com/drive/folders/185HtoSYGZeth0i646EzUK2G8l4wLdEMs?usp=share_link",
         "domaine": "https://www.shootbytheo.com",
         "ville": "",
-        "description": "SHOOTBYTHEO — photographie sportive et documentaire : badminton, judo, reportage de compétition."
+        "description": "SHOOTBYTHEO — photographie sportive "
     },
     "apropos": {
         "actif": false,
