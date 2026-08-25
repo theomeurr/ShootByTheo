@@ -255,7 +255,7 @@ window.SITE_DATA = {
         "instagram": "https://www.instagram.com/shootby.theo/",
         "lienHD": "https://drive.google.com/drive/folders/185HtoSYGZeth0i646EzUK2G8l4wLdEMs?usp=share_link",
         "domaine": "https://www.shootbytheo.com",
-        "ville": "",
+        "ville": "Chambly, Oise",
         "description": "SHOOTBYTHEO — photographie sportive "
     },
     "apropos": {
