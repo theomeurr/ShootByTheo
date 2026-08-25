@@ -14,7 +14,7 @@ window.SITE_DATA = {
             "img": "image/web/equipe_n2.jpg",
             "tag": "À la une · 9ᵉ journée",
             "title": "Nationale 2",
-            "meta": "Interclub · Compétition",
+            "meta": "Saison 2025-2027",
             "pos": "center 30%",
             "album": "nationale-2-9e-journee"
         }
