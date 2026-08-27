@@ -1,0 +1,113 @@
+/* ============================================================
+   SHOOTBYTHEO — accueil mobile
+   Rien ici ne s'applique au-dessus de 700px : le site desktop
+   est intact.
+   ============================================================ */
+
+@media (max-width:700px){
+
+  /* ---- Header réduit : logo seul, la nav passe en bas ---- */
+  .hdr{padding:14px 18px;background:linear-gradient(to bottom,rgba(12,11,10,.85),rgba(12,11,10,0))}
+  .hdr-logo{height:34px}
+  .hdr-baseline{display:none}
+  .hdr-nav{display:none}
+  .hdr-hd{
+    display:flex;align-items:center;height:44px;padding:0 14px;
+    color:var(--ink);border:1px solid rgba(242,239,233,.34);
+    font-size:10.5px;font-weight:600;letter-spacing:.14em;
+    text-transform:uppercase;text-decoration:none;
+  }
+
+  /* la barre d'onglets flotte au-dessus du contenu : on lui réserve la place */
+  body{padding-bottom:82px}
+  .ftr{padding:24px 18px 40px;flex-direction:column;align-items:flex-start;gap:6px;font-size:10.5px}
+
+  /* ---- Accueil : le diaporama desktop est remplacé par le carrousel ---- */
+  .mob-on .hero{display:none}
+  .mob-home{display:block}
+
+  /* carrousel : une photo par écran, glissement au pouce */
+  .mob-slides{
+    display:flex;overflow-x:auto;scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;
+  }
+  .mob-slides::-webkit-scrollbar{display:none}
+  .mob-slide{
+    flex:none;width:100%;aspect-ratio:402/540;position:relative;
+    scroll-snap-align:start;background-size:cover;background-position:center;
+  }
+  .mob-slide .veil{
+    position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(to bottom,rgba(12,11,10,.55),transparent 30%,rgba(12,11,10,.2) 52%,rgba(12,11,10,.94));
+  }
+  .mob-slide .txt{position:absolute;left:0;right:0;bottom:0;padding:0 18px 26px}
+  .mob-slide .tag{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.26em;
+    text-transform:uppercase;color:var(--accent);margin-bottom:12px;
+  }
+  .mob-slide .t{
+    margin:0;font-weight:900;font-size:56px;line-height:.86;
+    letter-spacing:-.03em;text-transform:uppercase;
+  }
+  .mob-slide .m{margin-top:12px;font-size:14px;letter-spacing:.04em;color:rgba(242,239,233,.8)}
+
+  /* repères de position + compteur */
+  .mob-dots{display:flex;align-items:center;gap:8px;padding:16px 18px 0}
+  .mob-dots i{width:26px;height:3px;background:rgba(242,239,233,.28);transition:background .3s}
+  .mob-dots i.is-on{background:var(--accent)}
+  .mob-dots .c{
+    margin-left:auto;font-family:var(--mono);font-size:11px;
+    letter-spacing:.16em;color:rgba(242,239,233,.6);
+  }
+
+  .mob-cta{display:block;width:100%;padding:19px 20px;margin:14px 0 0;font-size:12px;letter-spacing:.16em}
+
+  .mob-lbl{
+    padding:38px 18px 14px;font-family:var(--mono);font-size:10.5px;
+    letter-spacing:.24em;text-transform:uppercase;color:var(--muted);
+  }
+
+  /* cartes de série, pleine largeur */
+  .mob-series{display:flex;flex-direction:column;gap:14px;padding:0 18px 34px}
+  .mob-serie{
+    position:relative;display:block;width:100%;aspect-ratio:3/2;overflow:hidden;
+    border:none;padding:0;background:#141210;text-align:left;color:inherit;font:inherit;cursor:pointer;
+  }
+  .mob-serie img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.56)}
+  .mob-serie .veil{position:absolute;inset:0;background:linear-gradient(to top,rgba(12,11,10,.92),transparent 66%)}
+  .mob-serie .txt{position:absolute;left:0;right:0;bottom:0;padding:18px 18px 16px}
+  .mob-serie .k{
+    font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:7px;
+  }
+  .mob-serie .n{font-weight:900;font-size:32px;line-height:.94;text-transform:uppercase;letter-spacing:-.02em}
+  .mob-serie .b{margin:9px 0 0;font-size:12.5px;line-height:1.5;color:rgba(242,239,233,.78);max-width:30ch}
+  .mob-serie .tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px;justify-content:flex-start}
+  .mob-serie .tag{
+    font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:rgba(242,239,233,.85);border:1px solid rgba(242,239,233,.3);
+    border-radius:100px;padding:5px 11px;
+  }
+
+  /* ---- Barre d'onglets fixe : tout est atteignable au pouce ---- */
+  .mob-tabs{
+    position:fixed;left:0;right:0;bottom:0;z-index:70;
+    display:grid;border-top:1px solid rgba(242,239,233,.16);
+    background:rgba(12,11,10,.94);backdrop-filter:blur(12px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  .mob-tab{
+    height:56px;background:none;border:none;border-top:2px solid transparent;
+    color:rgba(242,239,233,.55);font-family:var(--mono);font-size:9.5px;
+    font-weight:500;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;
+  }
+  .mob-tab.is-on{border-top-color:var(--accent);color:var(--ink)}
+
+  /* la visionneuse doit rester au-dessus de la barre d'onglets */
+  .lb{z-index:100}
+}
+
+/* au-dessus de 700px, les éléments mobiles n'existent pas */
+@media (min-width:701px){
+  .mob-home,.mob-tabs,.hdr-hd{display:none !important}
+}

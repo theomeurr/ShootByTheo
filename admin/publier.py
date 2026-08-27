@@ -27,7 +27,7 @@ OUT = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else \
 
 # data.js n'est pas copié tel quel : il est réécrit plus bas pour y joindre
 # la table des vignettes produites à la publication.
-FICHIERS = ['index.html']
+FICHIERS = ['index.html', 'mobile.css', 'mobile.js']
 DOSSIERS = [os.path.join('image', d) for d in ('web', 'galerie', 'accueil', 'apropos')]
 IMAGES = [os.path.join('image', 'logo.png'), os.path.join('image', 'favicon.png')]
 

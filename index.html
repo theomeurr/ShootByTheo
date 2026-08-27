@@ -399,6 +399,9 @@ input::placeholder,textarea::placeholder{color:#a29c91}
   *{animation-duration:.001ms !important;transition-duration:.001ms !important}
 }
 </style>
+<!-- Couche mobile : chargée après le style du site pour pouvoir le neutraliser
+     en dessous de 700px. Au-dessus, le site desktop est intact. -->
+<link rel="stylesheet" href="mobile.css">
 </head>
 <body>
 
@@ -1006,6 +1009,9 @@ input::placeholder,textarea::placeholder{color:#a29c91}
   appliquer();
 })();
 </script>
+
+<!-- Accueil mobile : lit SITE_DATA après le moteur, ne s'active qu'en dessous de 700px. -->
+<script src="mobile.js"></script>
 
 </body>
 </html>
