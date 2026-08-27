@@ -59,44 +59,6 @@ jobs:
           test "$pages" -ge 5 || { echo "::error::trop peu de pages générées ($pages)"; exit 1; }
           test "$images" -ge 10 || { echo "::error::trop peu d'images ($images)"; exit 1; }
 
-      # Le fichier de configuration de l'administration en ligne contient
-      # l'empreinte du mot de passe et le jeton GitHub. Il n'est pas dans le
-      # dépôt : il est écrit ici, et déposé à l'étape suivante à côté du
-      # dossier web plutôt que dedans, hors de portée d'Apache.
-      - name: Préparer la configuration de l'administration
-        id: admin
-        env:
-          MDP_HASH: ${{ secrets.ADMIN_MDP_HASH }}
-          JETON: ${{ secrets.ADMIN_GITHUB_TOKEN }}
-        run: |
-          set -e
-          # Seul le jeton est indispensable : c'est une clé que personne d'autre
-          # ne peut créer. Le mot de passe, lui, se choisit à la première visite
-          # de /admin/ — le secret ADMIN_MDP_HASH reste possible mais facultatif.
-          if [ -z "$JETON" ]; then
-            echo "jeton GitHub absent — l'administration en ligne ne sera pas déposée"
-            rm -rf _site/admin
-            echo "config=non" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          if [ -z "$MDP_HASH" ]; then
-            echo "mot de passe à choisir à la première visite de /admin/"
-          fi
-          # Les valeurs sont encodées avant d'être écrites : un hash bcrypt ou
-          # un jeton contient $, / et parfois une apostrophe, qu'il faudrait
-          # sinon échapper à travers le shell puis PHP. En base64, la question
-          # ne se pose plus — l'alphabet est sans caractère spécial.
-          {
-            printf '%s\n' '<?php return ['
-            printf "  'mdp_hash' => base64_decode('%s'),\n"     "$(printf '%s' "$MDP_HASH" | base64 -w0)"
-            printf "  'github_token' => base64_decode('%s'),\n" "$(printf '%s' "$JETON"    | base64 -w0)"
-            printf "  'depot' => '%s',\n"   "$GITHUB_REPOSITORY"
-            printf "  'branche' => '%s',\n" "$GITHUB_REF_NAME"
-            printf '%s\n' '];'
-          } > sbt-config.php
-          php -l sbt-config.php >/dev/null 2>&1 || echo "::warning::php absent, syntaxe non vérifiée"
-          echo "config=oui" >> "$GITHUB_OUTPUT"
-
       # L'hébergement mutualisé OVH ne gère pas le FTPS : il répond
       # « 500 This security scheme is not implemented » à AUTH TLS. Le dépôt
       # passe donc par SFTP, qui chiffre aussi bien la connexion.
@@ -112,17 +74,10 @@ jobs:
           # la racine du serveur, où ce dossier n'existe pas ; « www » vise
           # bien le dossier web, et reste valable en FTP.
           CIBLE: ${{ vars.OVH_FTP_DIR || 'www/' }}
-          CONFIG: ${{ steps.admin.outputs.config }}
         run: |
           set -e
           test -n "$SERVEUR" || { echo "::error::le secret OVH_FTP_SERVER est vide"; exit 1; }
           sudo apt-get update -qq && sudo apt-get install -y -qq lftp
-          # Le fichier de configuration monte à la racine de connexion, un
-          # cran au-dessus du dossier web : Apache ne peut donc pas le servir.
-          depot_config=''
-          if [ "$CONFIG" = "oui" ]; then
-            depot_config='put -O . sbt-config.php'
-          fi
           # --env-password : le mot de passe ne passe ni par la ligne de
           # commande ni par le script, donc jamais par la liste des processus.
           lftp --env-password -u "$UTILISATEUR" "$PROTOCOLE://$SERVEUR" <<LFTP
@@ -133,7 +88,20 @@ jobs:
             set ftp:ssl-allow no
             # Sans --delete : rien n'est retiré du serveur sans intervention.
             mirror --reverse --continue --verbose --parallel=4 _site/ "$CIBLE"
-            $depot_config
             bye
           LFTP
-          rm -f sbt-config.php
+
+          # L'administration en ligne a été retirée. Le dépôt ne supprimant
+          # rien de lui-même, ce ménage est explicite : sans lui, l'ancienne
+          # page resterait servie par Apache, avec son jeton GitHub.
+          # fail-exit no : une fois le ménage fait, ces chemins n'existent
+          # plus et leur absence ne doit pas faire échouer la publication.
+          lftp --env-password -u "$UTILISATEUR" "$PROTOCOLE://$SERVEUR" <<LFTP
+            set cmd:fail-exit no
+            set sftp:auto-confirm yes
+            set ftp:ssl-allow no
+            rm -r ${CIBLE}admin
+            rm sbt-config.php
+            rm sbt-mdp.php
+            bye
+          LFTP

@@ -103,46 +103,27 @@ FTPS, il refuse `AUTH TLS`. Deux réglages facultatifs, dans l'onglet
 Rien n'est supprimé sur le serveur : les fichiers de l'ancien site restent
 en place tant que vous ne les retirez pas vous-même par FTP.
 
-## Administration en ligne
+## Pourquoi l'administration n'est pas en ligne
 
-La même interface est accessible depuis n'importe où — un téléphone suffit —
-sur `https://votre-site/admin/`, derrière un mot de passe. Elle n'écrit pas
-sur l'hébergeur : elle enregistre dans GitHub, qui régénère puis redéploie.
-Le site public est donc à jour quelques minutes après, et l'historique
-conserve chaque version. Une photo supprimée reste récupérable dans
-l'historique du dépôt : c'est la corbeille de l'administration locale.
+Elle l'a été, sur `/admin/`, derrière un mot de passe. Elle ne l'est plus.
 
-Un seul secret est nécessaire, dans
-**Settings → Secrets and variables → Actions** :
+Une page d'administration publique doit être défendue, et elle portait un
+jeton GitHub capable d'écrire dans ce dépôt : mot de passe à retenir, fenêtre
+d'installation à surveiller, fichier de configuration à tenir hors de portée
+d'Apache. Beaucoup de protections pour un usage qui, en pratique, se fait
+depuis le Mac où sont déjà les photos.
 
-| Secret | Comment l'obtenir |
-|---|---|
-| `ADMIN_GITHUB_TOKEN` | Un jeton GitHub *fine-grained* limité à ce seul dépôt, avec l'autorisation **Contents : Read and write** — https://github.com/settings/personal-access-tokens |
+`Administration.command` n'écoute que sur cette machine. Il n'y a plus de mot
+de passe, plus de jeton sur le serveur, et plus de page à défendre.
 
-**Le mot de passe se choisit sur la page elle-même.** À la première visite de
-`/admin/`, l'administration constate qu'aucun mot de passe n'existe et vous
-invite à en créer un ; il est enregistré sur le serveur, hors du dossier web,
-et survit aux publications suivantes.
+Le bouton **Publier en ligne ↑** de l'administration locale fait le `git push`
+lui-même : le confort est le même, sans surface exposée.
 
-Cet écran ne reste ouvert que 24 heures après une publication : sans cette
-limite, une administration installée puis oubliée resterait indéfiniment à la
-portée du premier venu. Passé ce délai, relancez la publication depuis
-l'onglet **Actions** de GitHub pour rouvrir la fenêtre.
-
-Le secret `ADMIN_MDP_HASH` reste accepté pour qui préfère fixer le mot de
-passe d'avance : `admin/motdepasse.html`, ouvert dans un navigateur, produit
-la ligne à y coller.
-
-Le fichier de configuration qui porte le jeton n'est pas dans ce dépôt : il
-est écrit à chaque publication et déposé **à côté** du dossier web, donc hors
-de portée d'Apache. Trois protections se superposent, car un serveur mal
-configuré suffirait à livrer le jeton : cet emplacement, un refus explicite
-dans `admin/.htaccess`, et un contenu qui n'affiche rien même exécuté. Le mot
-de passe vit dans un second fichier au même endroit, que la publication ne
-réécrit jamais.
-
-Sans le jeton, l'administration en ligne n'est pas déposée du tout — seul
-le site public l'est.
+> Si l'administration en ligne a déjà été déployée, la publication suivante
+> retire `/admin/` du serveur ainsi que ses fichiers de configuration.
+> Pensez aussi à **révoquer le jeton GitHub** dans
+> https://github.com/settings/personal-access-tokens : le supprimer des
+> secrets ne le désactive pas.
 
 Côté OVH, activez le **certificat SSL gratuit** (Hébergements → Multisite) :
 le site force `https://` et l'adresse unique déclarée dans les réglages.
