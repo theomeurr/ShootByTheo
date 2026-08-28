@@ -6,10 +6,17 @@
 
 @media (max-width:700px){
 
-  /* ---- Header réduit : logo seul, la nav passe en bas ---- */
+  /* ---- Header réduit : la nav passe en bas, le logo et la mention restent ---- */
   .hdr{padding:14px 18px;background:linear-gradient(to bottom,rgba(12,11,10,.85),rgba(12,11,10,0))}
-  .hdr-logo{height:34px}
-  .hdr-baseline{display:none}
+  .hdr-logo{height:44px}
+  /* min-width:0 + ellipsis : une mention plus longue se tronque au lieu de
+     pousser le bouton HD hors de l'écran sur un petit téléphone. */
+  .hdr-brand{gap:11px;min-width:0}
+  .hdr-baseline{
+    display:block;font-size:9.5px;letter-spacing:.18em;
+    padding-left:11px;white-space:nowrap;
+    min-width:0;overflow:hidden;text-overflow:ellipsis;
+  }
   .hdr-nav{display:none}
   .hdr-hd{
     display:flex;align-items:center;height:44px;padding:0 14px;
