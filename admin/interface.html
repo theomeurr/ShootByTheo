@@ -589,6 +589,11 @@ function vueAlbum(key, id){
     }),
     champ('Date', 'Sert à ranger les journées de la plus récente à la plus ancienne.',
       a.date, v => { a.date = v; maj(); }, '', 'date'),
+    champ('Lien de téléchargement des photos',
+      'Le dossier de cette journée. Le visiteur tombe alors sur ses photos plutôt '
+      + 'que sur le dossier commun à tous les sports. Laissez vide pour garder le '
+      + 'lien général des réglages.',
+      a.lienHD, v => { a.lienHD = v.trim(); maj(); }, 'https://drive.google.com/…'),
     bascule('Journée privée (visible seulement par son lien)', a.prive, v => { a.prive=v; maj(); }),
     el('details', { class:'avance' },
       el('summary', { text:'Réglages avancés' }),

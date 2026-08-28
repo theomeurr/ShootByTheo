@@ -80,6 +80,9 @@ input::placeholder,textarea::placeholder{color:#a29c91}
 .btn-accent:hover{filter:brightness(1.1)}
 .btn-ghost{
   display:inline-block;text-decoration:none;color:var(--ink);
+  /* background:none — sur un <button>, le navigateur poserait sinon son fond
+     gris par défaut et le texte crème deviendrait illisible. */
+  background:none;
   border:1px solid rgba(242,239,233,.4);
   font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
   padding:15px 28px;transition:background .2s,border-color .2s;
@@ -247,6 +250,9 @@ input::placeholder,textarea::placeholder{color:#a29c91}
   padding:28px 40px 70px;
 }
 .gal-foot p{margin:0;font-size:13px;color:var(--muted);max-width:44ch;line-height:1.6}
+.gal-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+#galPartage{cursor:pointer;font-family:inherit}
+#galPartage.ok{border-color:var(--accent);color:var(--accent)}
 
 /* ---------- Contact ---------- */
 .contact{position:relative;min-height:100vh;overflow:hidden}
@@ -434,7 +440,7 @@ input::placeholder,textarea::placeholder{color:#a29c91}
           <div class="hero-meta" id="heroMeta"></div>
           <div class="hero-cta">
             <button class="btn-accent" id="heroOpen">Voir la galerie →</button>
-            <a class="btn-ghost" href="https://urls.fr/mzLZHU" target="_blank" rel="noopener">Télécharger en HD ↓</a>
+            <a class="btn-ghost" id="heroHD" href="#" target="_blank" rel="noopener">Télécharger en HD ↓</a>
           </div>
         </div>
         <div class="hero-side">
@@ -476,8 +482,11 @@ input::placeholder,textarea::placeholder{color:#a29c91}
     <div class="sect-lbl" id="galLbl2" hidden></div>
     <div class="gal-grid" id="galGrid"></div>
     <div class="gal-foot">
-      <p>La galerie complète en haute définition est disponible au téléchargement.</p>
-      <a class="btn-accent" id="galHD" href="#" target="_blank" rel="noopener">Télécharger en HD ↓</a>
+      <p id="galHDtxt">La galerie complète en haute définition est disponible au téléchargement.</p>
+      <div class="gal-actions">
+        <button class="btn-ghost" id="galPartage" type="button">Partager ↗</button>
+        <a class="btn-accent" id="galHD" href="#" target="_blank" rel="noopener">Télécharger en HD ↓</a>
+      </div>
     </div>
   </section>
 
@@ -657,9 +666,8 @@ input::placeholder,textarea::placeholder{color:#a29c91}
     if (SITE.instagram){
       document.querySelectorAll('a[href*="instagram.com"]').forEach(function(a){ a.href = SITE.instagram; });
     }
-    if (SITE.lienHD){
-      document.querySelectorAll('.btn-ghost[href], #galHD').forEach(function(a){ a.href = SITE.lienHD; });
-    }
+    /* Les boutons HD de la une et des galeries sont posés à chaque affichage :
+       ils suivent la journée en cours, avec le lien du site pour défaut. */
     $('navApropos').hidden = !APROPOS.actif;
     $('navPresta').hidden  = !PRESTA.actif;
   })();
@@ -698,6 +706,11 @@ input::placeholder,textarea::placeholder{color:#a29c91}
     $('heroTitle').textContent = sl.title || '';
     $('heroMeta').textContent = sl.meta || '';
     $('counter').textContent = pad2(etat.slide + 1) + ' / ' + pad2(SLIDES.length);
+    /* le bouton HD de la une suit la journée affichée */
+    var sh = idx[sl.serie], ah = sh && sl.album ? albumDe(sh, sl.album) : null;
+    var lien = (ah && ah.lienHD) || SITE.lienHD || '';
+    $('heroHD').hidden = !lien;
+    if (lien) $('heroHD').href = lien;
     couches.forEach(function(el, i){ el.classList.toggle('is-on', i === etat.slide); });
     vignettes.forEach(function(el, i){ el.classList.toggle('is-on', i === etat.slide); });
     segments.forEach(function(el, i){ el.classList.toggle('is-on', i <= etat.slide); });
@@ -764,6 +777,56 @@ input::placeholder,textarea::placeholder{color:#a29c91}
   /* ================= GALERIE ================= */
   var photosCourantes = [], iLb = 0;
 
+  /* ---------- Partager une galerie ----------
+     Sur téléphone, le partage natif ouvre Messages, WhatsApp, Instagram :
+     un joueur envoie la galerie à son équipe en deux gestes. Ailleurs, le
+     lien est copié — même service, sans fenêtre système. */
+  var partageCible = null, partageMinuteur = null;
+
+  function adressePartage(s, a){
+    var route = 'serie/' + s.key + (a ? '/' + a.id : '');
+    /* l'adresse réelle produite à la publication, partageable telle quelle */
+    if (SITE.domaine) return SITE.domaine.replace(/\/+$/, '') + '/' + route + '/';
+    return location.origin + location.pathname + '#/' + route;
+  }
+
+  function majPartage(s, a){
+    partageCible = {
+      titre: (a ? a.titre + ' · ' : '') + (s.title || 'SHOOTBYTHEO'),
+      url: adressePartage(s, a)
+    };
+    var b = $('galPartage');
+    b.textContent = 'Partager ↗';
+    b.classList.remove('ok');
+  }
+
+  function retourPartage(texte){
+    var b = $('galPartage');
+    b.textContent = texte;
+    b.classList.add('ok');
+    clearTimeout(partageMinuteur);
+    partageMinuteur = setTimeout(function(){
+      b.textContent = 'Partager ↗';
+      b.classList.remove('ok');
+    }, 2600);
+  }
+
+  $('galPartage').addEventListener('click', function(){
+    if (!partageCible) return;
+    if (navigator.share){
+      navigator.share({ title: partageCible.titre, url: partageCible.url })
+        .catch(function(){ /* partage annulé : rien à signaler */ });
+      return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(partageCible.url)
+        .then(function(){ retourPartage('✓ Lien copié'); })
+        .catch(function(){ retourPartage(partageCible.url); });
+      return;
+    }
+    retourPartage(partageCible.url);
+  });
+
   function peindreGalerie(){
     var s = idx[etat.serie];
     if (!s) return aller('travail');
@@ -780,6 +843,17 @@ input::placeholder,textarea::placeholder{color:#a29c91}
     $('galTitle').textContent = a ? a.titre : (s.title || '');
     $('galBack').textContent = a ? '← ' + s.title : '← Retour au travail';
     $('galBack').onclick = function(){ aller(a ? 'serie/' + s.key : 'travail'); };
+
+    /* Téléchargement : le lien de la journée s'il en a un, sinon celui du site.
+       Un visiteur venu pour sa compétition atterrit ainsi sur ses photos,
+       pas sur un dossier commun à tous les sports. */
+    var hd = (a && a.lienHD) || SITE.lienHD || '';
+    $('galHD').hidden = !hd;
+    if (hd) $('galHD').href = hd;
+    $('galHDtxt').textContent = (a && a.lienHD)
+      ? 'Les photos de cette journée sont disponibles en haute définition.'
+      : 'La galerie complète en haute définition est disponible au téléchargement.';
+    majPartage(s, a);
 
     /* corps */
     var listeJ = $('galJournees'), lbl = $('galLbl'), lbl2 = $('galLbl2'), grille = $('galGrid');
