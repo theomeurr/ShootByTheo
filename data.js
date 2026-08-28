@@ -14,7 +14,7 @@ window.SITE_DATA = {
       "img": "image/web/equipe_n2.jpg",
       "tag": "À la une · 9ᵉ journée",
       "title": "Nationale 2",
-      "meta": "Saison 2025-2027",
+      "meta": "Saison 2025-2026",
       "pos": "center 30%",
       "album": "nationale-2-9e-journee"
     }
