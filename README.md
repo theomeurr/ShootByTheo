@@ -103,6 +103,20 @@ FTPS, il refuse `AUTH TLS`. Deux réglages facultatifs, dans l'onglet
 Rien n'est supprimé sur le serveur : les fichiers de l'ancien site restent
 en place tant que vous ne les retirez pas vous-même par FTP.
 
+## Mesure d'audience et consentement
+
+Le site charge Google Tag Manager (conteneur `GTM-NPSPD3SW`), mais **seulement
+après un accord explicite du visiteur**. Tant qu'il n'a pas répondu au bandeau,
+aucune requête ne part chez Google : le conteneur n'est injecté qu'à
+l'acceptation. Le refus est mémorisé six mois — la durée conseillée par la
+CNIL — puis la question est reposée, et le lien « Cookies » du pied de page
+permet de revenir sur son choix à tout moment.
+
+Le site changeant de vue sans recharger la page, chaque navigation pousse un
+événement `vue_virtuelle` portant l'adresse et le titre : sans lui, Tag Manager
+ne compterait que la page d'arrivée. Créez dans GTM un déclencheur
+« Événement personnalisé » de ce nom pour y brancher vos balises.
+
 ## Pourquoi l'administration n'est pas en ligne
 
 Elle l'a été, sur `/admin/`, derrière un mot de passe. Elle ne l'est plus.

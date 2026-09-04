@@ -4,12 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Google Tag Manager — conteneur GTM-NPSPD3SW.
-     Placé aussi haut que possible, comme le demande Google. -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-NPSPD3SW');</script>
+     Il n'est PAS chargé ici : rien ne part chez Google tant que le visiteur
+     n'a pas accepté (voir le bandeau en bas de page). L'état par défaut est
+     posé dès maintenant, avant tout, pour que rien ne puisse le devancer. -->
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){ dataLayer.push(arguments); }
+gtag('consent', 'default', {
+  ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied',
+  analytics_storage: 'denied', personalization_storage: 'denied',
+  functionality_storage: 'granted', security_storage: 'granted'
+});
+</script>
 <!-- End Google Tag Manager -->
 <title>SHOOTBYTHEO — Photographie sport &amp; documentaire</title>
 <meta name="description" content="SHOOTBYTHEO — photographie sportive et documentaire : badminton, judo, reportage de compétition.">
@@ -356,6 +362,39 @@ input::placeholder,textarea::placeholder{color:#a29c91}
   padding:10px 40px 80px}
 .presta-fin p{margin:0;font-size:14px;color:var(--muted)}
 
+/* ---------- Bandeau cookies ---------- */
+/* Refuser doit être aussi simple qu'accepter : les deux boutons ont la même
+   taille, la même graisse et le même nombre de clics. */
+.cook{
+  position:fixed;left:0;right:0;bottom:0;z-index:120;
+  display:flex;align-items:center;justify-content:space-between;gap:26px;
+  padding:20px 40px;background:rgba(20,18,16,.98);
+  border-top:1px solid rgba(242,239,233,.22);
+  box-shadow:0 -10px 40px rgba(0,0,0,.5);
+}
+.cook p{margin:0;font-size:13.5px;line-height:1.6;color:rgba(242,239,233,.86);max-width:78ch}
+.cook p strong{color:var(--ink);font-weight:700}
+.cook-btn{display:flex;gap:12px;flex:none}
+.cook-btn button{
+  font-family:inherit;font-weight:700;font-size:12px;letter-spacing:.12em;
+  text-transform:uppercase;padding:14px 26px;cursor:pointer;border:1px solid transparent;
+  min-width:132px;transition:filter .2s,background .2s;
+}
+/* fond plein, comme « Accepter » : un simple liseré se lirait comme un lien
+   et pousserait vers l'acceptation, ce que la CNIL proscrit */
+.cook-non{background:rgba(242,239,233,.16);border-color:rgba(242,239,233,.42);color:var(--ink)}
+.cook-non:hover{background:rgba(242,239,233,.28)}
+.cook-oui{background:var(--accent);color:var(--bg)}
+.cook-oui:hover{filter:brightness(1.1)}
+.ftr .cook-lien{background:none;border:none;padding:0;cursor:pointer;font:inherit;
+  color:var(--muted);text-transform:uppercase;letter-spacing:.14em}
+.ftr .cook-lien:hover{color:var(--ink)}
+@media (max-width:900px){
+  .cook{flex-direction:column;align-items:stretch;gap:16px;padding:18px 20px}
+  .cook p{font-size:13px}
+  .cook-btn button{flex:1;min-width:0;padding:14px 10px}
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width:900px){
   .hdr{padding:16px 20px;gap:14px}
@@ -418,10 +457,9 @@ input::placeholder,textarea::placeholder{color:#a29c91}
 <link rel="stylesheet" href="mobile.css">
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NPSPD3SW"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
+<!-- Le repli <noscript> de Tag Manager appellerait Google sans consentement
+     possible : sans JavaScript, aucun bandeau ne peut être présenté. Il est
+     donc volontairement absent. -->
 
 <header class="hdr">
   <button class="hdr-brand" data-go="home" aria-label="SHOOTBYTHEO — à la une">
@@ -567,7 +605,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <span>© 2026 SHOOTBYTHEO</span>
   <a href="mailto:contact@shootbytheo.com">contact@shootbytheo.com</a>
   <a href="https://www.instagram.com/shootby.theo/" target="_blank" rel="noopener">@shootby.theo</a>
+  <button class="cook-lien" id="cookRouvrir" hidden>Cookies</button>
 </footer>
+
+<div class="cook" id="cook" hidden role="region" aria-label="Consentement aux cookies">
+  <p><strong>Ce site peut mesurer son audience.</strong> Cela me permet de savoir
+     quelles galeries sont consultées, rien de plus — ni publicité, ni revente.
+     Aucun cookie n'est déposé sans votre accord, et vous pouvez changer d'avis
+     à tout moment depuis le lien « Cookies » en bas de page.</p>
+  <div class="cook-btn">
+    <button class="cook-non" id="cookNon">Refuser</button>
+    <button class="cook-oui" id="cookOui">Accepter</button>
+  </div>
+</div>
 
 <div class="lb" id="lb" hidden>
   <img id="lbImg" alt="">
@@ -1035,6 +1085,65 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       })
       .then(function(){ envoi.disabled = false; });
   });
+
+  /* ================= Consentement aux cookies =================
+     Le conteneur Tag Manager n'est chargé qu'après un accord explicite :
+     tant que le visiteur n'a pas répondu, rien ne part chez Google. Le
+     refus est aussi simple que l'accord, et se reprend à tout moment. */
+  var COOK_CLE = 'sbt_cookies';
+  var COOK_DUREE = 183 * 24 * 3600 * 1000;   // 6 mois, durée conseillée par la CNIL
+
+  function lireChoix(){
+    try {
+      var v = JSON.parse(localStorage.getItem(COOK_CLE) || 'null');
+      if (!v || !v.date) return null;
+      /* passé six mois, la question est reposée */
+      if (Date.now() - v.date > COOK_DUREE) return null;
+      return v.choix === 'oui' ? 'oui' : 'non';
+    } catch (e) { return null; }   /* navigation privée : on redemandera */
+  }
+  function ecrireChoix(choix){
+    try {
+      localStorage.setItem(COOK_CLE, JSON.stringify({ choix:choix, date:Date.now() }));
+    } catch (e) {}
+  }
+
+  var conteneurCharge = false;
+  function chargerMesure(){
+    if (conteneurCharge) return;
+    conteneurCharge = true;
+    if (typeof gtag === 'function'){
+      gtag('consent', 'update', {
+        ad_storage:'granted', ad_user_data:'granted', ad_personalization:'granted',
+        analytics_storage:'granted', personalization_storage:'granted'
+      });
+    }
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+    var e = document.createElement('script');
+    e.async = true;
+    e.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-NPSPD3SW';
+    document.head.appendChild(e);
+  }
+
+  function montrerBandeau(oui){ $('cook').hidden = !oui; }
+
+  (function cookies(){
+    var choix = lireChoix();
+    if (choix === 'oui') chargerMesure();
+    montrerBandeau(choix === null);
+    $('cookRouvrir').hidden = false;
+
+    $('cookOui').addEventListener('click', function(){
+      ecrireChoix('oui'); montrerBandeau(false); chargerMesure();
+    });
+    $('cookNon').addEventListener('click', function(){
+      /* refus : rien n'est chargé, et on note la réponse pour ne pas
+         reposer la question à chaque page */
+      ecrireChoix('non'); montrerBandeau(false);
+    });
+    $('cookRouvrir').addEventListener('click', function(){ montrerBandeau(true); });
+  })();
 
   /* ================= Navigation ================= */
   var TITRE = 'SHOOTBYTHEO';
