@@ -9,7 +9,6 @@ on:
     paths-ignore:
       - '**.md'
       - '*.command'
-      - 'admin/interface.html'
       - 'admin/serveur.py'
   workflow_dispatch:
 
@@ -42,9 +41,15 @@ jobs:
         # on s'arrête ici plutôt que d'écraser la version en place.
         run: |
           set -e
-          for f in _site/index.html _site/data.js _site/robots.txt _site/.htaccess; do
+          for f in _site/index.html _site/data.js _site/robots.txt _site/.htaccess \
+                   _site/livraison/index.php _site/livraison/fichier.php \
+                   _site/livraison/api.php _site/livraison/commun.php \
+                   _site/livraison/.htaccess; do
             test -s "$f" || { echo "::error::$f manquant ou vide"; exit 1; }
           done
+          # Un .htaccess absent servirait les photos des clients en clair.
+          grep -q 'commun\\.php' _site/livraison/.htaccess \
+            || { echo "::error::les règles Apache des livraisons sont incomplètes"; exit 1; }
           if ! test -s _site/sitemap.xml; then
             echo "::error::sitemap.xml absent — l'adresse du site n'est pas renseignée dans data.js (site.domaine)."
             exit 1
@@ -90,3 +95,45 @@ jobs:
             mirror --reverse --continue --verbose --parallel=4 _site/ "$CIBLE"
             bye
           LFTP
+
+      # La clé qui ouvre l'administration des livraisons. Seule son empreinte
+      # part chez OVH, et hors de la racine web : même servi en clair, ce
+      # fichier ne livrerait pas la clé. Sans ce secret, les livraisons en
+      # ligne restent simplement inactives.
+      - name: Déposer la clé des livraisons
+        env:
+          SERVEUR: ${{ secrets.OVH_FTP_SERVER }}
+          UTILISATEUR: ${{ secrets.OVH_FTP_USERNAME }}
+          LFTP_PASSWORD: ${{ secrets.OVH_FTP_PASSWORD }}
+          PROTOCOLE: ${{ vars.OVH_PROTOCOLE || 'sftp' }}
+          CIBLE: ${{ vars.OVH_FTP_DIR || 'www/' }}
+          CLE: ${{ secrets.OVH_CLE_LIVRAISONS }}
+        run: |
+          set -e
+          if [ -z "$CLE" ]; then
+            echo "::notice::secret OVH_CLE_LIVRAISONS absent — les livraisons en ligne resteront inactives."
+            exit 0
+          fi
+          python3 - <<'PY'
+          import hashlib, os, secrets
+          cle = os.environ['CLE'].encode('utf-8')
+          sel = secrets.token_bytes(16)
+          tours = 210000
+          h = hashlib.pbkdf2_hmac('sha256', cle, sel, tours).hex()
+          empreinte = 'pbkdf2$sha256$%d$%s$%s' % (tours, sel.hex(), h)
+          with open('sbt-livraisons.php', 'w', encoding='utf-8') as f:
+              f.write("<?php return ['cle' => '%s'];\n" % empreinte)
+          PY
+          php -l sbt-livraisons.php 2>/dev/null || true
+          # Le dossier parent de la racine web : hors de portée d'Apache.
+          PARENT=$(dirname "${CIBLE%/}")
+          lftp --env-password -u "$UTILISATEUR" "$PROTOCOLE://$SERVEUR" <<LFTP
+            set cmd:fail-exit yes
+            set sftp:auto-confirm yes
+            set net:max-retries 3
+            set net:timeout 20
+            set ftp:ssl-allow no
+            put -O "$PARENT" sbt-livraisons.php
+            bye
+          LFTP
+          rm -f sbt-livraisons.php

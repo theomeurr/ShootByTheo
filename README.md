@@ -10,8 +10,8 @@ ni serveur applicatif. Il s'héberge n'importe où, y compris sur un hébergemen
 ordinateur. Tout se modifie là, sans rien installer (voir
 « Administration en ligne » plus bas).
 
-Le même outil existe en local, et reste nécessaire pour les **livraisons
-clients** :
+Le même outil existe en local, si vous préférez travailler depuis la machine
+où sont vos photos :
 
 - **macOS** — double-cliquez sur `Administration.command`
   (premier lancement : clic droit → *Ouvrir*, macOS met en quarantaine tout
@@ -32,10 +32,13 @@ Une suppression déplace le fichier dans `image/corbeille/` : rien n'est effacé
 mettre en ligne à la main. Ce n'est plus nécessaire au quotidien : le bouton
 **Publier en ligne ↑** s'en charge.
 
-> Les livraisons clients vivent dans `_livraisons/`, hors de Git : elles
-> restent **sur la machine qui les a créées**. Une livraison préparée sur le
-> Mac n'apparaît pas sur le PC, et inversement. Le portfolio, lui, est partagé
-> par GitHub et se retrouve à l'identique partout.
+> **Deux chemins pour les livraisons clients.** En ligne, elles montent
+> directement chez OVH et le lien client marche aussitôt, depuis n'importe quel
+> appareil. En local, elles vivent dans `_livraisons/` — hors de Git, donc
+> **sur la machine qui les a créées** — et demandent un transfert manuel. Une
+> livraison faite en ligne se gère en ligne ; une livraison faite sur le Mac se
+> gère sur le Mac. Le portfolio, lui, est partagé par GitHub et se retrouve à
+> l'identique partout.
 
 ## Organisation des fichiers
 
@@ -47,6 +50,8 @@ mettre en ligne à la main. Ce n'est plus nécessaire au quotidien : le bouton
 | `admin/interface.html` | Interface de l'administration |
 | `admin/publier.py` | Génère le dossier à mettre en ligne |
 | `admin-web/github.js` | Administration en ligne : remplace le serveur local par GitHub |
+| `admin-web/livraisons.js` | Livraisons clients en ligne, côté navigateur |
+| `admin-web/livraison/` | Les quelques fichiers PHP déposés chez OVH pour les galeries clients |
 | `*.command` / `*.bat` | Lanceurs de l'administration locale — macOS et Windows |
 | `image/web/` | Images de couverture optimisées |
 | `image/galerie/<série>/` | Photos des galeries |
@@ -54,15 +59,48 @@ mettre en ligne à la main. Ce n'est plus nécessaire au quotidien : le bouton
 
 ## Livraisons clients par lien
 
-Dans **Administration → Livraisons clients**, créez une livraison et importez
-vos photos JPEG, PNG ou WebP (100 Mo maximum par fichier). Les originaux sont
-conservés sans modification ; des aperçus de 1600 px sont créés séparément.
-Chaque livraison possède une adresse aléatoire de 128 bits, stable entre exports.
-Elle n'apparaît ni dans les menus ni dans le sitemap. Elle peut être protégée
-par un mot de passe (voir plus bas) ; sans mot de passe, toute personne
-possédant le lien consulte et télécharge la galerie.
+Une livraison est une galerie privée : une adresse aléatoire de 128 bits, une
+mosaïque, une visionneuse au clavier, le téléchargement d'un original ou de
+toute la série en ZIP. Elle n'apparaît ni dans les menus, ni dans le sitemap,
+ni dans `robots.txt`, et ne charge aucune ressource tierce.
 
-Cliquez sur **Préparer la galerie et son export**, puis :
+### En ligne — le chemin normal
+
+Dans **`https://votre-site/admin/` → Livraisons clients**, créez la galerie,
+choisissez vos photos : elles montent directement chez OVH et **le lien client
+fonctionne aussitôt**. Rien à préparer, rien à transférer, rien à décompresser.
+Copiez le lien, envoyez-le.
+
+Les originaux sont conservés sans aucune modification. L'aperçu de 1600 px est
+fabriqué **dans le navigateur** avant l'envoi, pour que l'hébergement mutualisé
+n'ait pas à redimensionner un fichier de 40 Mo. Les photos partent une par une :
+une erreur reste lisible et le reste de l'envoi se reprend.
+
+Par la suite, la même fiche permet d'ajouter des photos, d'en retirer une, de
+poser ou de changer le mot de passe, et de supprimer la livraison de
+l'hébergement. Tout s'applique immédiatement.
+
+> **La taille maximale d'une photo est celle de l'hébergement**, pas la vôtre :
+> l'écran d'envoi l'affiche (`upload_max_filesize` de PHP, 128 Mo chez OVH par
+> défaut). Une photo au-delà est refusée avec la limite en clair.
+
+#### Mise en route, une seule fois
+
+Créez un secret `OVH_CLE_LIVRAISONS` dans **Settings → Secrets and variables →
+Actions** : une phrase longue, choisie par vous. À la publication suivante,
+seule son **empreinte** part chez OVH, dans un fichier placé *hors de la racine
+web* — même servi en clair, il ne livrerait pas la clé.
+
+Cette clé s'entre une fois par appareil, dans l'administration, et y reste.
+Elle n'ouvre que les livraisons : elle ne donne accès ni au dépôt GitHub ni au
+reste du site. Sans ce secret, la rubrique le dit et reste inactive.
+
+### En local — l'export à transférer soi-même
+
+`Administration.command` (macOS) et `Administration.bat` (Windows) gardent la
+version locale, utile sans connexion. Les livraisons y vivent dans
+`_livraisons/`, ignoré par Git. Cliquez sur **Préparer la galerie et son
+export**, puis :
 
 1. Ouvrez l'aperçu pour vérifier les images.
 2. Téléchargez et décompressez le dossier pour OVH.
@@ -71,47 +109,69 @@ Cliquez sur **Préparer la galerie et son export**, puis :
 4. Ouvrez le lien client pour vérifier le transfert, puis envoyez-le au client.
 
 Renseignez l'adresse du site dans **Réglages** pour obtenir le lien complet.
-Le client peut agrandir les images, naviguer au clavier, télécharger chaque
-original ou récupérer toutes les photos dans une archive ZIP.
+Le bouton **Publier en ligne** du portfolio ne transfère pas ces exports : il
+passe par ce dépôt public, où les photos des clients n'ont rien à faire.
+Sauvegardez `_livraisons/` sur un autre support. Un export conserve une copie
+des originaux et son archive ZIP : comptez environ trois fois la taille des
+photos importées. Les aperçus des exports précédents sont effacés à chaque
+nouvelle préparation, pour que le disque ne grossisse pas d'une livraison
+entière à chaque export.
 
-**L'export ne met pas la galerie en ligne automatiquement.** Le bouton
-**Publier en ligne** du portfolio ne transfère pas les livraisons : il passe
-par ce dépôt public. Métadonnées, liens, aperçus, originaux et exports sont
-stockés uniquement dans `_livraisons/`, ignoré par Git. Sauvegardez ce dossier
-sur un autre support. Un export conserve une copie des originaux et son
-archive ZIP : comptez environ trois fois la taille des photos importées. Les
-aperçus des exports précédents sont effacés à chaque nouvelle préparation,
-pour que le disque ne grossisse pas d'une livraison entière à chaque export.
-
-Pour ajouter des photos à une livraison existante, ouvrez-la, importez les
-photos supplémentaires, préparez un nouvel export et transférez-le au même
-endroit : le lien reste identique. Pour retirer une livraison en ligne,
-supprimez son dossier `livraison/<identifiant>/` chez OVH. Supprimer seulement
-une copie locale ne retire pas les fichiers déjà hébergés.
+Pour ajouter des photos à une livraison locale déjà transférée, ouvrez-la,
+importez les photos supplémentaires, préparez un nouvel export et transférez-le
+au même endroit : le lien reste identique. Pour la retirer, supprimez son
+dossier `livraison/<identifiant>/` chez OVH — effacer la copie locale ne retire
+rien de l'hébergement.
 
 ### Mot de passe
 
 Chaque livraison peut être protégée par un mot de passe, posé dans sa fiche.
 Seule son empreinte est conservée : le mot de passe lui-même n'est écrit nulle
-part et ne peut pas être retrouvé. Après l'avoir posé ou retiré, **préparez à
-nouveau l'export** et transférez-le : la protection ne s'applique qu'aux
-fichiers déposés sur OVH.
+part et ne peut pas être retrouvé. En ligne, la protection s'applique tout de
+suite ; en local, **préparez à nouveau l'export** et transférez-le, sans quoi
+elle ne concerne que votre machine.
 
 Une galerie protégée n'est plus servie en fichiers statiques. Les photos
 passent sous `prives/`, qu'Apache refuse de servir, et PHP ne les diffuse
 qu'une fois le mot de passe donné — sans quoi l'adresse d'un original suffirait
-à contourner la page. La galerie exige donc **PHP sur l'hébergement**, ce
-qu'OVH mutualisé fournit. Trois essais manqués et l'attente s'allonge, de cinq
+à contourner la page. Trois essais manqués et l'attente s'allonge, de cinq
 secondes à cinq minutes.
 
 Communiquez le mot de passe séparément du lien, par un autre canal. Une galerie
 sans mot de passe reste accessible à toute personne qui possède son adresse.
 
-Les pages et fichiers portent une consigne de non-indexation et le listing
-de dossier est désactivé sur Apache. Les galeries ne chargent aucun
-outil d'analyse ni aucune ressource tierce.
+### Ce qui est déposé chez OVH
 
-Tests : `python3 -m unittest discover -s admin -p 'test_*.py'` (Pillow requis).
+Les livraisons demandent **PHP sur l'hébergement**, ce qu'OVH mutualisé
+fournit. Un seul jeu de fichiers sert toutes les galeries :
+
+```
+www/livraison/
+  .htaccess     règles Apache : jolie adresse, refus de prives/
+  index.php     la galerie, et la page de mot de passe
+  fichier.php   aperçus, originaux, archive ZIP
+  api.php       l'administration, fermée par la clé
+  commun.php    le code partagé — jamais servi
+  <identifiant>/prives/   manifeste, aperçus, originaux d'une livraison
+```
+
+L'administration n'envoie donc **jamais de code** au serveur : seulement des
+images, vérifiées comme telles à l'arrivée (un fichier PHP renommé en `.jpg`
+est refusé), et un manifeste écrit par PHP lui-même. Les photos ne sont jamais
+servies par Apache : elles vivent sous `prives/`, refusé par deux règles
+indépendantes, et seul `fichier.php` les lit, après avoir retrouvé le fichier
+par son identifiant dans le manifeste — aucun chemin ne vient de l'adresse.
+
+L'archive « toutes les photos » est assemblée à la volée, sans rien écrire sur
+le disque de l'hébergeur, et sa taille est annoncée d'avance pour que le
+navigateur affiche une vraie progression. Un téléchargement coupé se reprend au
+lieu de tout recommencer.
+
+La publication du site **n'efface rien** chez OVH : les livraisons déjà en
+ligne survivent à chaque mise à jour du portfolio.
+
+Tests : `python3 -m unittest discover -s admin -p 'test_*.py'` (Pillow requis ;
+les tests des livraisons en ligne s'exécutent si `php` est disponible).
 
 ## Modèle de contenu du portfolio
 
@@ -158,14 +218,15 @@ Le même enchaînement se déclenche à chaque `git push` sur `main`
 est complet ; sinon le déploiement échoue et l'ancienne version reste en place.
 Un déclenchement manuel est possible depuis l'onglet **Actions** de GitHub.
 
-Trois secrets sont à créer dans **Settings → Secrets and variables → Actions**,
+Les secrets sont à créer dans **Settings → Secrets and variables → Actions**,
 onglet *Secrets* :
 
-| Secret | Où le trouver chez OVH |
+| Secret | Où le trouver |
 |---|---|
-| `OVH_FTP_SERVER` | Espace client → Hébergements → FTP-SSH (`ftp.clusterXXX.hosting.ovh.net`) |
+| `OVH_FTP_SERVER` | Espace client OVH → Hébergements → FTP-SSH (`ftp.clusterXXX.hosting.ovh.net`) |
 | `OVH_FTP_USERNAME` | même page — l'identifiant du compte FTP |
 | `OVH_FTP_PASSWORD` | défini à la création du compte FTP, réinitialisable depuis la même page |
+| `OVH_CLE_LIVRAISONS` | choisi par vous : la clé qui ouvre les livraisons clients en ligne. Facultatif — sans lui, cette rubrique reste inactive. Seule son empreinte est déposée, hors de la racine web |
 
 Le transfert se fait en **SFTP** : l'hébergement mutualisé OVH ne gère pas le
 FTPS, il refuse `AUTH TLS`. Deux réglages facultatifs, dans l'onglet
@@ -199,10 +260,10 @@ ne compterait que la page d'arrivée. Créez dans GTM un déclencheur
 quel appareil : accueil, séries, journées, photos, textes, réglages. C'est la
 même interface que sur le Mac.
 
-La page est **entièrement statique**. Rien n'est installé sur l'hébergeur, il
-n'y a ni PHP, ni mot de passe, ni fichier de configuration à protéger : sans
-clé, elle ne sait rien faire. Elle parle directement à GitHub, qui régénère et
-déploie le site comme d'habitude.
+La page est **entièrement statique** : elle ne porte aucun secret et, sans clé,
+ne sait rien faire. Elle parle directement à GitHub, qui régénère et déploie le
+site comme d'habitude. Rien à protéger côté hébergeur pour le portfolio ; seules
+les livraisons clients y ajoutent quelques fichiers PHP, décrits plus haut.
 
 À la première visite sur un appareil, collez une clé GitHub *fine-grained*
 limitée à ce dépôt, avec **Contents : Read and write**
@@ -220,14 +281,17 @@ en une seule fois. Vingt photos font une publication, pas vingt. Tant que rien
 n'est publié, quitter la page demande confirmation, et le texte en cours est
 conservé pour la prochaine ouverture.
 
-> `Administration.command` reste utile pour une seule chose : les **livraisons
-> clients**, dont les photos ne passent pas par GitHub. Tout le reste se fait
-> en ligne.
+Les **livraisons clients** ont leur propre chemin : leurs photos sont trop
+lourdes pour Git, elles montent donc directement chez OVH, avec leur propre clé
+(voir plus haut). Là non plus, rien à installer ni à transférer à la main.
+
 ## Prérequis
 
-L'administration **en ligne** ne demande rien : un navigateur suffit.
+L'administration **en ligne** ne demande rien : un navigateur suffit. Les
+livraisons clients en ligne demandent **PHP chez l'hébergeur** — fourni par
+OVH mutualisé.
 
-Pour l'administration locale et les livraisons clients :
+Pour l'administration locale :
 
 - **macOS** — Python 3 est fourni avec les outils de développement Apple ;
   le premier lancement propose de les installer.

@@ -1,0 +1,29 @@
+# Livraisons clients — un seul jeu de fichiers pour toutes les galeries.
+Options -Indexes
+DirectoryIndex index.php
+# Sans cela, Apache redirige /livraison/<id> vers /livraison/<id>/?l=<id>.
+DirectorySlash Off
+
+<IfModule mod_headers.c>
+Header set X-Robots-Tag "noindex, nofollow, noarchive"
+Header set Referrer-Policy "no-referrer"
+</IfModule>
+
+# commun.php n'est jamais une page : il ne sert qu'aux autres fichiers.
+<FilesMatch "(?i)^commun\.php$">
+  Require all denied
+</FilesMatch>
+<IfModule !mod_authz_core.c>
+  <FilesMatch "(?i)^commun\.php$">
+    Order allow,deny
+    Deny from all
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Les photos vivent sous prives/ ; seul PHP les lit, par le disque.
+  RewriteRule ^[a-f0-9]{32}/prives(/|$) - [F,L]
+  # Lien client : /livraison/<identifiant>/
+  RewriteRule ^([a-f0-9]{32})/?$ index.php?l=$1 [L,QSA]
+</IfModule>

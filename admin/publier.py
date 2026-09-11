@@ -57,6 +57,12 @@ REDIR = """<!DOCTYPE html>
 <script>location.replace('/{c}');</script></body></html>
 """
 
+# Ni l'administration ni les galeries clients n'ont à figurer dans un moteur
+# de recherche. Les livraisons portent déjà un en-tête « noindex » ; ceci
+# évite en plus que leurs adresses soient explorées.
+ROBOTS_PRIVE = ('Disallow: /admin/\n'
+                'Disallow: /livraison/\n')
+
 # Règles Apache pour l'hébergement (OVH mutualisé et compatibles).
 # Les photos portent un nom stable : on les met en cache un an. Les pages et
 # data.js changent à chaque publication : cache court, sinon le visiteur
@@ -302,6 +308,13 @@ def main():
         copier(src_admin, os.path.join(dest, 'github.js'))
         with open(iface, encoding='utf-8') as f:
             page_admin = f.read()
+        # La rubrique Livraisons passe par PHP chez OVH, pas par le serveur
+        # local : en ligne, c'est l'autre module qui la dessine.
+        src_liv_js = os.path.join(ROOT, 'admin-web', 'livraisons.js')
+        if os.path.isfile(src_liv_js):
+            copier(src_liv_js, os.path.join(dest, 'livraisons.js'))
+            page_admin = page_admin.replace('/admin/livraisons-interface.js', 'livraisons.js')
+            n += 1
         depot = os.environ.get('GITHUB_REPOSITORY', 'theomeurr/ShootByTheo')
         tete = ('<meta name="robots" content="noindex, nofollow, noarchive">\n'
                 '<script>window.SBT_DEPOT=%s;window.SBT_BRANCHE=%s;</script>\n'
@@ -317,6 +330,19 @@ def main():
                     'Header set X-Robots-Tag "noindex, nofollow, noarchive"\n'
                     '</IfModule>\n')
         n += 3
+
+    # ---- livraisons clients ----
+    # Un seul jeu de fichiers PHP sert toutes les galeries : chacune n'apporte
+    # que ses données, déposées par l'administration. Le miroir FTP n'efface
+    # rien, donc les photos déjà en ligne survivent aux publications.
+    src_liv = os.path.join(ROOT, 'admin-web', 'livraison')
+    if os.path.isdir(src_liv):
+        dest = os.path.join(OUT, 'livraison')
+        os.makedirs(dest, exist_ok=True)
+        for nom in sorted(os.listdir(src_liv)):
+            if nom.endswith('.php') or nom == '.htaccess':
+                copier(os.path.join(src_liv, nom), os.path.join(dest, nom))
+                n += 1
 
     with open(os.path.join(ROOT, 'index.html'), encoding='utf-8') as f:
         gabarit = f.read()
@@ -449,9 +475,10 @@ def main():
         lignes.append('</urlset>')
         with open(os.path.join(OUT, 'sitemap.xml'), 'w', encoding='utf-8') as f:
             f.write('\n'.join(lignes) + '\n')
-        robots = 'User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n' % domaine
+        robots = ('User-agent: *\nAllow: /\n' + ROBOTS_PRIVE
+                  + 'Sitemap: %s/sitemap.xml\n' % domaine)
     else:
-        robots = 'User-agent: *\nAllow: /\n'
+        robots = 'User-agent: *\nAllow: /\n' + ROBOTS_PRIVE
     with open(os.path.join(OUT, 'robots.txt'), 'w', encoding='utf-8') as f:
         f.write(robots)
 
