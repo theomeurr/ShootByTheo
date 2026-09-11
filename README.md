@@ -37,7 +37,48 @@ Il apparaît sur le Bureau, prêt à être déposé chez l'hébergeur.
 | `image/galerie/<série>/` | Photos des galeries |
 | `*.html` (racine) | Anciennes pages, converties en redirections à la publication |
 
-## Modèle de contenu
+## Livraisons clients par lien
+
+Dans **Administration → Livraisons clients**, créez une livraison et importez
+vos photos JPEG, PNG ou WebP (100 Mo maximum par fichier). Les originaux sont
+conservés sans modification ; des aperçus de 1600 px sont créés séparément.
+Chaque livraison possède une adresse aléatoire de 128 bits, stable entre exports.
+Elle n'apparaît ni dans les menus ni dans le sitemap. Toute personne possédant
+le lien peut consulter et télécharger la galerie, sans compte ni mot de passe.
+
+Cliquez sur **Préparer la galerie et son export**, puis :
+
+1. Ouvrez l'aperçu pour vérifier les images.
+2. Téléchargez et décompressez le dossier pour OVH.
+3. Avec votre outil de transfert, déposez le dossier `livraison/` à côté du
+   `index.html` public sur OVH (dans `www/`, ou le sous-dossier de votre site).
+4. Ouvrez le lien client pour vérifier le transfert, puis envoyez-le au client.
+
+Renseignez l'adresse du site dans **Réglages** pour obtenir le lien complet.
+Le client peut agrandir les images, naviguer au clavier, télécharger chaque
+original ou récupérer toutes les photos dans une archive ZIP.
+
+**L'export ne met pas la galerie en ligne automatiquement.** Le bouton
+**Publier en ligne** du portfolio ne transfère pas les livraisons : il passe
+par ce dépôt public. Métadonnées, liens, aperçus, originaux et exports sont
+stockés uniquement dans `_livraisons/`, ignoré par Git. Sauvegardez ce dossier
+sur un autre support. Les exports et aperçus occupent plusieurs fois la taille
+des originaux ; prévoyez l'espace nécessaire sur le disque et chez OVH.
+
+Pour ajouter des photos à une livraison existante, ouvrez-la, importez les
+photos supplémentaires, préparez un nouvel export et transférez-le au même
+endroit : le lien reste identique. Pour retirer une livraison en ligne,
+supprimez son dossier `livraison/<identifiant>/` chez OVH. Supprimer seulement
+une copie locale ne retire pas les fichiers déjà hébergés.
+
+Les pages et fichiers portent une consigne de non-indexation et le listing
+de dossier est désactivé sur Apache. Cela ne constitue pas une authentification :
+un destinataire peut transmettre son lien. Les galeries ne chargent aucun
+outil d'analyse ni aucune ressource tierce.
+
+Tests : `python3 -m unittest discover -s admin -p 'test_*.py'` (Pillow requis).
+
+## Modèle de contenu du portfolio
 
 ```
 Série (Badminton)

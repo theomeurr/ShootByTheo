@@ -25,6 +25,7 @@ from datetime import datetime
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
+from livraisons import Livraisons
 
 ADMIN_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -32,6 +33,7 @@ _args = [a for a in sys.argv[1:] if a != '--open']
 OPEN = '--open' in sys.argv
 ROOT = os.path.abspath(_args[0]) if len(_args) > 0 else os.path.dirname(ADMIN_DIR)
 PORT = int(_args[1]) if len(_args) > 1 else 8737
+LIVRAISONS = Livraisons(ROOT)
 
 DATA_JS = os.path.join(ROOT, 'data.js')
 IMG_DIR = os.path.join(ROOT, 'image')
@@ -197,6 +199,22 @@ class Admin(SimpleHTTPRequestHandler):
             return
         if path == '/api/data':
             return self._json(read_data())
+        if path == '/api/livraisons':
+            return self._json(LIVRAISONS.liste())
+        if path == '/api/livraisons/export':
+            try:
+                token = parse_qs(urlparse(self.path).query).get('id', [''])[0]
+                archive = LIVRAISONS.dossier(token) / 'export.zip'
+                with archive.open('rb') as stream:
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/zip')
+                    self.send_header('Content-Disposition', 'attachment; filename="livraison-%s.zip"' % token)
+                    self.send_header('Content-Length', str(os.fstat(stream.fileno()).st_size))
+                    self.end_headers()
+                    shutil.copyfileobj(stream, self.wfile)
+            except (ValueError, FileNotFoundError):
+                self._json({'erreur': 'Export introuvable. Préparez la livraison.'}, 404)
+            return
         if path == '/api/images':
             return self._json(self._images())
         if path == '/api/git':
@@ -225,10 +243,20 @@ class Admin(SimpleHTTPRequestHandler):
         u = urlparse(self.path)
         q = parse_qs(u.query)
         length = int(self.headers.get('Content-Length') or 0)
-        body = self.rfile.read(length)
         if not self._origine_sure():
+            self.close_connection = True
             return self._json({'erreur': 'origine refusée'}, 403)
+        if u.path.startswith('/api/livraisons') and (length < 0 or length > 100 * 1024 * 1024):
+            self.close_connection = True
+            return self._json({'erreur': 'Chaque photo doit peser moins de 100 Mo.'}, 413)
+        body = self.rfile.read(length)
         try:
+            if u.path == '/api/livraisons/creer':
+                return self._json(LIVRAISONS.creer(json.loads(body)['titre']))
+            if u.path == '/api/livraisons/photo':
+                return self._json(LIVRAISONS.ajouter(q.get('id', [''])[0], q.get('name', ['photo'])[0], body))
+            if u.path == '/api/livraisons/preparer':
+                return self._json(LIVRAISONS.preparer(json.loads(body)['id'], read_data().get('site', {}).get('domaine', '')))
             if u.path == '/api/data':
                 write_data(json.loads(body.decode('utf-8')))
                 return self._json({'ok': True})
