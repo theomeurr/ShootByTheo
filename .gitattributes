@@ -1,0 +1,3 @@
+# cmd.exe veut des fins de ligne Windows ; Git ne doit pas les convertir.
+*.bat text eol=crlf
+*.command text eol=lf

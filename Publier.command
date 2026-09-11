@@ -1,7 +1,17 @@
 #!/bin/bash
-# Double-cliquez ici pour préparer le dossier à envoyer chez l'hébergeur.
-# Il apparaîtra sur le Bureau : « shootbytheo_en_ligne ».
+# Double-cliquez ici pour preparer le dossier a envoyer chez l'hebergeur.
 cd "$(dirname "$0")" || exit 1
-/usr/bin/python3 admin/publier.py
+
+# /usr/bin/python3 est celui de macOS ; sur une machine ou Python a ete
+# installe autrement, on prend celui du PATH.
+PY=/usr/bin/python3
+[ -x "$PY" ] || PY=$(command -v python3)
+if [ -z "$PY" ]; then
+  echo "Python 3 est introuvable. Installez-le depuis https://www.python.org/downloads/"
+  read -r -n 1 -s
+  exit 1
+fi
+
+"$PY" admin/publier.py
 echo "Appuyez sur une touche pour fermer cette fenêtre."
 read -r -n 1 -s

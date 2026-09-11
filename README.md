@@ -10,9 +10,15 @@ ni serveur applicatif. Il s'héberge n'importe où, y compris sur un hébergemen
 ordinateur. Tout se modifie là, sans rien installer (voir
 « Administration en ligne » plus bas).
 
-Le même outil existe en local : **double-cliquez sur `Administration.command`**
-pour l'ouvrir sur cette machine. Il reste nécessaire pour les livraisons
-clients ; pour le reste, la version en ligne suffit. Dans les deux cas :
+Le même outil existe en local, et reste nécessaire pour les **livraisons
+clients** :
+
+- **macOS** — double-cliquez sur `Administration.command`
+  (premier lancement : clic droit → *Ouvrir*, macOS met en quarantaine tout
+  fichier téléchargé)
+- **Windows** — double-cliquez sur `Administration.bat`
+
+Dans les deux cas :
 
 - **Page d'accueil** — les photos à la une, leur titre, leur cadrage
 - **Séries** — Badminton, Judo… chacune contenant des **journées** datées
@@ -22,9 +28,14 @@ clients ; pour le reste, la version en ligne suffit. Dans les deux cas :
 Les photos envoyées sont automatiquement redimensionnées pour le web.
 Une suppression déplace le fichier dans `image/corbeille/` : rien n'est effacé.
 
-**Double-cliquez sur `Publier.command`** pour préparer le dossier à mettre en
-ligne à la main. Ce n'est plus nécessaire au quotidien : le bouton
+`Publier.command` (macOS) et `Publier.bat` (Windows) préparent le dossier à
+mettre en ligne à la main. Ce n'est plus nécessaire au quotidien : le bouton
 **Publier en ligne ↑** s'en charge.
+
+> Les livraisons clients vivent dans `_livraisons/`, hors de Git : elles
+> restent **sur la machine qui les a créées**. Une livraison préparée sur le
+> Mac n'apparaît pas sur le PC, et inversement. Le portfolio, lui, est partagé
+> par GitHub et se retrouve à l'identique partout.
 
 ## Organisation des fichiers
 
@@ -35,6 +46,8 @@ ligne à la main. Ce n'est plus nécessaire au quotidien : le bouton
 | `admin/serveur.py` | Serveur local de l'administration |
 | `admin/interface.html` | Interface de l'administration |
 | `admin/publier.py` | Génère le dossier à mettre en ligne |
+| `admin-web/github.js` | Administration en ligne : remplace le serveur local par GitHub |
+| `*.command` / `*.bat` | Lanceurs de l'administration locale — macOS et Windows |
 | `image/web/` | Images de couverture optimisées |
 | `image/galerie/<série>/` | Photos des galeries |
 | `*.html` (racine) | Anciennes pages, converties en redirections à la publication |
@@ -212,11 +225,24 @@ conservé pour la prochaine ouverture.
 > en ligne.
 ## Prérequis
 
-- macOS avec Python 3 (fourni avec les outils de développement Apple)
-- La bibliothèque Pillow pour le traitement des images :
+L'administration **en ligne** ne demande rien : un navigateur suffit.
+
+Pour l'administration locale et les livraisons clients :
+
+- **macOS** — Python 3 est fourni avec les outils de développement Apple ;
+  le premier lancement propose de les installer.
   ```
   python3 -m pip install --user Pillow
   ```
+- **Windows** — installez Python depuis https://www.python.org/downloads/ en
+  cochant **« Add python.exe to PATH »**. Le lanceur le cherche ensuite tout
+  seul et vous le dit s'il ne le trouve pas.
+  ```
+  py -3 -m pip install --user Pillow
+  ```
+
+Pillow sert à réduire les photos. Sans elle, l'administration refuse les
+envois et la publication sert les images en pleine taille.
 
 ## À noter
 

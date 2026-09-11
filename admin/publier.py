@@ -22,8 +22,19 @@ from urllib.parse import urlparse
 
 ADMIN_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(ADMIN_DIR)
+
+
+def bureau():
+    """Le Bureau, quel que soit le système — Windows le déplace sous OneDrive."""
+    for c in ('~/Desktop', '~/OneDrive/Desktop', '~/Bureau', '~/OneDrive/Bureau'):
+        chemin = os.path.expanduser(c)
+        if os.path.isdir(chemin):
+            return chemin
+    return os.path.expanduser('~')
+
+
 OUT = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else \
-    os.path.expanduser('~/Desktop/shootbytheo_en_ligne')
+    os.path.join(bureau(), 'shootbytheo_en_ligne')
 
 # data.js n'est pas copié tel quel : il est réécrit plus bas pour y joindre
 # la table des vignettes produites à la publication.
@@ -491,8 +502,14 @@ def main():
     print('\nGlissez ce dossier chez votre hébergeur pour remplacer l\'ancien site.')
     print('(admin/, Administration.command et la corbeille en sont exclus.)\n')
 
+    # ouvrir le dossier produit, sur l'un comme sur l'autre système
     if sys.platform == 'darwin':
         subprocess.run(['open', OUT], check=False)
+    elif os.name == 'nt':
+        try:
+            os.startfile(OUT)          # n'existe que sous Windows
+        except OSError:
+            pass
 
 
 if __name__ == '__main__':
