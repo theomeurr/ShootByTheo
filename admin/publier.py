@@ -278,6 +278,35 @@ def main():
     # protégée par un mot de passe et portait un jeton GitHub ; en local, elle
     # n'écoute que sur cette machine et n'a plus rien à protéger.
 
+    # ---- administration en ligne ----
+    # Une page statique : l'interface du Mac, servie telle quelle, avec un
+    # script qui remplace le serveur local par des appels à GitHub. Rien
+    # n'est stocké ici — sans clé, cette page ne sait rien faire, il n'y a
+    # donc ni mot de passe à défendre ni secret à protéger.
+    src_admin = os.path.join(ROOT, 'admin-web', 'github.js')
+    iface = os.path.join(ROOT, 'admin', 'interface.html')
+    if os.path.isfile(src_admin) and os.path.isfile(iface):
+        dest = os.path.join(OUT, 'admin')
+        os.makedirs(dest, exist_ok=True)
+        copier(src_admin, os.path.join(dest, 'github.js'))
+        with open(iface, encoding='utf-8') as f:
+            page_admin = f.read()
+        depot = os.environ.get('GITHUB_REPOSITORY', 'theomeurr/ShootByTheo')
+        tete = ('<meta name="robots" content="noindex, nofollow, noarchive">\n'
+                '<script>window.SBT_DEPOT=%s;window.SBT_BRANCHE=%s;</script>\n'
+                '<script src="github.js"></script>\n'
+                % (json.dumps(depot), json.dumps(os.environ.get('GITHUB_REF_NAME', 'main'))))
+        # avant le script de l'interface, qui lit ces valeurs au chargement
+        pos = page_admin.find('<script>')
+        page_admin = page_admin[:pos] + tete + page_admin[pos:] if pos > -1 else tete + page_admin
+        with open(os.path.join(dest, 'index.html'), 'w', encoding='utf-8') as f:
+            f.write(page_admin)
+        with open(os.path.join(dest, '.htaccess'), 'w', encoding='utf-8') as f:
+            f.write('Options -Indexes\n<IfModule mod_headers.c>\n'
+                    'Header set X-Robots-Tag "noindex, nofollow, noarchive"\n'
+                    '</IfModule>\n')
+        n += 3
+
     with open(os.path.join(ROOT, 'index.html'), encoding='utf-8') as f:
         gabarit = f.read()
 

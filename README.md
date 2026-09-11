@@ -6,8 +6,13 @@ ni serveur applicatif. Il s'héberge n'importe où, y compris sur un hébergemen
 
 ## Utilisation au quotidien
 
-**Double-cliquez sur `Administration.command`.** Le navigateur s'ouvre sur une
-interface locale (127.0.0.1) qui permet de tout modifier sans toucher au code :
+**Allez sur `https://votre-site/admin/`**, depuis un téléphone ou un
+ordinateur. Tout se modifie là, sans rien installer (voir
+« Administration en ligne » plus bas).
+
+Le même outil existe en local : **double-cliquez sur `Administration.command`**
+pour l'ouvrir sur cette machine. Il reste nécessaire pour les livraisons
+clients ; pour le reste, la version en ligne suffit. Dans les deux cas :
 
 - **Page d'accueil** — les photos à la une, leur titre, leur cadrage
 - **Séries** — Badminton, Judo… chacune contenant des **journées** datées
@@ -17,12 +22,9 @@ interface locale (127.0.0.1) qui permet de tout modifier sans toucher au code :
 Les photos envoyées sont automatiquement redimensionnées pour le web.
 Une suppression déplace le fichier dans `image/corbeille/` : rien n'est effacé.
 
-**Double-cliquez sur `Publier.command`** pour préparer le dossier à mettre en ligne.
-Il apparaît sur le Bureau, prêt à être déposé chez l'hébergeur.
-
-> L'administration est un outil **local**, sans mot de passe. Elle n'écoute que sur
-> cette machine et ne doit jamais être mise en ligne : le dossier de publication
-> l'exclut automatiquement.
+**Double-cliquez sur `Publier.command`** pour préparer le dossier à mettre en
+ligne à la main. Ce n'est plus nécessaire au quotidien : le bouton
+**Publier en ligne ↑** s'en charge.
 
 ## Organisation des fichiers
 
@@ -178,31 +180,36 @@ Le site changeant de vue sans recharger la page, chaque navigation pousse un
 ne compterait que la page d'arrivée. Créez dans GTM un déclencheur
 « Événement personnalisé » de ce nom pour y brancher vos balises.
 
-## Pourquoi l'administration n'est pas en ligne
+## Administration en ligne
 
-Elle l'a été, sur `/admin/`, derrière un mot de passe. Elle ne l'est plus.
+**`https://votre-site/admin/`** — l'administration complète depuis n'importe
+quel appareil : accueil, séries, journées, photos, textes, réglages. C'est la
+même interface que sur le Mac.
 
-Une page d'administration publique doit être défendue, et elle portait un
-jeton GitHub capable d'écrire dans ce dépôt : mot de passe à retenir, fenêtre
-d'installation à surveiller, fichier de configuration à tenir hors de portée
-d'Apache. Beaucoup de protections pour un usage qui, en pratique, se fait
-depuis le Mac où sont déjà les photos.
+La page est **entièrement statique**. Rien n'est installé sur l'hébergeur, il
+n'y a ni PHP, ni mot de passe, ni fichier de configuration à protéger : sans
+clé, elle ne sait rien faire. Elle parle directement à GitHub, qui régénère et
+déploie le site comme d'habitude.
 
-`Administration.command` n'écoute que sur cette machine. Il n'y a plus de mot
-de passe, plus de jeton sur le serveur, et plus de page à défendre.
+À la première visite sur un appareil, collez une clé GitHub *fine-grained*
+limitée à ce dépôt, avec **Contents : Read and write**
+(https://github.com/settings/personal-access-tokens). Elle reste dans ce
+navigateur et n'est envoyée qu'à GitHub. Le bouton **Oublier la clé** l'efface
+de l'appareil ; pour la désactiver partout — appareil perdu, par exemple —
+révoquez-la sur GitHub, l'effacer localement ne suffit pas.
 
-Le bouton **Publier en ligne ↑** de l'administration locale fait le `git push`
-lui-même : le confort est le même, sans surface exposée.
+Les photos sont réduites **dans le navigateur** avant l'envoi : une photo de
+8 Mo part en quelques centaines de kilooctets, ce qui rend l'envoi depuis un
+téléphone en 4G supportable.
 
-> Si l'administration en ligne a déjà été déployée, la publication suivante
-> retire `/admin/` du serveur ainsi que ses fichiers de configuration.
-> Pensez aussi à **révoquer le jeton GitHub** dans
-> https://github.com/settings/personal-access-tokens : le supprimer des
-> secrets ne le désactive pas.
+Les modifications s'accumulent et ne partent qu'au clic sur **Publier en ligne ↑**,
+en une seule fois. Vingt photos font une publication, pas vingt. Tant que rien
+n'est publié, quitter la page demande confirmation, et le texte en cours est
+conservé pour la prochaine ouverture.
 
-Côté OVH, activez le **certificat SSL gratuit** (Hébergements → Multisite) :
-le site force `https://` et l'adresse unique déclarée dans les réglages.
-
+> `Administration.command` reste utile pour une seule chose : les **livraisons
+> clients**, dont les photos ne passent pas par GitHub. Tout le reste se fait
+> en ligne.
 ## Prérequis
 
 - macOS avec Python 3 (fourni avec les outils de développement Apple)
