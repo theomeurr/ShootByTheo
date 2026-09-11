@@ -62,8 +62,10 @@ original ou récupérer toutes les photos dans une archive ZIP.
 **Publier en ligne** du portfolio ne transfère pas les livraisons : il passe
 par ce dépôt public. Métadonnées, liens, aperçus, originaux et exports sont
 stockés uniquement dans `_livraisons/`, ignoré par Git. Sauvegardez ce dossier
-sur un autre support. Les exports et aperçus occupent plusieurs fois la taille
-des originaux ; prévoyez l'espace nécessaire sur le disque et chez OVH.
+sur un autre support. Un export conserve une copie des originaux et son
+archive ZIP : comptez environ trois fois la taille des photos importées. Les
+aperçus des exports précédents sont effacés à chaque nouvelle préparation,
+pour que le disque ne grossisse pas d'une livraison entière à chaque export.
 
 Pour ajouter des photos à une livraison existante, ouvrez-la, importez les
 photos supplémentaires, préparez un nouvel export et transférez-le au même

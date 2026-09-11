@@ -115,6 +115,12 @@ class Livraisons:
                 destination = folder / ('apercu-' + preview_id)
                 shutil.move(str(public), destination)
                 os.replace(archive_tmp, folder / 'export.zip')
+            # Un aperçu contient une copie entière des originaux : les garder
+            # tous ferait grossir le disque d'une livraison complète à chaque
+            # export. Le nouveau est en place, les précédents ne servent plus.
+            for ancien in folder.glob('apercu-*'):
+                if ancien != destination and ancien.is_dir() and not ancien.is_symlink():
+                    shutil.rmtree(ancien, ignore_errors=True)
             return {'lien': domaine + '/livraison/' + token + '/' if domaine else '',
                     'apercu': '/_livraisons/' + token + '/apercu-' + preview_id + '/index.html',
                     'export': '/api/livraisons/export?id=' + token}
