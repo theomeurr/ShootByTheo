@@ -43,8 +43,9 @@ Dans **Administration → Livraisons clients**, créez une livraison et importez
 vos photos JPEG, PNG ou WebP (100 Mo maximum par fichier). Les originaux sont
 conservés sans modification ; des aperçus de 1600 px sont créés séparément.
 Chaque livraison possède une adresse aléatoire de 128 bits, stable entre exports.
-Elle n'apparaît ni dans les menus ni dans le sitemap. Toute personne possédant
-le lien peut consulter et télécharger la galerie, sans compte ni mot de passe.
+Elle n'apparaît ni dans les menus ni dans le sitemap. Elle peut être protégée
+par un mot de passe (voir plus bas) ; sans mot de passe, toute personne
+possédant le lien consulte et télécharge la galerie.
 
 Cliquez sur **Préparer la galerie et son export**, puis :
 
@@ -73,9 +74,26 @@ endroit : le lien reste identique. Pour retirer une livraison en ligne,
 supprimez son dossier `livraison/<identifiant>/` chez OVH. Supprimer seulement
 une copie locale ne retire pas les fichiers déjà hébergés.
 
+### Mot de passe
+
+Chaque livraison peut être protégée par un mot de passe, posé dans sa fiche.
+Seule son empreinte est conservée : le mot de passe lui-même n'est écrit nulle
+part et ne peut pas être retrouvé. Après l'avoir posé ou retiré, **préparez à
+nouveau l'export** et transférez-le : la protection ne s'applique qu'aux
+fichiers déposés sur OVH.
+
+Une galerie protégée n'est plus servie en fichiers statiques. Les photos
+passent sous `prives/`, qu'Apache refuse de servir, et PHP ne les diffuse
+qu'une fois le mot de passe donné — sans quoi l'adresse d'un original suffirait
+à contourner la page. La galerie exige donc **PHP sur l'hébergement**, ce
+qu'OVH mutualisé fournit. Trois essais manqués et l'attente s'allonge, de cinq
+secondes à cinq minutes.
+
+Communiquez le mot de passe séparément du lien, par un autre canal. Une galerie
+sans mot de passe reste accessible à toute personne qui possède son adresse.
+
 Les pages et fichiers portent une consigne de non-indexation et le listing
-de dossier est désactivé sur Apache. Cela ne constitue pas une authentification :
-un destinataire peut transmettre son lien. Les galeries ne chargent aucun
+de dossier est désactivé sur Apache. Les galeries ne chargent aucun
 outil d'analyse ni aucune ressource tierce.
 
 Tests : `python3 -m unittest discover -s admin -p 'test_*.py'` (Pillow requis).

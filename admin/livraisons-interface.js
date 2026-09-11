@@ -57,7 +57,7 @@ window.afficherLivraisons = function (container) {
         node('p', 'Une galerie privée, accessible par son lien seul.', {class: 'aide'}), form);
       content.append(bloc, node('h2', 'Vos livraisons', {style: 'font-size:16px;margin:24px 0 12px'}));
       if (!galleries.length) content.append(node('p', 'Aucune livraison pour le moment.'));
-      galleries.forEach(gallery => content.append(button(gallery.titre + ' · ' + gallery.photos.length + ' photos', async () => {
+      galleries.forEach(gallery => content.append(button((gallery.mdp ? '🔒 ' : '') + gallery.titre + ' · ' + gallery.photos.length + ' photos', async () => {
         selected = gallery; message.textContent = ''; draw();
       }, 'b s liv-item')));
       return;
@@ -65,8 +65,40 @@ window.afficherLivraisons = function (container) {
     const gallery = selected;
     content.append(button('← Toutes les livraisons', async () => { selected = null; draw(); }, 'b s p'),
       node('h2', gallery.titre, {style: 'margin:16px 0 6px;font-size:22px;font-weight:800'}),
-      node('p', gallery.photos.length + ' photos · Fichiers originaux conservés sans réduction.', {class: 'sous'}));
+      node('p', gallery.photos.length + ' photos · Fichiers originaux conservés sans réduction · '
+        + (gallery.mdp ? 'protégée par mot de passe' : 'accessible par lien seul'), {class: 'sous'}));
     const input = node('input', '', {type: 'file', multiple: '', accept: 'image/jpeg,image/png,image/webp', id: 'photos-livraison'});
+    // Mot de passe : facultatif, mais l'état doit être lisible d'un coup d'œil.
+    const blocMdp = node('div', '', {class: 'bloc'});
+    const protege = Boolean(gallery.mdp);
+    blocMdp.append(node('h3', 'Mot de passe'),
+      node('p', protege
+        ? 'Cette galerie est protégée. Le client devra saisir le mot de passe avant de voir les photos.'
+        : 'Sans mot de passe, toute personne ayant le lien voit les photos.', {class: 'aide'}));
+    const champMdp = node('input', '', {type: 'password', id: 'mdp-livraison',
+      placeholder: protege ? 'Nouveau mot de passe' : 'Au moins 6 caractères',
+      autocomplete: 'new-password'});
+    blocMdp.append(node('label', protege ? 'Changer le mot de passe' : 'Protéger cette galerie',
+      {for: 'mdp-livraison', class: 'f'}), champMdp);
+    const barreMdp = node('div', '', {class: 'barre', style: 'margin-top:12px'});
+    barreMdp.append(button(protege ? 'Changer le mot de passe' : 'Protéger la galerie', async () => {
+      selected = await request('/motdepasse', {id: gallery.id, motdepasse: champMdp.value});
+      galleries = galleries.map(g => g.id === selected.id ? selected : g);
+      message.textContent = 'Mot de passe enregistré. Préparez à nouveau l’export pour l’appliquer.';
+      draw();
+    }));
+    if (protege) {
+      barreMdp.append(button('Retirer la protection', async () => {
+        if (!confirm('Retirer le mot de passe ? La galerie redeviendra accessible par son lien seul.')) return;
+        selected = await request('/motdepasse', {id: gallery.id, motdepasse: ''});
+        galleries = galleries.map(g => g.id === selected.id ? selected : g);
+        message.textContent = 'Protection retirée. Préparez à nouveau l’export pour l’appliquer.';
+        draw();
+      }, 'b d'));
+    }
+    blocMdp.append(barreMdp);
+    content.append(blocMdp);
+
     const blocEnvoi = node('div', '', {class: 'bloc'});
     blocEnvoi.append(node('h3', 'Ajouter des photos'),
       node('p', 'JPEG, PNG ou WebP · 100 Mo maximum par photo.', {class: 'aide'}),
@@ -100,7 +132,11 @@ window.afficherLivraisons = function (container) {
       output.style.display = '';
       output.replaceChildren(node('h3', 'Prête à déposer sur OVH'), actions,
         node('p', 'Décompressez cet export, puis déposez son dossier « livraison » à la racine de votre site sur OVH, à côté de index.html. Le lien client fonctionnera après ce transfert.',
-             {class: 'aide'}));
+             {class: 'aide'}),
+        node('p', result.protege
+          ? 'Galerie protégée : communiquez le mot de passe au client séparément du lien.'
+          : 'Galerie sans mot de passe : toute personne ayant le lien voit les photos.',
+          {class: 'aide'}));
       if (result.lien) {
         const link = node('input', '', {type: 'text', readonly: '', 'aria-label': 'Lien client après transfert sur OVH', style: 'margin-top:12px'});
         link.value = result.lien;

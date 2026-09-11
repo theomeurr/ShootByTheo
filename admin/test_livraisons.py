@@ -1,6 +1,8 @@
 """python3 -m unittest discover -s admin -p 'test_*.py'"""
 import io
 import tempfile
+import json
+import pathlib
 import unittest
 import zipfile
 from pathlib import Path
@@ -68,6 +70,59 @@ class LivraisonTests(unittest.TestCase):
         self.assertEqual(first['lien'], second['lien'])
         self.assertNotEqual(first['apercu'], second['apercu'])
         self.assertEqual(self.store.lire(other['id'])['photos'], [])
+
+    def test_mot_de_passe_protege_les_fichiers(self):
+        """Une galerie protégée met ses photos hors de portée d'Apache."""
+        self.store.ajouter(self.gallery['id'], 'photo.jpg', self.photo)
+
+        libre = self.store.preparer(self.gallery['id'], 'example.com')
+        self.assertFalse(libre['protege'])
+        dossier = pathlib.Path(self.temp.name) / "_livraisons" / self.gallery['id']
+        export = sorted(dossier.glob('apercu-*'))[-1]
+        self.assertTrue((export / 'index.html').is_file())
+        self.assertFalse((export / 'prives').exists())
+
+        with self.assertRaises(ValueError):
+            self.store.definir_mdp(self.gallery['id'], 'court')
+
+        data = self.store.definir_mdp(self.gallery['id'], 'un-bon-mot-de-passe')
+        self.assertRegex(data['mdp'], r'^pbkdf2\$sha256\$\d+\$[a-f0-9]+\$[a-f0-9]+$')
+        self.assertNotIn('un-bon-mot-de-passe', json.dumps(data))
+
+        protege = self.store.preparer(self.gallery['id'], 'example.com')
+        self.assertTrue(protege['protege'])
+        self.assertEqual(libre['lien'], protege['lien'])   # le lien ne change pas
+        export = sorted(dossier.glob('apercu-*'))[-1]
+
+        # les photos ne sont plus servies directement, et Apache refuse le dossier
+        self.assertFalse((export / 'originaux').exists())
+        self.assertFalse((export / 'photos.zip').exists())
+        self.assertTrue((export / 'prives' / 'photos.zip').is_file())
+        self.assertIn('Require all denied', (export / 'prives' / '.htaccess').read_text())
+        for nom in ('index.php', 'fichier.php', 'garde.php'):
+            self.assertTrue((export / nom).is_file())
+        # l'empreinte n'est ni servie ni devinable depuis la page
+        self.assertIn('Require all denied', (export / '.htaccess').read_text())
+        self.assertNotIn(data['mdp'], (export / 'prives' / 'galerie.html').read_text())
+        # la page ne désigne plus les fichiers, elle passe par le portier
+        galerie = (export / 'prives' / 'galerie.html').read_text()
+        self.assertIn('fichier.php?a=', galerie)
+        self.assertNotIn('src="apercus/', galerie)
+
+    def test_retrait_du_mot_de_passe(self):
+        self.store.ajouter(self.gallery['id'], 'photo.jpg', self.photo)
+        self.store.definir_mdp(self.gallery['id'], 'un-bon-mot-de-passe')
+        data = self.store.definir_mdp(self.gallery['id'], '')
+        self.assertNotIn('mdp', data)
+        self.assertFalse(self.store.preparer(self.gallery['id'], 'example.com')['protege'])
+
+    def test_un_seul_apercu_conserve(self):
+        """Chaque export copie les originaux : les anciens doivent disparaître."""
+        self.store.ajouter(self.gallery['id'], 'photo.jpg', self.photo)
+        dossier = pathlib.Path(self.temp.name) / "_livraisons" / self.gallery['id']
+        for _ in range(3):
+            self.store.preparer(self.gallery['id'], 'example.com')
+        self.assertEqual(len(list(dossier.glob('apercu-*'))), 1)
 
 
 if __name__ == '__main__':

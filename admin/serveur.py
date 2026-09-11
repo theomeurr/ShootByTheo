@@ -255,6 +255,9 @@ class Admin(SimpleHTTPRequestHandler):
                 return self._json(LIVRAISONS.creer(json.loads(body)['titre']))
             if u.path == '/api/livraisons/photo':
                 return self._json(LIVRAISONS.ajouter(q.get('id', [''])[0], q.get('name', ['photo'])[0], body))
+            if u.path == '/api/livraisons/motdepasse':
+                envoi = json.loads(body)
+                return self._json(LIVRAISONS.definir_mdp(envoi['id'], envoi.get('motdepasse', '')))
             if u.path == '/api/livraisons/preparer':
                 return self._json(LIVRAISONS.preparer(json.loads(body)['id'], read_data().get('site', {}).get('domaine', '')))
             if u.path == '/api/data':
