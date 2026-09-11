@@ -90,18 +90,3 @@ jobs:
             mirror --reverse --continue --verbose --parallel=4 _site/ "$CIBLE"
             bye
           LFTP
-
-          # L'administration en ligne a été retirée. Le dépôt ne supprimant
-          # rien de lui-même, ce ménage est explicite : sans lui, l'ancienne
-          # page resterait servie par Apache, avec son jeton GitHub.
-          # fail-exit no : une fois le ménage fait, ces chemins n'existent
-          # plus et leur absence ne doit pas faire échouer la publication.
-          lftp --env-password -u "$UTILISATEUR" "$PROTOCOLE://$SERVEUR" <<LFTP
-            set cmd:fail-exit no
-            set sftp:auto-confirm yes
-            set ftp:ssl-allow no
-            rm -r ${CIBLE}admin
-            rm sbt-config.php
-            rm sbt-mdp.php
-            bye
-          LFTP
