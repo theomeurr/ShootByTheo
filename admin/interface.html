@@ -162,6 +162,7 @@ details.avance[open] summary:before{content:'▾ '}
     <button class="nav" id="navApropos"><span class="nav-ico">👤</span> À propos</button>
     <button class="nav" id="navPresta"><span class="nav-ico">€</span> Prestations</button>
     <button class="nav" id="navReglages"><span class="nav-ico">⚙</span> Réglages</button>
+    <button class="nav" id="navLivraisons"><span class="nav-ico">↓</span> Livraisons clients</button>
   </aside>
   <main id="vue"></main>
 </div>
@@ -176,6 +177,7 @@ details.avance[open] summary:before{content:'▾ '}
   </div>
 </div>
 
+<script src="/admin/livraisons-interface.js"></script>
 <script>
 (function(){
 'use strict';
@@ -779,7 +781,7 @@ function dessiner(){
       el('span', { text:s.title || '(sans nom)' }),
       el('span', { class:'nb', text:String(s.photos.length) })));
   });
-  [['navAccueil','accueil'],['navApropos','apropos'],['navPresta','presta'],['navReglages','reglages']]
+  [['navAccueil','accueil'],['navApropos','apropos'],['navPresta','presta'],['navReglages','reglages'],['navLivraisons','livraisons']]
     .forEach(([id, t]) => { $('#'+id).className = 'nav' + (vue.type===t ? ' on' : ''); });
 
   const m = $('#vue');
@@ -790,6 +792,7 @@ function dessiner(){
   else if (vue.type === 'apropos'){ vueApropos(); $('#voir').href = '/#/a-propos'; }
   else if (vue.type === 'presta'){ vuePresta(); $('#voir').href = '/#/prestations'; }
   else if (vue.type === 'reglages') vueReglages();
+  else if (vue.type === 'livraisons') window.afficherLivraisons(m);
   else vueAccueil();
   window.scrollTo(0, 0);
 }
@@ -798,6 +801,7 @@ $('#navAccueil').addEventListener('click', () => { vue = { type:'accueil' }; des
 $('#navApropos').addEventListener('click', () => { vue = { type:'apropos' }; dessiner(); });
 $('#navPresta').addEventListener('click', () => { vue = { type:'presta' }; dessiner(); });
 $('#navReglages').addEventListener('click', () => { vue = { type:'reglages' }; dessiner(); });
+$('#navLivraisons').addEventListener('click', () => { vue = { type:'livraisons' }; dessiner(); });
 $('#navPlus').addEventListener('click', () => {
   const nom = prompt('Nom de la nouvelle série ?\n(ex : Rugby, Trail, Mariage…)');
   if (!nom) return;

@@ -9,6 +9,9 @@ _sauvegarde-*/
 # Dossier public régénéré à chaque publication (localement et en CI)
 _site/
 
+# Livraisons clients : métadonnées, liens, originaux et exports restent locaux.
+_livraisons/
+
 # Cache d'octets de Python
 __pycache__/
 *.pyc
