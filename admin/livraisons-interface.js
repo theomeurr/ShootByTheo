@@ -30,8 +30,8 @@ window.afficherLivraisons = function (container) {
       content.querySelectorAll('button,input').forEach(n => { n.disabled = n.dataset.empty === 'true'; });
     }
   }
-  const button = (text, fn) => {
-    const b = node('button', text, {type: 'button', class: 'btn'});
+  const button = (text, fn, classe = 'b') => {
+    const b = node('button', text, {type: 'button', class: classe});
     b.addEventListener('click', () => action(fn));
     return b;
   };
@@ -39,10 +39,12 @@ window.afficherLivraisons = function (container) {
     content.replaceChildren();
     if (!selected) {
       const form = node('form');
-      const title = node('input', '', {placeholder: 'Ex. Mariage de Camille et Alex', maxlength: '200', required: '', id: 'titre-livraison'});
-      form.append(node('label', 'Titre de la galerie', {for: 'titre-livraison'}), title);
-      const create = node('button', 'Créer une livraison', {type: 'submit', class: 'btn'});
-      form.append(create);
+      const title = node('input', '', {type: 'text', placeholder: 'Ex. Mariage de Camille et Alex', maxlength: '200', required: '', id: 'titre-livraison'});
+      form.append(node('label', 'Titre de la galerie', {for: 'titre-livraison', class: 'f'}), title);
+      const create = node('button', 'Créer une livraison', {type: 'submit', class: 'b'});
+      const barre = node('div', '', {class: 'barre', style: 'margin-top:14px'});
+      barre.append(create);
+      form.append(barre);
       form.addEventListener('submit', e => {
         e.preventDefault();
         action(async () => {
@@ -50,18 +52,26 @@ window.afficherLivraisons = function (container) {
           galleries.unshift(selected); message.textContent = 'Galerie créée sur cet ordinateur.'; draw();
         });
       });
-      content.append(form, node('h2', 'Vos livraisons'));
+      const bloc = node('div', '', {class: 'bloc'});
+      bloc.append(node('h3', 'Nouvelle livraison'),
+        node('p', 'Une galerie privée, accessible par son lien seul.', {class: 'aide'}), form);
+      content.append(bloc, node('h2', 'Vos livraisons', {style: 'font-size:16px;margin:24px 0 12px'}));
       if (!galleries.length) content.append(node('p', 'Aucune livraison pour le moment.'));
       galleries.forEach(gallery => content.append(button(gallery.titre + ' · ' + gallery.photos.length + ' photos', async () => {
         selected = gallery; message.textContent = ''; draw();
-      })));
+      }, 'b s liv-item')));
       return;
     }
     const gallery = selected;
-    content.append(button('← Toutes les livraisons', async () => { selected = null; draw(); }),
-      node('h2', gallery.titre), node('p', gallery.photos.length + ' photos · Fichiers originaux conservés sans réduction.'));
+    content.append(button('← Toutes les livraisons', async () => { selected = null; draw(); }, 'b s p'),
+      node('h2', gallery.titre, {style: 'margin:16px 0 6px;font-size:22px;font-weight:800'}),
+      node('p', gallery.photos.length + ' photos · Fichiers originaux conservés sans réduction.', {class: 'sous'}));
     const input = node('input', '', {type: 'file', multiple: '', accept: 'image/jpeg,image/png,image/webp', id: 'photos-livraison'});
-    content.append(node('label', 'Ajouter des photos (JPEG, PNG ou WebP, 100 Mo maximum par photo)', {for: 'photos-livraison'}), input);
+    const blocEnvoi = node('div', '', {class: 'bloc'});
+    blocEnvoi.append(node('h3', 'Ajouter des photos'),
+      node('p', 'JPEG, PNG ou WebP · 100 Mo maximum par photo.', {class: 'aide'}),
+      node('label', 'Choisir les fichiers', {for: 'photos-livraison', class: 'f'}), input);
+    content.append(blocEnvoi);
     input.addEventListener('change', () => {
       const files = Array.from(input.files);
       action(async () => {
@@ -83,14 +93,20 @@ window.afficherLivraisons = function (container) {
     const prepare = button('Préparer la galerie et son export', async () => {
       message.textContent = 'Préparation des aperçus et des archives…';
       const result = await request('/preparer', {id: gallery.id});
-      output.replaceChildren(node('h3', 'Prête à déposer sur OVH'),
-        node('a', 'Ouvrir l’aperçu', {href: result.apercu, target: '_blank', rel: 'noopener', class: 'btn'}),
-        node('a', 'Télécharger le dossier pour OVH ↓', {href: result.export, class: 'btn', download: ''}),
-        node('p', 'Décompressez cet export, puis déposez son dossier « livraison » à la racine de votre site sur OVH, à côté de index.html. Le lien client fonctionnera après ce transfert.'));
+      const actions = node('div', '', {class: 'barre', style: 'margin:12px 0 14px'});
+      actions.append(
+        node('a', 'Ouvrir l’aperçu ↗', {href: result.apercu, target: '_blank', rel: 'noopener', class: 'b s'}),
+        node('a', 'Télécharger le dossier pour OVH ↓', {href: result.export, class: 'b', download: ''}));
+      output.style.display = '';
+      output.replaceChildren(node('h3', 'Prête à déposer sur OVH'), actions,
+        node('p', 'Décompressez cet export, puis déposez son dossier « livraison » à la racine de votre site sur OVH, à côté de index.html. Le lien client fonctionnera après ce transfert.',
+             {class: 'aide'}));
       if (result.lien) {
-        const link = node('input', '', {readonly: '', 'aria-label': 'Lien client après transfert sur OVH'});
+        const link = node('input', '', {type: 'text', readonly: '', 'aria-label': 'Lien client après transfert sur OVH', style: 'margin-top:12px'});
         link.value = result.lien;
-        output.append(link, button('Copier le lien client', async () => {
+        const barreLien = node('div', '', {class: 'barre', style: 'margin-top:10px'});
+        output.append(link, barreLien);
+        barreLien.append(button('Copier le lien client', async () => {
           try { await navigator.clipboard.writeText(result.lien); message.textContent = 'Lien copié. À envoyer après le transfert sur OVH.'; }
           catch (_) { link.focus(); link.select(); message.textContent = 'Sélectionnez puis copiez le lien affiché.'; }
         }));
@@ -100,11 +116,18 @@ window.afficherLivraisons = function (container) {
     prepare.disabled = !gallery.photos.length;
     // L’état vide doit rester désactivé après la fin d’une autre action.
     prepare.dataset.empty = gallery.photos.length ? '' : 'true';
-    const output = node('div');
-    content.append(node('p', 'Ces livraisons restent hors du dépôt GitHub. Le bouton « Publier en ligne » du portfolio ne les transfère pas.'), prepare, output);
-    const list = node('ul');
-    gallery.photos.forEach(photo => list.append(node('li', photo.nom + ' · ' + (photo.octets / 1048576).toFixed(1) + ' Mo')));
-    content.append(list);
+    const output = node('div', '', {class: 'bloc', style: 'display:none'});
+    const blocExport = node('div', '', {class: 'bloc'});
+    blocExport.append(node('h3', 'Préparer le dossier pour OVH'),
+      node('p', 'Ces livraisons restent hors du dépôt GitHub : le bouton « Publier en ligne » du portfolio ne les transfère pas.', {class: 'aide'}), prepare);
+    content.append(blocExport, output);
+    if (gallery.photos.length) {
+      const list = node('ul', '', {class: 'liv-liste'});
+      gallery.photos.forEach(photo => list.append(node('li', photo.nom + ' · ' + (photo.octets / 1048576).toFixed(1) + ' Mo')));
+      const blocListe = node('div', '', {class: 'bloc'});
+      blocListe.append(node('h3', 'Photos importées'), list);
+      content.append(blocListe);
+    }
   }
   action(async () => { galleries = await request(''); draw(); });
 };
