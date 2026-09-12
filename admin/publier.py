@@ -129,6 +129,28 @@ def copier(src, dst):
 # Empreinte du contenu de data.js, jointe à son adresse dans les pages.
 VERSION_DONNEES = ''
 
+# Le .htaccess garde les images un an et les feuilles de style une semaine.
+# Un fichier remplacé sans changer de nom reste donc invisible pendant tout ce
+# temps : le navigateur ne redemande rien. Leur adresse porte l'empreinte de
+# leur contenu, comme data.js — changer un logo se voit alors immédiatement.
+RESSOURCES = ['image/logo.png', 'image/favicon.png', 'mobile.css', 'mobile.js']
+VERSIONS = {}
+
+
+def empreinte_fichier(chemin):
+    h = hashlib.sha1()
+    with open(chemin, 'rb') as f:
+        for bloc in iter(lambda: f.read(65536), b''):
+            h.update(bloc)
+    return h.hexdigest()[:10]
+
+
+def relever_versions():
+    for rel in RESSOURCES:
+        chemin = os.path.join(ROOT, rel)
+        if os.path.isfile(chemin):
+            VERSIONS[rel] = empreinte_fichier(chemin)
+
 
 # ------------------------------------------------------------------ vignettes
 # La mosaïque affiche les photos dans des colonnes de 320 à 500 px mais
@@ -219,6 +241,10 @@ def page(gabarit, domaine, route, titre, description, image, corps_noscript, ind
     if VERSION_DONNEES:
         h = h.replace('<script src="data.js"></script>',
                       '<script src="data.js?v=%s"></script>' % VERSION_DONNEES, 1)
+    # <base href="/"> est posé plus haut : ces adresses sont les mêmes sur
+    # toutes les pages, y compris celles des sous-dossiers.
+    for rel, version in VERSIONS.items():
+        h = h.replace('"%s"' % rel, '"%s?v=%s"' % (rel, version))
     return h
 
 
@@ -343,6 +369,8 @@ def main():
             if nom.endswith('.php') or nom == '.htaccess':
                 copier(os.path.join(src_liv, nom), os.path.join(dest, nom))
                 n += 1
+
+    relever_versions()
 
     with open(os.path.join(ROOT, 'index.html'), encoding='utf-8') as f:
         gabarit = f.read()
