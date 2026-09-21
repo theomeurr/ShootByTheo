@@ -237,7 +237,7 @@ window.SITE_DATA = {
           "id": "top-12-1ere-journee",
           "titre": "TOP 12 — 1ere journée",
           "date": "2026-09-19",
-          "cover": "image/galerie/badminton/dsc-6440-j1-top-12-j1-top-12-cr.jpg",
+          "cover": "image/galerie/badminton/dsc-6106-j1-top-12-j1-top-12-cr.jpg",
           "prive": false
         },
         {
