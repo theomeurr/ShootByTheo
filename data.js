@@ -12,11 +12,11 @@ window.SITE_DATA = {
     {
       "serie": "badminton",
       "img": "image/web/equipe_n2.jpg",
-      "tag": "À la une · 9ᵉ journée",
-      "title": "Nationale 2",
+      "tag": "À la une · 1ere journée",
+      "title": "PRÉ-NATIONALE",
       "meta": "Saison 2025-2026",
       "pos": "center 30%",
-      "album": "nationale-2-9e-journee"
+      "album": "pre-nationale-1ere-journee"
     }
   ],
   "series": [
