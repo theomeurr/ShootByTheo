@@ -97,6 +97,11 @@
   }
 
   /* ---- Barre d'onglets fixe : tout est atteignable au pouce ---- */
+  /* Le bandeau de consentement se posait exactement sur la barre d'onglets :
+     tant que le visiteur n'avait pas répondu, la navigation du bas était
+     inatteignable. Il se cale maintenant au-dessus. */
+  .cook{bottom:calc(57px + env(safe-area-inset-bottom,0px))}
+
   .mob-tabs{
     position:fixed;left:0;right:0;bottom:0;z-index:70;
     display:grid;border-top:1px solid rgba(242,239,233,.16);

@@ -15,7 +15,8 @@
   var DEPOT = window.SBT_DEPOT || 'theomeurr/ShootByTheo';
   var BRANCHE = window.SBT_BRANCHE || 'main';
   var CLE_JETON = 'sbt_jeton';
-  var CLE_BROUILLON = 'sbt_brouillon';
+  var CLE_BROUILLON = 'sbt_brouillon';   // ancien brouillon, à oublier
+  var BASE_BROUILLON = 'sbt-admin';      // IndexedDB : localStorage est trop petit
   var LARGEUR_MAX = 2000;      // mêmes réglages que le serveur local
   var QUALITE = 0.8;
 
@@ -26,6 +27,56 @@
   // capturé avant toute interception, sinon gh() s'appellerait lui-même
   var vraiFetch = window.fetch.bind(window);
   var shaData = null;
+
+  /* --------------------------------------------------------- brouillon
+     Les photos envoyées ne sont pas encore sur GitHub : elles attendent en
+     mémoire jusqu'au clic sur « Publier en ligne ». Seul data.js était
+     conservé d'une ouverture à l'autre — un onglet rechargé, ou vidé par le
+     téléphone, laissait donc un brouillon qui désignait des photos jamais
+     envoyées, et la publication produisait des images manquantes. Les deux
+     voyagent désormais ensemble, dans IndexedDB : localStorage plafonne à
+     quelques mégaoctets, soit deux ou trois photos. */
+  function base() {
+    return new Promise(function (resolve, reject) {
+      if (!window.indexedDB) return reject(new Error('sans IndexedDB'));
+      var d = indexedDB.open(BASE_BROUILLON, 1);
+      d.onupgradeneeded = function () {
+        if (!d.result.objectStoreNames.contains('brouillon')) d.result.createObjectStore('brouillon');
+      };
+      d.onsuccess = function () { resolve(d.result); };
+      d.onerror = function () { reject(d.error || new Error('base refusée')); };
+    });
+  }
+
+  function surBase(mode, action) {
+    return base().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var t = db.transaction('brouillon', mode);
+        var r = action(t.objectStore('brouillon'));
+        t.oncomplete = function () { resolve(r && r.result); };
+        t.onerror = function () { reject(t.error); };
+        t.onabort = function () { reject(t.error); };
+      });
+    });
+  }
+
+  /* Écrit au fil de l'eau, sans bloquer : perdre la dernière frappe est sans
+     gravité, perdre les photos ne l'est pas. */
+  function sauverBrouillon() {
+    return surBase('readwrite', function (o) {
+      return o.put({ data: attente.data, fichiers: attente.fichiers,
+                     suppressions: attente.suppressions }, 'courant');
+    }).catch(function () {});
+  }
+  function lireBrouillon() {
+    return surBase('readonly', function (o) { return o.get('courant'); })
+      .catch(function () { return null; });
+  }
+  function oublierBrouillon() {
+    try { localStorage.removeItem(CLE_BROUILLON); } catch (e) {}
+    return surBase('readwrite', function (o) { return o.delete('courant'); })
+      .catch(function () {});
+  }
 
   /* ------------------------------------------------------------- jeton */
 
@@ -193,14 +244,21 @@
     return c;
   }
 
+  /* Le contenu d'un dossier ne change pas tant qu'on n'a pas publié : le
+     redemander à chaque photo faisait un aller-retour par photo, sur un
+     listing qui grossit. Vingt photos, vingt appels — d'où la lenteur. */
+  var listes = {};
+
   function listerDossier(dossier) {
+    if (listes[dossier]) return Promise.resolve(listes[dossier].slice());
     return avecJeton(function () {
       return gh('GET', '/contents/' + dossier + '?ref=' + BRANCHE);
     }).then(function (l) {
       return (Array.isArray(l) ? l : []).filter(function (e) {
         return e.type === 'file' && /\.(jpe?g|png|webp)$/i.test(e.name);
       }).map(function (e) { return dossier + '/' + e.name; });
-    }).catch(function () { return []; });   // dossier absent : rien à proposer
+    }).then(function (l) { listes[dossier] = l; return l.slice(); })
+      .catch(function () { listes[dossier] = []; return []; });   // dossier absent
   }
 
   /* ------------------------------------------------------- publication */
@@ -242,7 +300,8 @@
 
     var n = entrees.length;
     attente = { data: null, fichiers: {}, suppressions: [] };
-    try { localStorage.removeItem(CLE_BROUILLON); } catch (e) {}
+    listes = {};                      // le dépôt a changé : les listings aussi
+    await oublierBrouillon();
     return { ok: true, change: true,
              message: n + ' modification' + (n > 1 ? 's' : '') + ' envoyée' + (n > 1 ? 's' : '') +
                       ' — le site sera à jour dans quelques minutes' };
@@ -296,17 +355,22 @@
       var brut = decode64(f.content);
       var m = brut.match(/\{[\s\S]*\}/);
       var d = JSON.parse(m[0]);
-      // un brouillon laissé par une page fermée trop tôt reprend la main
-      try {
-        var br = localStorage.getItem(CLE_BROUILLON);
-        if (br) { attente.data = JSON.parse(br); return attente.data; }
-      } catch (e) {}
+      // un brouillon laissé par une page fermée trop tôt reprend la main,
+      // photos comprises
+      var br = await lireBrouillon();
+      if (br && br.data) {
+        attente.data = br.data;
+        attente.fichiers = br.fichiers || {};
+        attente.suppressions = br.suppressions || [];
+        majBoutonCle();
+        return attente.data;
+      }
       return d;
     }
 
     if (nom === 'data' && poste) {
       attente.data = JSON.parse(opts.body);
-      try { localStorage.setItem(CLE_BROUILLON, opts.body); } catch (e) {}
+      sauverBrouillon();
       return { ok: true };
     }
 
@@ -323,11 +387,12 @@
     if (nom === 'upload') {
       var dossier = q.dossier === 'accueil' || q.dossier === 'apropos'
         ? 'image/' + q.dossier
-        : 'image/galerie/' + (slug(q.serie || 'galerie') || 'galerie');
+        : 'image/galerie/' + (slug(q.evt || q.serie || 'galerie') || 'galerie');
       var reduit = await reduire(opts.body);
-      var base = slug((q.name || 'photo').replace(/\.[^.]+$/, '')) || 'photo';
-      var chemin = cheminLibre(dossier, base, await listerDossier(dossier));
+      var nomBase = slug((q.name || 'photo').replace(/\.[^.]+$/, '')) || 'photo';
+      var chemin = cheminLibre(dossier, nomBase, await listerDossier(dossier));
       attente.fichiers[chemin] = await base64Blob(reduit.blob);
+      await sauverBrouillon();
       return { src: chemin, largeur: reduit.largeur, hauteur: reduit.hauteur };
     }
 
@@ -340,6 +405,7 @@
         if (attente.fichiers[s]) delete attente.fichiers[s];
         else if (attente.suppressions.indexOf(s) < 0) attente.suppressions.push(s);
       });
+      await sauverBrouillon();
       return { ok: true, deplacees: srcs };
     }
 
@@ -385,9 +451,17 @@
   }
   document.addEventListener('DOMContentLoaded', majBoutonCle);
 
+  /* Une photo envoyée n'est pas encore sur le serveur : son adresse ne répond
+     donc pas, et l'administration n'affichait qu'un cadre vide — de quoi
+     croire que l'import a échoué. Le fichier est là, en attente : on le montre
+     tel quel jusqu'à la publication. */
+  window.SBT_APERCU = function (chemin) {
+    var b64 = attente.fichiers[chemin];
+    return b64 ? 'data:image/jpeg;base64,' + b64 : '';
+  };
+
   window.SBT_OUBLIER = function () {
     poserJeton('');
-    try { localStorage.removeItem(CLE_BROUILLON); } catch (e) {}
-    location.reload();
+    oublierBrouillon().then(function () { location.reload(); });
   };
 })();

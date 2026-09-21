@@ -1,492 +1,315 @@
 window.SITE_DATA = {
-  "slides": [
+  "evenements": [
     {
-      "serie": "badminton",
-      "img": "image/galerie/badminton/dsc-7016-j1-top-12-j1-top-12-cr.jpg",
-      "tag": "À la une · 1ere journée",
-      "title": "TOP 12",
-      "meta": "Saison 2026-2027",
-      "pos": "center 60%",
-      "album": "top-12-1ere-journee"
-    },
-    {
-      "serie": "badminton",
-      "img": "image/web/equipe_n2.jpg",
-      "tag": "À la une · 1ere journée",
-      "title": "PRÉ-NATIONALE",
-      "meta": "Saison 2025-2026",
-      "pos": "center 30%",
-      "album": "pre-nationale-1ere-journee"
-    }
-  ],
-  "series": [
-    {
-      "key": "badminton",
-      "title": "Badminton",
-      "kicker": "Interclubs",
-      "blurb": "Le badminton de compétition, du service au salut d’arbitrage.",
-      "cover": "image/web/check_arbitre.jpg",
-      "travail": true,
+      "id": "top-12-1ere-journee",
+      "titre": "TOP 12 — 1ere journée",
+      "sport": "Badminton",
+      "date": "2026-09-19",
+      "texte": "",
+      "cover": "image/galerie/badminton/dsc-6106-j1-top-12-j1-top-12-cr.jpg",
+      "coverPos": "center 60%",
+      "une": true,
+      "prive": false,
       "photos": [
         {
-          "src": "image/galerie/top-12/top12-cc-8.jpg",
-          "album": "top-12-9e-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 1333
-        },
-        {
-          "src": "image/galerie/top-12/top12-cc-20.jpg",
-          "album": "top-12-9e-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 1333
-        },
-        {
-          "src": "image/galerie/top-12/top12-cc-21.jpg",
-          "album": "top-12-9e-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 1333
-        },
-        {
-          "src": "image/galerie/top-12/top12-cc-16.jpg",
-          "album": "top-12-9e-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 1333
-        },
-        {
-          "src": "image/galerie/nationale-2/n2-cc-27.jpg",
-          "album": "nationale-2-9e-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 1333
-        },
-        {
-          "src": "image/galerie/nationale-2/n2-cc-19.jpg",
-          "album": "nationale-2-9e-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 1333
-        },
-        {
-          "src": "image/galerie/nationale-2/n2-cc-17.jpg",
-          "album": "nationale-2-9e-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 1333
-        },
-        {
-          "src": "image/galerie/nationale-2/n2-cc-10.jpg",
-          "album": "nationale-2-9e-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 1333
-        },
-        {
-          "src": "image/galerie/nationale-2/n2-cc-1.jpg",
-          "album": "nationale-2-9e-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 1333
-        },
-        {
-          "src": "image/galerie/badminton/n2-22.jpg",
-          "album": "nationale-2-9e-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 3000
-        },
-        {
-          "src": "image/galerie/badminton/n2-29.jpg",
-          "album": "nationale-2-9e-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 3000
-        },
-        {
-          "src": "image/galerie/badminton/n2-26.jpg",
-          "album": "nationale-2-9e-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 1333
-        },
-        {
           "src": "image/galerie/badminton/dsc-6440-j1-top-12-j1-top-12-cr.jpg",
-          "album": "top-12-1ere-journee",
           "legende": "",
           "w": 2000,
           "h": 1320
         },
         {
           "src": "image/galerie/badminton/dsc-5961-j1-top-12-j1-top-12-cr.jpg",
-          "album": "top-12-1ere-journee",
           "legende": "",
           "w": 2000,
           "h": 1328
         },
         {
           "src": "image/galerie/badminton/dsc-5976-j1-top-12-j1-top-12-cr.jpg",
-          "album": "top-12-1ere-journee",
           "legende": "",
           "w": 2000,
           "h": 1333
         },
         {
           "src": "image/galerie/badminton/dsc-6009-j1-top-12-j1-top-12-cr.jpg",
-          "album": "top-12-1ere-journee",
           "legende": "",
           "w": 2000,
           "h": 1333
         },
         {
           "src": "image/galerie/badminton/dsc-6026-j1-top-12-j1-top-12-cr.jpg",
-          "album": "top-12-1ere-journee",
           "legende": "",
           "w": 2000,
           "h": 1334
         },
         {
           "src": "image/galerie/badminton/dsc-6035-j1-top-12-j1-top-12-cr.jpg",
-          "album": "top-12-1ere-journee",
           "legende": "",
           "w": 2000,
           "h": 3000
         },
         {
           "src": "image/galerie/badminton/dsc-6040-j1-top-12-j1-top-12-cr.jpg",
-          "album": "top-12-1ere-journee",
           "legende": "",
           "w": 2000,
           "h": 3000
         },
         {
           "src": "image/galerie/badminton/dsc-6106-j1-top-12-j1-top-12-cr.jpg",
-          "album": "top-12-1ere-journee",
           "legende": "",
           "w": 2000,
           "h": 1322
         },
         {
           "src": "image/galerie/badminton/dsc-6261-j1-top-12-j1-top-12-cr.jpg",
-          "album": "top-12-1ere-journee",
           "legende": "",
           "w": 2000,
           "h": 3000
         },
         {
           "src": "image/galerie/badminton/dsc-6449-j1-top-12-j1-top-12-cr.jpg",
-          "album": "top-12-1ere-journee",
           "legende": "",
           "w": 2000,
           "h": 1320
         },
         {
           "src": "image/galerie/badminton/dsc-6575-j1-top-12-j1-top-12-cr.jpg",
-          "album": "top-12-1ere-journee",
           "legende": "",
           "w": 2000,
           "h": 1333
         },
         {
           "src": "image/galerie/badminton/dsc-6681-j1-top-12-j1-top-12-cr.jpg",
-          "album": "top-12-1ere-journee",
           "legende": "",
           "w": 2000,
           "h": 1320
         },
         {
           "src": "image/galerie/badminton/dsc-6706-j1-top-12-j1-top-12-cr.jpg",
-          "album": "top-12-1ere-journee",
           "legende": "",
           "w": 2000,
           "h": 1333
         },
         {
           "src": "image/galerie/badminton/dsc-6720-j1-top-12-j1-top-12-cr.jpg",
-          "album": "top-12-1ere-journee",
           "legende": "",
           "w": 2000,
           "h": 1320
         },
         {
           "src": "image/galerie/badminton/dsc-6798-j1-top-12-j1-top-12-cr.jpg",
-          "album": "top-12-1ere-journee",
           "legende": "",
           "w": 2000,
           "h": 1320
         },
         {
           "src": "image/galerie/badminton/dsc-6912-j1-top-12-j1-top-12-cr.jpg",
-          "album": "top-12-1ere-journee",
           "legende": "",
           "w": 2000,
           "h": 1333
         },
         {
           "src": "image/galerie/badminton/dsc-7016-j1-top-12-j1-top-12-cr.jpg",
-          "album": "top-12-1ere-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 1333
-        },
-        {
-          "src": "image/galerie/badminton/dsc-5538j1-pre-nat.jpg",
-          "album": "pre-nationale-1ere-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 1320
-        },
-        {
-          "src": "image/galerie/badminton/dsc-5209j1-pre-nat.jpg",
-          "album": "pre-nationale-1ere-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 1333
-        },
-        {
-          "src": "image/galerie/badminton/dsc-5229j1-pre-nat.jpg",
-          "album": "pre-nationale-1ere-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 3000
-        },
-        {
-          "src": "image/galerie/badminton/dsc-5310j1-pre-nat.jpg",
-          "album": "pre-nationale-1ere-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 3000
-        },
-        {
-          "src": "image/galerie/badminton/dsc-5311j1-pre-nat.jpg",
-          "album": "pre-nationale-1ere-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 3000
-        },
-        {
-          "src": "image/galerie/badminton/dsc-5317j1-pre-nat.jpg",
-          "album": "pre-nationale-1ere-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 3000
-        },
-        {
-          "src": "image/galerie/badminton/dsc-5330j1-pre-nat.jpg",
-          "album": "pre-nationale-1ere-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 3005
-        },
-        {
-          "src": "image/galerie/badminton/dsc-5440j1-pre-nat.jpg",
-          "album": "pre-nationale-1ere-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 3000
-        },
-        {
-          "src": "image/galerie/badminton/dsc-5476j1-pre-nat.jpg",
-          "album": "pre-nationale-1ere-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 3000
-        },
-        {
-          "src": "image/galerie/badminton/dsc-5515j1-pre-nat.jpg",
-          "album": "pre-nationale-1ere-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 1320
-        },
-        {
-          "src": "image/galerie/badminton/dsc-5518j1-pre-nat.jpg",
-          "album": "pre-nationale-1ere-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 1333
-        },
-        {
-          "src": "image/galerie/badminton/dsc-5538j1-pre-nat-2.jpg",
-          "album": "pre-nationale-1ere-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 1320
-        },
-        {
-          "src": "image/galerie/badminton/dsc-5560j1-pre-nat.jpg",
-          "album": "pre-nationale-1ere-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 3031
-        },
-        {
-          "src": "image/galerie/badminton/dsc-5568j1-pre-nat.jpg",
-          "album": "pre-nationale-1ere-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 3000
-        },
-        {
-          "src": "image/galerie/badminton/dsc-5574j1-pre-nat.jpg",
-          "album": "pre-nationale-1ere-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 3001
-        },
-        {
-          "src": "image/galerie/badminton/dsc-5577j1-pre-nat.jpg",
-          "album": "pre-nationale-1ere-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 2998
-        },
-        {
-          "src": "image/galerie/badminton/dsc-5620j1-pre-nat.jpg",
-          "album": "pre-nationale-1ere-journee",
-          "legende": "",
-          "w": 2000,
-          "h": 1334
-        },
-        {
-          "src": "image/galerie/badminton/dsc-5656j1-pre-nat.jpg",
-          "album": "pre-nationale-1ere-journee",
           "legende": "",
           "w": 2000,
           "h": 1333
         }
-      ],
-      "albums": [
-        {
-          "id": "top-12-1ere-journee",
-          "titre": "TOP 12 — 1ere journée",
-          "date": "2026-09-19",
-          "cover": "image/galerie/badminton/dsc-6106-j1-top-12-j1-top-12-cr.jpg",
-          "prive": false
-        },
-        {
-          "id": "pre-nationale-1ere-journee",
-          "titre": "Pré-Nationale — 1ere journée",
-          "date": "2026-09-19",
-          "cover": "image/galerie/badminton/dsc-5538j1-pre-nat.jpg",
-          "prive": false
-        },
-        {
-          "id": "nationale-2-9e-journee",
-          "titre": "Nationale 2 — 9ᵉ journée",
-          "date": "2026-03-28",
-          "cover": "image/web/equipe_n2.jpg",
-          "prive": false
-        },
-        {
-          "id": "top-12-9e-journee",
-          "titre": "TOP 12 — 9ᵉ journée",
-          "date": "2026-03-28",
-          "cover": "image/web/top12.jpg",
-          "prive": false
-        }
-      ],
-      "prive": false
+      ]
     },
     {
-      "key": "judo",
-      "title": "Judo",
-      "kicker": "Compétition annuelle de judo à Chambly",
-      "blurb": "",
-      "cover": "image/galerie/judo/dsc-1031-01.jpg",
-      "albums": [],
-      "travail": false,
+      "id": "pre-nationale-1ere-journee",
+      "titre": "Pré-Nationale — 1ere journée",
+      "sport": "Badminton",
+      "date": "2026-09-19",
+      "texte": "",
+      "cover": "",
+      "coverPos": "center 30%",
+      "une": true,
+      "prive": false,
+      "photos": []
+    },
+    {
+      "id": "top-12-9e-journee",
+      "titre": "TOP 12 — 9ᵉ journée",
+      "sport": "Badminton",
+      "date": "2026-03-28",
+      "texte": "",
+      "cover": "image/web/top12.jpg",
+      "coverPos": "",
+      "une": false,
       "prive": false,
       "photos": [
         {
+          "src": "image/galerie/top-12/top12-cc-8.jpg",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
+        },
+        {
+          "src": "image/galerie/top-12/top12-cc-20.jpg",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
+        },
+        {
+          "src": "image/galerie/top-12/top12-cc-21.jpg",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
+        },
+        {
+          "src": "image/galerie/top-12/top12-cc-16.jpg",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
+        }
+      ]
+    },
+    {
+      "id": "nationale-2-9e-journee",
+      "titre": "Nationale 2 — 9ᵉ journée",
+      "sport": "Badminton",
+      "date": "2026-03-28",
+      "texte": "",
+      "cover": "image/web/equipe_n2.jpg",
+      "coverPos": "",
+      "une": false,
+      "prive": false,
+      "photos": [
+        {
+          "src": "image/galerie/nationale-2/n2-cc-27.jpg",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
+        },
+        {
+          "src": "image/galerie/nationale-2/n2-cc-19.jpg",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
+        },
+        {
+          "src": "image/galerie/nationale-2/n2-cc-17.jpg",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
+        },
+        {
+          "src": "image/galerie/nationale-2/n2-cc-10.jpg",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
+        },
+        {
+          "src": "image/galerie/nationale-2/n2-cc-1.jpg",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
+        },
+        {
+          "src": "image/galerie/badminton/n2-22.jpg",
+          "legende": "",
+          "w": 2000,
+          "h": 3000
+        },
+        {
+          "src": "image/galerie/badminton/n2-29.jpg",
+          "legende": "",
+          "w": 2000,
+          "h": 3000
+        },
+        {
+          "src": "image/galerie/badminton/n2-26.jpg",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
+        }
+      ]
+    },
+    {
+      "id": "judo",
+      "titre": "Judo",
+      "sport": "Judo",
+      "date": "",
+      "texte": "Compétition annuelle de judo à Chambly",
+      "cover": "image/galerie/judo/dsc-1031-01.jpg",
+      "coverPos": "",
+      "une": false,
+      "prive": true,
+      "photos": [
+        {
           "src": "image/galerie/judo/dsc-1031-01.jpg",
-          "album": "",
           "legende": "",
           "w": 2000,
           "h": 1333
         },
         {
           "src": "image/galerie/judo/dsc-0888-01.jpg",
-          "album": "",
           "legende": "",
           "w": 2000,
           "h": 1333
         },
         {
           "src": "image/galerie/judo/dsc-0811-01.jpg",
-          "album": "",
           "legende": "",
           "w": 2000,
           "h": 1333
         },
         {
           "src": "image/galerie/judo/dsc-0818-01.jpg",
-          "album": "",
           "legende": "",
           "w": 2000,
           "h": 1333
         },
         {
           "src": "image/galerie/judo/dsc-0865-01.jpg",
-          "album": "",
           "legende": "",
           "w": 2000,
           "h": 1333
         },
         {
           "src": "image/galerie/judo/dsc-0882-01.jpg",
-          "album": "",
           "legende": "",
           "w": 2000,
           "h": 1333
         },
         {
           "src": "image/galerie/judo/dsc-1020-01.jpg",
-          "album": "",
           "legende": "",
           "w": 2000,
           "h": 1333
         },
         {
           "src": "image/galerie/judo/dsc-1013-01.jpg",
-          "album": "",
           "legende": "",
           "w": 2000,
           "h": 1333
         },
         {
           "src": "image/galerie/judo/dsc-1041-01.jpg",
-          "album": "",
           "legende": "",
           "w": 2000,
           "h": 1333
         },
         {
           "src": "image/galerie/judo/dsc-0814-01.jpg",
-          "album": "",
           "legende": "",
           "w": 2000,
           "h": 1333
         },
         {
           "src": "image/galerie/judo/dsc-0974-01.jpg",
-          "album": "",
           "legende": "",
           "w": 2000,
           "h": 1333
         },
         {
           "src": "image/galerie/judo/dsc-0908-01.jpg",
-          "album": "",
           "legende": "",
           "w": 2000,
           "h": 1333
         },
         {
           "src": "image/galerie/judo/dsc-0905-01.jpg",
-          "album": "",
           "legende": "",
           "w": 2000,
           "h": 1333
@@ -531,5 +354,5 @@ window.SITE_DATA = {
       }
     ]
   },
-  "version": 2
+  "version": 3
 };

@@ -42,10 +42,12 @@ FICHIERS = ['index.html', 'mobile.css', 'mobile.js']
 DOSSIERS = [os.path.join('image', d) for d in ('web', 'galerie', 'accueil', 'apropos')]
 IMAGES = [os.path.join('image', 'logo.png'), os.path.join('image', 'favicon.png')]
 
+# Les anciennes pages HTML de la racine, converties en redirections. Les
+# séries n'existent plus : leurs adresses mènent à la liste des événements.
 ALIAS = {
-    'judo': 'serie/judo', 'aviation': 'serie/aviation', 'badminton': 'serie/badminton',
-    'street': 'serie/street', 'top12': 'serie/badminton', 'n2': 'serie/badminton',
-    'travail': 'travail', 'contact': 'contact', 'galerie': '', 'principale': '',
+    'judo': 'evenement/judo', 'aviation': 'evenements', 'badminton': 'evenements',
+    'street': 'evenements', 'top12': 'evenements', 'n2': 'evenements',
+    'travail': 'evenements', 'contact': 'contact', 'galerie': '', 'principale': '',
 }
 
 REDIR = """<!DOCTYPE html>
@@ -88,6 +90,16 @@ ErrorDocument 404 /index.html
 <IfModule mod_headers.c>
   Header set X-Content-Type-Options "nosniff"
   Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Le site rangeait les photos par série : /serie/<sport>/<journee>/. Ces
+# adresses circulent encore dans les moteurs, les favoris et les messages
+# déjà envoyés. La journée portait déjà l'identifiant qui sert aujourd'hui
+# à l'événement : une règle suffit, sans liste à tenir à jour.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^serie/[^/]+/([^/]+)/?$ /evenement/$1/ [L,R=301]
+  RewriteRule ^serie/[^/]*/?$ /evenements/ [L,R=301]
 </IfModule>
 """
 
@@ -300,10 +312,9 @@ def main():
 
     # ---- vignettes, puis data.js qui les référence ----
     a_reduire = []
-    for s in d.get('series', []):
-        a_reduire += [p.get('src', '') for p in s.get('photos', [])]
-        a_reduire += [a.get('cover', '') for a in s.get('albums', [])]
-        a_reduire.append(s.get('cover', ''))
+    for e in d.get('evenements', []):
+        a_reduire += [p.get('src', '') for p in e.get('photos', [])]
+        a_reduire.append(e.get('cover', ''))
     vignettes, gagne, souci_vignettes = fabriquer_vignettes(
         sorted({c for c in a_reduire if c}), OUT)
     n += len(vignettes)
@@ -377,8 +388,11 @@ def main():
 
     # ---- page d'accueil : aperçu + données structurées ----
     couv_accueil = ''
-    if d.get('slides'):
-        couv_accueil = d['slides'][0].get('img', '')
+    unes = [e for e in d.get('evenements', []) if e.get('une') and not e.get('prive')]
+    for e in (unes or d.get('evenements', [])):
+        couv_accueil = e.get('cover') or (e.get('photos') or [{}])[0].get('src', '')
+        if couv_accueil:
+            break
     accueil = page(gabarit, domaine, '', 'SHOOTBYTHEO — Photographie sport & documentaire',
                    desc_site, couv_accueil or 'image/logo.png', '', True)
     fiche = {
@@ -401,53 +415,32 @@ def main():
     with open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8') as f:
         f.write(accueil)
 
-    # ---- une page par série et par journée ----
+    # ---- une page par événement ----
     adresses = ['']
     pages = 0
-    for s in d.get('series', []):
-        pub_s = s.get('travail') and not s.get('prive')
-        route = 'serie/%s/' % s['key']
-        libres = photos_de(s, '')
-        cont = noscript_galerie(s.get('title', ''), s.get('blurb', ''), libres)
-        for a in s.get('albums', []):
-            ph = photos_de(s, a['id'])
-            if ph:
-                cont += '\n<h2>%s</h2>' % html.escape(a['titre'])
-                cont += '\n' + noscript_galerie(a['titre'], '', ph)
-        h = page(gabarit, domaine, route,
-                 '%s · SHOOTBYTHEO' % s.get('title', ''),
-                 s.get('blurb') or desc_site,
-                 s.get('cover') or couv_accueil, cont, pub_s)
-        os.makedirs(os.path.join(OUT, 'serie', s['key']), exist_ok=True)
-        with open(os.path.join(OUT, 'serie', s['key'], 'index.html'), 'w', encoding='utf-8') as f:
+    for e in d.get('evenements', []):
+        ph = e.get('photos') or []
+        public = not e.get('prive')
+        route = 'evenement/%s/' % e['id']
+        titre = ' · '.join(x for x in (e.get('titre', ''), e.get('sport', '')) if x)
+        desc = e.get('texte') or '%s — %d photo%s%s.' % (
+            e.get('titre', ''), len(ph), 's' if len(ph) > 1 else '',
+            (' · ' + e['date']) if e.get('date') else '')
+        couv = e.get('cover') or (ph[0]['src'] if ph else couv_accueil)
+        h = page(gabarit, domaine, route, titre + ' · SHOOTBYTHEO', desc, couv,
+                 noscript_galerie(e.get('titre', ''), e.get('sport', ''), ph), public)
+        os.makedirs(os.path.join(OUT, 'evenement', e['id']), exist_ok=True)
+        with open(os.path.join(OUT, 'evenement', e['id'], 'index.html'), 'w', encoding='utf-8') as f:
             f.write(h)
         pages += 1
-        if pub_s:
+        if public:
             adresses.append(route)
-
-        for a in s.get('albums', []):
-            ph = photos_de(s, a['id'])
-            if not ph:
-                continue
-            r2 = 'serie/%s/%s/' % (s['key'], a['id'])
-            pub_a = pub_s and not a.get('prive')
-            titre = '%s · %s' % (a['titre'], s.get('title', ''))
-            desc = '%s — %d photo%s%s.' % (a['titre'], len(ph), 's' if len(ph) > 1 else '',
-                                           (' · ' + a['date']) if a.get('date') else '')
-            h2 = page(gabarit, domaine, r2, titre + ' · SHOOTBYTHEO', desc,
-                      a.get('cover') or ph[0]['src'],
-                      noscript_galerie(a['titre'], s.get('title', ''), ph), pub_a)
-            os.makedirs(os.path.join(OUT, 'serie', s['key'], a['id']), exist_ok=True)
-            with open(os.path.join(OUT, 'serie', s['key'], a['id'], 'index.html'), 'w', encoding='utf-8') as f:
-                f.write(h2)
-            pages += 1
-            if pub_a:
-                adresses.append(r2)
 
     # ---- pages fixes ----
     for route, titre, desc, actif in (
-        ('travail/', 'Le Travail · SHOOTBYTHEO', 'Les séries photographiques : ' +
-         ', '.join(s.get('title', '') for s in d.get('series', []) if s.get('travail')), True),
+        ('evenements/', 'Événements · SHOOTBYTHEO', 'Les reportages : ' +
+         ', '.join(e.get('titre', '') for e in d.get('evenements', [])
+                   if not e.get('prive')), True),
         ('contact/', 'Contact · SHOOTBYTHEO', 'Prestation, reportage sportif, collaboration — écrivez-moi.', True),
         ('a-propos/', (d.get('apropos', {}).get('titre') or 'À propos') + ' · SHOOTBYTHEO',
          (d.get('apropos', {}).get('texte') or '')[:180], d.get('apropos', {}).get('actif')),
@@ -464,15 +457,14 @@ def main():
         adresses.append(route)
 
     # ---- anciennes adresses ----
-    # ALIAS garde les séries d'hier (aviation, street…) : si l'une d'elles n'est
-    # plus publiée, son ancienne adresse pointerait vers une page inexistante.
-    # On renvoie alors vers « Le Travail » plutôt que vers un 404.
-    publiees = {s['key'] for s in d.get('series', [])
-                if s.get('travail') and not s.get('prive')}
+    # ALIAS garde les pages d'hier (aviation, street…) : si l'événement visé
+    # n'est plus publié, son ancienne adresse pointerait vers une page
+    # inexistante. On renvoie alors vers la liste plutôt que vers un 404.
+    publies = {e['id'] for e in d.get('evenements', []) if not e.get('prive')}
 
     def cible_valide(c):
-        if c.startswith('serie/') and c.split('/')[1] not in publiees:
-            return 'travail'
+        if c.startswith('evenement/') and c.split('/')[1] not in publies:
+            return 'evenements'
         return c
 
     redirections = 0
@@ -519,11 +511,10 @@ def main():
 
     # ---- contrôles ----
     manquantes = []
-    refs = [sl.get('img', '') for sl in d.get('slides', [])]
-    for s in d.get('series', []):
-        refs.append(s.get('cover', ''))
-        refs += [p.get('src', '') for p in s.get('photos', [])]
-        refs += [a.get('cover', '') for a in s.get('albums', [])]
+    refs = []
+    for e in d.get('evenements', []):
+        refs.append(e.get('cover', ''))
+        refs += [p.get('src', '') for p in e.get('photos', [])]
     if d.get('apropos', {}).get('photo'):
         refs.append(d['apropos']['photo'])
     for c in refs:
@@ -549,7 +540,7 @@ def main():
               % (len(vignettes), gagne / 1e6))
     if perdues:
         print('\n  ℹ %d ancienne(s) adresse(s) sans série correspondante,' % len(perdues))
-        print('    redirigée(s) vers « Le Travail » : %s' % ', '.join(perdues))
+        print('    redirigée(s) vers « Événements » : %s' % ', '.join(perdues))
     if manquantes:
         print('\n  ⚠ Images introuvables :')
         for m in sorted(set(manquantes)):

@@ -20,9 +20,11 @@ où sont vos photos :
 
 Dans les deux cas :
 
-- **Page d'accueil** — les photos à la une, leur titre, leur cadrage
-- **Séries** — Badminton, Judo… chacune contenant des **journées** datées
-- **Journées** — une compétition, un match : photos, légendes, ordre, couverture
+- **Événements** — une compétition, un match, une séance : photos, légendes,
+  ordre, couverture. C'est le seul niveau : vous ouvrez l'événement, vous y
+  déposez vos photos
+- **À la une** — vous cochez les événements à afficher en grand sur la page
+  d'accueil. Leur photo, leur titre et leur date sont repris tels quels
 - **À propos / Prestations / Réglages** — les textes et informations du site
 
 Les photos envoyées sont automatiquement redimensionnées pour le web.
@@ -45,16 +47,17 @@ mettre en ligne à la main. Ce n'est plus nécessaire au quotidien : le bouton
 | Chemin | Rôle |
 |---|---|
 | `index.html` | Le site entier : structure, styles et moteur d'affichage |
-| `data.js` | Tout le contenu (séries, journées, photos, textes) — écrit par l'administration |
+| `data.js` | Tout le contenu (événements, photos, textes) — écrit par l'administration |
 | `admin/serveur.py` | Serveur local de l'administration |
 | `admin/interface.html` | Interface de l'administration |
 | `admin/publier.py` | Génère le dossier à mettre en ligne |
+| `admin/migrer_evenements.py` | Aplatit l'ancien rangement séries → journées (à ne lancer qu'une fois) |
 | `admin-web/github.js` | Administration en ligne : remplace le serveur local par GitHub |
 | `admin-web/livraisons.js` | Livraisons clients en ligne, côté navigateur |
 | `admin-web/livraison/` | Les quelques fichiers PHP déposés chez OVH pour les galeries clients |
 | `*.command` / `*.bat` | Lanceurs de l'administration locale — macOS et Windows |
 | `image/web/` | Images de couverture optimisées |
-| `image/galerie/<série>/` | Photos des galeries |
+| `image/galerie/<événement>/` | Photos des galeries |
 | `*.html` (racine) | Anciennes pages, converties en redirections à la publication |
 
 ## Livraisons clients par lien
@@ -176,27 +179,37 @@ les tests des livraisons en ligne s'exécutent si `php` est disponible).
 ## Modèle de contenu du portfolio
 
 ```
-Série (Badminton)
- └── Journée (TOP 12 — 9ᵉ journée, 28 mars 2026)
-      └── Photos (source, légende, dimensions)
+Événement (TOP 12 — 9ᵉ journée · Badminton · 28 mars 2026)
+ └── Photos (source, légende, dimensions)
 ```
 
-Une série sans journée affiche simplement toutes ses photos.
-Une journée sans photo reste invisible sur le site.
-Séries et journées peuvent être marquées **privées** : accessibles par leur lien,
-absentes des menus et du sitemap — pratique pour une galerie réservée à un club.
+Un seul niveau. Le site rangeait autrefois les photos en séries (Badminton,
+Judo) découpées en journées : une série de plus n'apportait qu'un clic de plus,
+puisque la journée était le vrai sujet. Le sport survit comme **étiquette** —
+écrit sur la carte, et filtre au-dessus de la liste dès qu'il y a deux sports.
+
+Un événement sans photo apparaît dans la liste, marqué « À venir ».
+Un événement peut être **masqué** : accessible par son lien, absent de la liste
+et du sitemap — pratique pour une galerie réservée à un club.
+
+Un événement **à la une** s'affiche en grand à l'arrivée sur le site, avec sa
+couverture, son titre et sa date. Si rien n'est coché, le site met en avant les
+trois événements les plus récents plutôt qu'un accueil vide.
+
+Les anciennes adresses `/serie/<sport>/<journée>/` sont redirigées vers
+`/evenement/<journée>/` par une règle Apache : aucun lien déjà partagé ne casse.
 
 ## Publication
 
 `Publier.command` produit un dossier complet contenant :
 
-- une **vraie page par série et par journée** (`/serie/badminton/top-12-9e-journee/`),
+- une **vraie page par événement** (`/evenement/top-12-9e-journee/`),
   avec son titre, sa description et son aperçu de partage
 - `sitemap.xml`, `robots.txt` et les données structurées pour les moteurs de recherche
 - les redirections des anciennes adresses, pour ne casser aucun lien existant
 - `.htaccess` : redirection vers l'adresse unique du site, compression, cache
 - une **vignette de 800 px par photo**, servie dans les mosaïques et les cartes
-  de journée — la visionneuse ouvre toujours l'original. Une page galerie passe
+  d'événement — la visionneuse ouvre toujours l'original. Une page galerie passe
   ainsi de 2,6 à 0,6 Mo. Ces vignettes ne sont pas versionnées : elles se
   recalculent à chaque publication, et exigent Pillow. Sans lui la publication
   réussit quand même, mais sert les photos en pleine taille
@@ -257,8 +270,8 @@ ne compterait que la page d'arrivée. Créez dans GTM un déclencheur
 ## Administration en ligne
 
 **`https://votre-site/admin/`** — l'administration complète depuis n'importe
-quel appareil : accueil, séries, journées, photos, textes, réglages. C'est la
-même interface que sur le Mac.
+quel appareil : événements, photos, une, textes, réglages. C'est la même
+interface que sur le Mac.
 
 La page est **entièrement statique** : elle ne porte aucun secret et, sans clé,
 ne sait rien faire. Elle parle directement à GitHub, qui régénère et déploie le
@@ -274,7 +287,9 @@ révoquez-la sur GitHub, l'effacer localement ne suffit pas.
 
 Les photos sont réduites **dans le navigateur** avant l'envoi : une photo de
 8 Mo part en quelques centaines de kilooctets, ce qui rend l'envoi depuis un
-téléphone en 4G supportable.
+téléphone en 4G supportable. Tant qu'elles ne sont pas publiées, elles vivent
+dans le navigateur — l'administration les affiche depuis là, et un onglet
+rechargé les retrouve intactes.
 
 Les modifications s'accumulent et ne partent qu'au clic sur **Publier en ligne ↑**,
 en une seule fois. Vingt photos font une publication, pas vingt. Tant que rien

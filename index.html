@@ -154,7 +154,7 @@ input::placeholder,textarea::placeholder{color:#a29c91}
 .progress span{flex:1;height:2px;background:rgba(242,239,233,.25);transition:background .4s ease}
 .progress span.is-on{background:var(--accent)}
 
-/* ---------- Travail : bandes ---------- */
+/* ---------- Événements : bandes et cartes ---------- */
 /* 186px = hauteur du header fixe (34+88+34) + 30, sinon le kicker passe dessous */
 .work-head{padding:186px 40px 34px}
 .work-head .kicker{display:block;margin-bottom:16px}
@@ -336,6 +336,34 @@ input::placeholder,textarea::placeholder{color:#a29c91}
 .jr .n{margin-top:9px;font-size:12px;letter-spacing:.06em;color:rgba(242,239,233,.72)}
 .sect-lbl{padding:34px 40px 0;font-family:var(--mono);font-size:11px;letter-spacing:.24em;
   text-transform:uppercase;color:var(--muted)}
+.evts{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:10px 40px 60px}
+@media(max-width:1100px){.evts{grid-template-columns:repeat(2,1fr)}}
+/* Les cartes de journée étaient dessinées pour deux colonnes ; à trois, le
+   titre débordait. Il tient en deux lignes, la troisième est coupée net. */
+.evts .jr .txt{padding:18px 20px}
+.evts .jr .t{font-size:clamp(17px,1.35vw,24px);line-height:1.04;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.evts .jr .d{font-size:10px;letter-spacing:.16em;margin-bottom:6px}
+.evts .jr .n{margin-top:7px;font-size:11px}
+/* Sans couverture, la carte n'est qu'un aplat : une trame discrète la
+   distingue d'un trou dans la grille. */
+.evts .jr:not(:has(img)){background:
+  repeating-linear-gradient(-45deg,#171513,#171513 12px,#141210 12px,#141210 24px)}
+/* Sur téléphone, deux colonnes donnaient des cartes de 170 px : en 16/9 elles
+   étaient plus courtes que leur propre texte, qui débordait par le haut. Une
+   seule colonne, un peu plus haute. */
+@media(max-width:700px){
+  .evts{grid-template-columns:1fr;gap:12px;padding:6px 20px 50px}
+  .evts .jr{aspect-ratio:3/2}
+  .evts .jr .txt{padding:16px 18px}
+  .evts .jr .t{font-size:23px;-webkit-line-clamp:3}
+}
+.filtres{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px}
+.filtre{font:inherit;font-size:11px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;
+  padding:9px 15px;border:1px solid var(--line);border-radius:999px;background:none;color:var(--muted)}
+.filtre:hover{border-color:rgba(242,239,233,.45);color:var(--ink)}
+.filtre.is-on{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:700}
+.vide-liste{padding:10px 40px 80px;color:var(--muted);font-size:15px}
 
 /* ---------- Légendes ---------- */
 .ph figcaption{padding:9px 2px 0;font-size:12.5px;line-height:1.5;color:var(--muted)}
@@ -468,7 +496,7 @@ input::placeholder,textarea::placeholder{color:#a29c91}
   </button>
   <nav class="hdr-nav">
     <button class="navlink" data-go="home">À la une</button>
-    <button class="navlink" data-go="travail">Travail</button>
+    <button class="navlink" data-go="evenements">Événements</button>
     <button class="navlink" data-go="prestations" id="navPresta" hidden>Prestations</button>
     <button class="navlink" data-go="a-propos" id="navApropos" hidden>À propos</button>
     <button class="navlink" data-go="contact">Contact</button>
@@ -507,13 +535,14 @@ input::placeholder,textarea::placeholder{color:#a29c91}
     </div>
   </section>
 
-  <!-- ============== TRAVAIL : BANDES IMMERSIVES ============== -->
-  <section class="view" id="view-travail" hidden>
+  <!-- ============== ÉVÉNEMENTS : LA LISTE, SANS DÉTOUR ============== -->
+  <section class="view" id="view-evenements" hidden>
     <div class="work-head">
       <span class="kicker" id="workKicker">Portfolio</span>
-      <h1 class="big-title">Le Travail</h1>
+      <h1 class="big-title">Événements</h1>
+      <div class="filtres" id="filtres" hidden role="group" aria-label="Filtrer par sport"></div>
     </div>
-    <div id="bands"></div>
+    <div class="evts" id="evts"></div>
   </section>
 
   <!-- ============== GALERIE : PLEIN CADRE ============== -->
@@ -522,14 +551,11 @@ input::placeholder,textarea::placeholder{color:#a29c91}
       <div class="gal-img" id="galImg"></div>
       <div class="gal-veil"></div>
       <div class="gal-bar">
-        <button class="back" id="galBack">← Retour au travail</button>
+        <button class="back" id="galBack">← Tous les événements</button>
         <div class="gal-kicker" id="galKicker"></div>
         <h1 class="gal-title" id="galTitle"></h1>
       </div>
     </div>
-    <div class="sect-lbl" id="galLbl" hidden></div>
-    <div class="journees" id="galJournees" hidden></div>
-    <div class="sect-lbl" id="galLbl2" hidden></div>
     <div class="gal-grid" id="galGrid"></div>
     <div class="gal-foot">
       <p id="galHDtxt">La galerie complète en haute définition est disponible au téléchargement.</p>
@@ -636,20 +662,18 @@ input::placeholder,textarea::placeholder{color:#a29c91}
   /* ---------- Données (data.js, écrit par l'administration) ---------- */
   var D      = window.SITE_DATA || {};
   var SITE   = D.site || {};
-  var SERIES = D.series || [];
-  var SLIDES = (D.slides || []).slice();
+  var EVTS = (D.evenements || []).slice();
   var APROPOS = D.apropos || {};
   var PRESTA  = D.prestations || {};
   var idx = {};
-  SERIES.forEach(function(s){
-    s.albums = s.albums || [];
-    s.photos = s.photos || [];
-    idx[s.key] = s;
+  EVTS.forEach(function(e){
+    e.photos = e.photos || [];
+    idx[e.id] = e;
   });
 
   var $ = function(id){ return document.getElementById(id); };
   var views = {
-    home:$('view-home'), travail:$('view-travail'), gallery:$('view-gallery'),
+    home:$('view-home'), evenements:$('view-evenements'), gallery:$('view-gallery'),
     'a-propos':$('view-a-propos'), prestations:$('view-prestations'), contact:$('view-contact')
   };
   function pad2(n){ return ('0' + n).slice(-2); }
@@ -691,26 +715,31 @@ input::placeholder,textarea::placeholder{color:#a29c91}
   var VIGNETTES = D.vignettes || {};
   function petite(src){ return VIGNETTES[src] || src; }
 
-  function photosDe(s, albumId){
-    return s.photos.filter(function(p){ return (p.album || '') === albumId; });
+  function couverture(e){
+    if (!e) return '';
+    return e.cover || (e.photos[0] && e.photos[0].src) || '';
   }
-  function albumsRemplis(s){          // journées listées : celles qui ont des photos
-    return s.albums.filter(function(a){ return !a.prive && photosDe(s, a.id).length; });
+  function evenementsPublics(){
+    return EVTS.filter(function(e){ return !e.prive; });
   }
-  function albumDe(s, id){
-    return s.albums.filter(function(a){ return a.id === id; })[0];
+  /* Rien de coché ne doit pas donner un accueil vide : à défaut, les trois
+     événements les plus récents font la une. */
+  function unes(){
+    var pubs = evenementsPublics();
+    var choisis = pubs.filter(function(e){ return e.une && couverture(e); });
+    return choisis.length ? choisis : pubs.filter(function(e){ return couverture(e); }).slice(0, 3);
   }
-  function couvertureAlbum(s, a){
-    if (a && a.cover) return a.cover;
-    var ph = photosDe(s, a ? a.id : '');
-    return (ph[0] && ph[0].src) || s.cover || '';
-  }
-  function seriesPubliques(){
-    return SERIES.filter(function(s){ return s.travail && !s.prive; });
+  function sports(){
+    var vus = [], out = [];
+    evenementsPublics().forEach(function(e){
+      var sp = (e.sport || '').trim();
+      if (sp && vus.indexOf(sp) === -1){ vus.push(sp); out.push(sp); }
+    });
+    return out.sort();
   }
 
   /* ---------- État ---------- */
-  var etat = { page:'home', slide:0, serie:'', album:'' };
+  var etat = { page:'home', slide:0, evt:'', sport:'' };
   var chrono = null;
   var sobre = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -737,21 +766,20 @@ input::placeholder,textarea::placeholder{color:#a29c91}
   /* ================= ACCUEIL : diaporama ================= */
   var couches = [], vignettes = [], segments = [];
 
-  SLIDES.forEach(function(sl, i){
-    var s = idx[sl.serie];
-    if (!sl.img && s) sl.img = couvertureAlbum(s, albumDe(s, sl.album || ''));
+  var UNES = unes();
 
+  UNES.forEach(function(sl, i){
     var c = document.createElement('div');
     c.className = 'hero-layer';
-    c.style.backgroundImage = "url('" + sl.img + "')";
-    c.style.backgroundPosition = sl.pos || 'center';
+    c.style.backgroundImage = "url('" + couverture(sl) + "')";
+    c.style.backgroundPosition = sl.coverPos || 'center';
     $('heroLayers').appendChild(c);
     couches.push(c);
 
     var v = document.createElement('button');
     v.className = 'thumb';
-    v.style.backgroundImage = "url('" + sl.img + "')";
-    v.setAttribute('aria-label', sl.title || '');
+    v.style.backgroundImage = "url('" + couverture(sl) + "')";
+    v.setAttribute('aria-label', sl.titre || '');
     v.addEventListener('click', function(){ allerSlide(i); });
     $('thumbs').appendChild(v);
     vignettes.push(v);
@@ -762,15 +790,15 @@ input::placeholder,textarea::placeholder{color:#a29c91}
   });
 
   function peindreSlide(){
-    var sl = SLIDES[etat.slide];
+    var sl = UNES[etat.slide];
     if (!sl) return;
-    $('heroTag').textContent = sl.tag || '';
-    $('heroTitle').textContent = sl.title || '';
-    $('heroMeta').textContent = sl.meta || '';
-    $('counter').textContent = pad2(etat.slide + 1) + ' / ' + pad2(SLIDES.length);
-    /* le bouton HD de la une suit la journée affichée */
-    var sh = idx[sl.serie], ah = sh && sl.album ? albumDe(sh, sl.album) : null;
-    var lien = (ah && ah.lienHD) || SITE.lienHD || '';
+    /* Plus rien à ressaisir : le tag, le titre et la date viennent de
+       l'événement lui-même. */
+    $('heroTag').textContent = ['À la une', sl.sport || ''].filter(Boolean).join(' · ');
+    $('heroTitle').textContent = sl.titre || '';
+    $('heroMeta').textContent = dateLisible(sl.date) || sl.texte || '';
+    $('counter').textContent = pad2(etat.slide + 1) + ' / ' + pad2(UNES.length);
+    var lien = sl.lienHD || SITE.lienHD || '';
     $('heroHD').hidden = !lien;
     if (lien) $('heroHD').href = lien;
     couches.forEach(function(el, i){ el.classList.toggle('is-on', i === etat.slide); });
@@ -778,15 +806,15 @@ input::placeholder,textarea::placeholder{color:#a29c91}
     segments.forEach(function(el, i){ el.classList.toggle('is-on', i <= etat.slide); });
   }
   function allerSlide(i){
-    etat.slide = (i + SLIDES.length) % SLIDES.length;
+    etat.slide = (i + UNES.length) % UNES.length;
     peindreSlide();
     lancerChrono();
   }
   function lancerChrono(){
     clearInterval(chrono);
-    if (sobre || etat.page !== 'home' || SLIDES.length < 2) return;
+    if (sobre || etat.page !== 'home' || UNES.length < 2) return;
     chrono = setInterval(function(){
-      etat.slide = (etat.slide + 1) % SLIDES.length;
+      etat.slide = (etat.slide + 1) % UNES.length;
       peindreSlide();
     }, 6000);
   }
@@ -794,47 +822,73 @@ input::placeholder,textarea::placeholder{color:#a29c91}
   $('nextSlide').addEventListener('click', function(){ allerSlide(etat.slide + 1); });
   $('prevSlide').addEventListener('click', function(){ allerSlide(etat.slide - 1); });
   $('heroOpen').addEventListener('click', function(){
-    var sl = SLIDES[etat.slide];
-    if (sl) aller('serie/' + sl.serie + (sl.album ? '/' + sl.album : ''));
+    var sl = UNES[etat.slide];
+    if (sl) aller('evenement/' + sl.id);
   });
 
-  /* ================= TRAVAIL : bandes ================= */
-  (function bandes(){
-    var pubs = seriesPubliques();
-    $('workKicker').textContent = 'Portfolio · ' + pubs.length
-      + (pubs.length > 1 ? ' séries' : ' série');
-    pubs.forEach(function(s, i){
-      var nbJ = albumsRemplis(s).length;
-      var bande = document.createElement('button');
-      bande.className = 'band';
-      bande.innerHTML =
-        '<div class="band-img"></div><div class="band-veil"></div>' +
-        '<div class="band-inner"><div class="band-left">' +
-        '<span class="band-n"></span><div><div class="band-kicker"></div><div class="band-name"></div></div>' +
-        '</div><div class="band-right"><p class="band-blurb"></p><div class="tags"></div></div></div>';
-      if (s.cover) bande.querySelector('.band-img').style.backgroundImage = "url('" + s.cover + "')";
-      bande.querySelector('.band-n').textContent = pad2(i + 1);
-      bande.querySelector('.band-kicker').textContent = s.kicker || '';
-      bande.querySelector('.band-name').textContent = s.title || '';
-      bande.querySelector('.band-blurb').textContent = s.blurb || '';
-      var tags = bande.querySelector('.tags');
-      if (nbJ){
-        var t = document.createElement('span');
-        t.className = 'tag';
-        t.textContent = nbJ + (nbJ > 1 ? ' journées' : ' journée');
-        tags.appendChild(t);
+  /* ================= ÉVÉNEMENTS : la liste ================= */
+  /* Une seule vue entre l'accueil et les photos. Le sport n'est plus un
+     dossier à ouvrir : c'est une étiquette sur la carte, et un filtre quand
+     les événements se comptent par dizaines. */
+  function peindreEvenements(){
+    var tous = evenementsPublics();
+    var sp = sports();
+    var liste = etat.sport ? tous.filter(function(e){ return e.sport === etat.sport; }) : tous;
+
+    $('workKicker').textContent = tous.length
+      + (tous.length > 1 ? ' événements' : ' événement');
+
+    var barre = $('filtres');
+    vide(barre);
+    barre.hidden = sp.length < 2;
+    if (!barre.hidden){
+      [''].concat(sp).forEach(function(nom){
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'filtre' + (etat.sport === nom ? ' is-on' : '');
+        b.textContent = nom || 'Tout';
+        b.setAttribute('aria-pressed', etat.sport === nom ? 'true' : 'false');
+        b.addEventListener('click', function(){ etat.sport = nom; peindreEvenements(); });
+        barre.appendChild(b);
+      });
+    }
+
+    var grille = $('evts');
+    vide(grille);
+    if (!liste.length){
+      var vid = document.createElement('p');
+      vid.className = 'vide-liste';
+      vid.textContent = 'Aucun événement pour le moment.';
+      grille.appendChild(vid);
+      return;
+    }
+    liste.forEach(function(e){
+      var nb = e.photos.length;
+      var carte = document.createElement('button');
+      carte.className = 'jr';
+      carte.innerHTML = '<img loading="lazy" alt=""><div class="veil"></div><div class="txt">' +
+        '<div class="d"></div><div class="t"></div><div class="n"></div></div>';
+      var couv = couverture(e);
+      var im = carte.querySelector('img');
+      if (couv){
+        im.src = petite(couv);
+        im.alt = e.titre || '';
+        im.addEventListener('error', function(){
+          if (im.src.indexOf(couv) === -1) im.src = couv;
+        });
+      } else {
+        im.remove();
       }
-      var nb = s.photos.length;
-      if (nb){
-        var t2 = document.createElement('span');
-        t2.className = 'tag';
-        t2.textContent = nb + (nb > 1 ? ' photos' : ' photo');
-        tags.appendChild(t2);
-      }
-      bande.addEventListener('click', function(){ aller('serie/' + s.key); });
-      $('bands').appendChild(bande);
+      carte.querySelector('.d').textContent =
+        [dateLisible(e.date), e.sport || ''].filter(Boolean).join(' · ') || (e.sport || '');
+      carte.querySelector('.t').textContent = e.titre || '';
+      carte.querySelector('.n').textContent = nb
+        ? nb + (nb > 1 ? ' photos' : ' photo')
+        : 'À venir';
+      carte.addEventListener('click', function(){ aller('evenement/' + e.id); });
+      grille.appendChild(carte);
     });
-  })();
+  }
 
   /* ================= GALERIE ================= */
   var photosCourantes = [], iLb = 0;
@@ -845,17 +899,17 @@ input::placeholder,textarea::placeholder{color:#a29c91}
      lien est copié — même service, sans fenêtre système. */
   var partageCible = null, partageMinuteur = null;
 
-  function adressePartage(s, a){
-    var route = 'serie/' + s.key + (a ? '/' + a.id : '');
+  function adressePartage(e){
+    var route = 'evenement/' + e.id;
     /* l'adresse réelle produite à la publication, partageable telle quelle */
     if (SITE.domaine) return SITE.domaine.replace(/\/+$/, '') + '/' + route + '/';
     return location.origin + location.pathname + '#/' + route;
   }
 
-  function majPartage(s, a){
+  function majPartage(e){
     partageCible = {
-      titre: (a ? a.titre + ' · ' : '') + (s.title || 'SHOOTBYTHEO'),
-      url: adressePartage(s, a)
+      titre: [e.titre, e.sport].filter(Boolean).join(' · ') || 'SHOOTBYTHEO',
+      url: adressePartage(e)
     };
     var b = $('galPartage');
     b.textContent = 'Partager ↗';
@@ -890,66 +944,32 @@ input::placeholder,textarea::placeholder{color:#a29c91}
   });
 
   function peindreGalerie(){
-    var s = idx[etat.serie];
-    if (!s) return aller('travail');
-    var a = etat.album ? albumDe(s, etat.album) : null;
-    var journees = albumsRemplis(s);
-    var libres = photosDe(s, '');
+    var e = idx[etat.evt];
+    if (!e) return aller('evenements');
 
     /* en-tête */
-    var couv = a ? couvertureAlbum(s, a) : (s.cover || couvertureAlbum(s, journees[0]));
+    var couv = couverture(e);
     $('galImg').style.backgroundImage = couv ? "url('" + couv + "')" : 'none';
-    $('galKicker').textContent = a
-      ? (dateLisible(a.date) || s.title)
-      : (s.kicker || '');
-    $('galTitle').textContent = a ? a.titre : (s.title || '');
-    $('galBack').textContent = a ? '← ' + s.title : '← Retour au travail';
-    $('galBack').onclick = function(){ aller(a ? 'serie/' + s.key : 'travail'); };
+    $('galKicker').textContent =
+      [dateLisible(e.date), e.sport || ''].filter(Boolean).join(' · ');
+    $('galTitle').textContent = e.titre || '';
+    $('galBack').onclick = function(){ aller('evenements'); };
 
-    /* Téléchargement : le lien de la journée s'il en a un, sinon celui du site.
-       Un visiteur venu pour sa compétition atterrit ainsi sur ses photos,
-       pas sur un dossier commun à tous les sports. */
-    var hd = (a && a.lienHD) || SITE.lienHD || '';
+    /* Téléchargement : le lien de l'événement s'il en a un, sinon celui du
+       site. Un visiteur venu pour sa compétition atterrit ainsi sur ses
+       photos, pas sur un dossier commun à tous les sports. */
+    var hd = e.lienHD || SITE.lienHD || '';
     $('galHD').hidden = !hd;
     if (hd) $('galHD').href = hd;
-    $('galHDtxt').textContent = (a && a.lienHD)
-      ? 'Les photos de cette journée sont disponibles en haute définition.'
+    $('galHDtxt').textContent = e.lienHD
+      ? 'Les photos de cet événement sont disponibles en haute définition.'
       : 'La galerie complète en haute définition est disponible au téléchargement.';
-    majPartage(s, a);
+    majPartage(e);
 
     /* corps */
-    var listeJ = $('galJournees'), lbl = $('galLbl'), lbl2 = $('galLbl2'), grille = $('galGrid');
-    vide(listeJ); vide(grille);
-    lbl2.hidden = true;
-
-    if (!a && journees.length){
-      lbl.hidden = false;
-      lbl.textContent = journees.length + (journees.length > 1 ? ' journées' : ' journée');
-      listeJ.hidden = false;
-      journees.forEach(function(j){
-        var n = photosDe(s, j.id).length;
-        var carte = document.createElement('button');
-        carte.className = 'jr';
-        carte.innerHTML = '<img loading="lazy"><div class="veil"></div><div class="txt">' +
-          '<div class="d"></div><div class="t"></div><div class="n"></div></div>';
-        carte.querySelector('img').src = petite(couvertureAlbum(s, j));
-        carte.querySelector('img').alt = j.titre;
-        carte.querySelector('.d').textContent = dateLisible(j.date) || 'Série';
-        carte.querySelector('.t').textContent = j.titre;
-        carte.querySelector('.n').textContent = n + (n > 1 ? ' photos' : ' photo');
-        carte.addEventListener('click', function(){ aller('serie/' + s.key + '/' + j.id); });
-        listeJ.appendChild(carte);
-      });
-      photosCourantes = libres;
-      if (libres.length){
-        lbl2.hidden = false;
-        lbl2.textContent = libres.length + ' autres photos';
-      }
-    } else {
-      lbl.hidden = true;
-      listeJ.hidden = true;
-      photosCourantes = a ? photosDe(s, a.id) : s.photos.slice();
-    }
+    var grille = $('galGrid');
+    vide(grille);
+    photosCourantes = e.photos.slice();
 
     if (photosCourantes.length){
       photosCourantes.forEach(function(p, i){
@@ -966,7 +986,7 @@ input::placeholder,textarea::placeholder{color:#a29c91}
         im.addEventListener('error', function(){
           if (im.src.indexOf(p.src) === -1) im.src = p.src;
         });
-        im.alt = p.legende || (a ? a.titre : s.title);
+        im.alt = p.legende || e.titre || '';
         im.addEventListener('load', calerBientot);
         fig.appendChild(im);
         if (p.legende){
@@ -977,7 +997,7 @@ input::placeholder,textarea::placeholder{color:#a29c91}
         fig.addEventListener('click', function(){ ouvrirLb(i); });
         grille.appendChild(fig);
       });
-    } else if (!journees.length || a){
+    } else {
       for (var i = 0; i < 6; i++){
         var slot = document.createElement('div');
         slot.className = 'slot';
@@ -1149,14 +1169,13 @@ input::placeholder,textarea::placeholder{color:#a29c91}
   var TITRE = 'SHOOTBYTHEO';
   function majTitre(){
     var t = '';
-    if (etat.page === 'travail') t = 'Le Travail';
+    if (etat.page === 'evenements') t = 'Événements';
     else if (etat.page === 'contact') t = 'Contact';
     else if (etat.page === 'a-propos') t = APROPOS.titre || 'À propos';
     else if (etat.page === 'prestations') t = PRESTA.titre || 'Prestations';
     else if (etat.page === 'gallery'){
-      var s = idx[etat.serie];
-      var a = s && etat.album ? albumDe(s, etat.album) : null;
-      t = a ? a.titre + ' · ' + s.title : (s ? s.title : '');
+      var e = idx[etat.evt];
+      t = e ? [e.titre, e.sport].filter(Boolean).join(' · ') : '';
     }
     document.title = t ? t + ' · ' + TITRE : TITRE + ' — Photographie sport & documentaire';
   }
@@ -1174,14 +1193,22 @@ input::placeholder,textarea::placeholder{color:#a29c91}
     var route = (window.location.hash || '#/' + (window.__ROUTE__ || '')).replace(/^#\/?/, '');
     var bouts = route.split('/');
 
-    if (bouts[0] === 'travail') etat.page = 'travail';
+    if (bouts[0] === 'evenements') etat.page = 'evenements';
     else if (bouts[0] === 'contact') etat.page = 'contact';
     else if (bouts[0] === 'a-propos' && APROPOS.actif) etat.page = 'a-propos';
     else if (bouts[0] === 'prestations' && PRESTA.actif) etat.page = 'prestations';
-    else if (bouts[0] === 'serie' && idx[bouts[1]]){
+    else if (bouts[0] === 'evenement' && idx[bouts[1]]){
       etat.page = 'gallery';
-      etat.serie = bouts[1];
-      etat.album = (bouts[2] && albumDe(idx[bouts[1]], bouts[2])) ? bouts[2] : '';
+      etat.evt = bouts[1];
+    }
+    /* Les adresses d'avant — /serie/<sport>/<journée> — restent en circulation :
+       dans un message, un favori, un moteur de recherche. La journée seule
+       suffit à retrouver l'événement ; la série seule n'a plus d'équivalent
+       et renvoie à la liste. */
+    else if (bouts[0] === 'serie'){
+      if (bouts[2] && idx[bouts[2]]){ etat.page = 'gallery'; etat.evt = bouts[2]; }
+      else if (idx[bouts[1]]){ etat.page = 'gallery'; etat.evt = bouts[1]; }
+      else etat.page = 'evenements';
     }
     else etat.page = 'home';
 
@@ -1190,10 +1217,11 @@ input::placeholder,textarea::placeholder{color:#a29c91}
     document.querySelectorAll('.navlink').forEach(function(el){
       var cible = el.getAttribute('data-go');
       el.classList.toggle('is-active', cible === etat.page ||
-        (etat.page === 'gallery' && cible === 'travail'));
+        (etat.page === 'gallery' && cible === 'evenements'));
     });
 
     if (etat.page === 'gallery'){ peindreGalerie(); calerBientot(); }
+    if (etat.page === 'evenements') peindreEvenements();
     majTitre();
     signalerVue(route);
     lancerChrono();

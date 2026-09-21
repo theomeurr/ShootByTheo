@@ -56,11 +56,11 @@ def slug(text):
 
 def read_data():
     if not os.path.isfile(DATA_JS):
-        return {'slides': [], 'series': []}
+        return {'evenements': []}
     with open(DATA_JS, encoding='utf-8') as f:
         txt = f.read()
     m = re.search(r'\{.*\}', txt, re.S)
-    return json.loads(m.group(0)) if m else {'slides': [], 'series': []}
+    return json.loads(m.group(0)) if m else {'evenements': []}
 
 
 def write_data(d):
@@ -289,8 +289,10 @@ class Admin(SimpleHTTPRequestHandler):
         if dossier in ('accueil', 'apropos'):
             dest_dir = os.path.join(IMG_DIR, dossier)
         else:
-            serie = slug((q.get('serie') or ['galerie'])[0]) or 'galerie'
-            dest_dir = os.path.join(GAL_DIR, serie)
+            # « evt » depuis la refonte ; « serie » reste accepté le temps
+            # qu'un onglet resté ouvert sur l'ancienne page se recharge.
+            nom_dossier = (q.get('evt') or q.get('serie') or ['galerie'])[0]
+            dest_dir = os.path.join(GAL_DIR, slug(nom_dossier) or 'galerie')
         os.makedirs(dest_dir, exist_ok=True)
         base = slug(os.path.splitext(os.path.basename(name))[0]) or 'photo'
         out = unique_path(dest_dir, base, '.jpg')

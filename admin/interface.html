@@ -124,6 +124,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .jr .ordre span{background:rgba(12,11,10,.85);border:1px solid var(--line);border-radius:5px;
   padding:4px 7px;font-size:11px;color:var(--ink)}
 .jr .ordre span:hover{background:var(--accent);color:var(--bg)}
+/* Sans couverture, mieux vaut un vide assumé que le logo du site étiré. */
+.jr .sans-img{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;
+  font-size:12px;color:var(--muted);letter-spacing:.06em;
+  background:repeating-linear-gradient(-45deg,#171513,#171513 10px,#141210 10px,#141210 20px)}
 
 .bascule{display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;margin-top:12px}
 .bascule input{accent-color:var(--accent);width:17px;height:17px}
@@ -159,10 +163,8 @@ details.avance[open] summary:before{content:'▾ '}
 
 <div class="app">
   <aside class="side">
-    <button class="nav" id="navAccueil"><span class="nav-ico">🏠</span> Page d'accueil</button>
-    <h2>Mes séries</h2>
-    <div id="navSeries"></div>
-    <button class="nav" id="navPlus"><span class="nav-ico">＋</span> Nouvelle série</button>
+    <button class="nav" id="navEvts"><span class="nav-ico">📅</span> Événements</button>
+    <button class="nav" id="navUne"><span class="nav-ico">★</span> À la une</button>
     <h2>Le site</h2>
     <button class="nav" id="navApropos"><span class="nav-ico">👤</span> À propos</button>
     <button class="nav" id="navPresta"><span class="nav-ico">€</span> Prestations</button>
@@ -187,7 +189,7 @@ details.avance[open] summary:before{content:'▾ '}
 (function(){
 'use strict';
 
-let D = null, LIB = { accueil:[], web:[], apropos:[] }, vue = { type:'accueil' }, minuteur = null;
+let D = null, LIB = { accueil:[], web:[], apropos:[] }, vue = { type:'evts' }, minuteur = null;
 const $ = s => document.querySelector(s);
 
 /* ================= utilitaires ================= */
@@ -232,7 +234,15 @@ function sessionPerdue(r){
   }
   return false;
 }
-const url = s => "url('" + encodeURI(s) + "')";
+/* En ligne, une photo tout juste envoyée n'est pas encore sur le serveur :
+   son adresse renverrait un cadre vide. github.js la garde en mémoire et la
+   rend ici, le temps que la publication la mette en place. */
+function srcPhoto(chemin){
+  if (!chemin) return '';
+  const attente = window.SBT_APERCU ? window.SBT_APERCU(chemin) : '';
+  return attente || '/' + chemin;
+}
+const url = s => "url('" + (s.startsWith('data:') ? s : encodeURI(s)) + "')";
 function slug(t){
   return String(t).normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '').toLowerCase();
@@ -272,28 +282,34 @@ function bascule(libelle, valeur, onChange){
 }
 
 /* ================= modèle ================= */
-const serie = k => D.series.find(s => s.key === k);
-const album = (s, id) => (s.albums || []).find(a => a.id === id);
-const photosDe = (s, id) => s.photos.filter(p => (p.album || '') === id);
-function couvAlbum(s, a){
-  if (a && a.cover) return a.cover;
-  const ph = photosDe(s, a ? a.id : '');
-  return (ph[0] && ph[0].src) || s.cover || '';
+/* Un seul niveau : l'événement. Le sport n'est qu'une étiquette, pas un
+   dossier à ouvrir. */
+const evt = id => D.evenements.find(e => e.id === id);
+const couvEvt = e => e && (e.cover || (e.photos[0] || {}).src || '');
+const sportsConnus = () =>
+  [...new Set(D.evenements.map(e => (e.sport || '').trim()).filter(Boolean))].sort();
+
+function idLibre(base){
+  let id = slug(base) || 'evenement', n = 2;
+  while (evt(id)) id = (slug(base) || 'evenement') + '-' + (n++);
+  return id;
+}
+function trierEvenements(){
+  D.evenements.sort((a, b) => (b.date || '0000').localeCompare(a.date || '0000'));
 }
 
 /* ================= enregistrement ================= */
 function enregistrer(){
-  etat('Enregistrement…');
   clearTimeout(minuteur);
+  etat('Enregistrement…');
   minuteur = setTimeout(async () => {
     try {
       const r = await fetch(api('data'), ecriture({ body: JSON.stringify(D) }));
       if (sessionPerdue(r)) return;
-      if (!r.ok) throw new Error(r.status);
-      etat('Enregistré à ' + new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }), 'ok');
+      etat('Enregistré', 'ok');
       majGit();
-    } catch (e) { etat('Enregistrement impossible', 'ko'); }
-  }, 350);
+    } catch (e) { etat('Non enregistré', 'ko'); }
+  }, 400);
 }
 const maj = () => { enregistrer(); dessiner(); };
 
@@ -344,16 +360,16 @@ function ouvrirChoix(titre, surChoix){
   corps.innerHTML = '';
   const sections = [];
   if (LIB.accueil.length) sections.push(["Photos envoyées pour l'accueil", LIB.accueil]);
-  D.series.forEach(s => {
-    const l = [...new Set([].concat(s.cover ? [s.cover] : []).concat(s.photos.map(p => p.src)))];
-    if (l.length) sections.push(['Série ' + s.title, l]);
+  D.evenements.forEach(e => {
+    const l = [...new Set([].concat(e.cover ? [e.cover] : []).concat(e.photos.map(p => p.src)))];
+    if (l.length) sections.push([e.titre || 'Sans titre', l]);
   });
   if (LIB.web.length) sections.push(["Photos d'origine du site", LIB.web]);
   sections.forEach(([nom, srcs]) => {
     corps.appendChild(el('div', { class:'grp', text:nom }));
     const g = el('div', { class:'g' });
     srcs.forEach(src => g.appendChild(el('button', { title:nomFichier(src),
-      onclick: () => { fermerChoix(); surChoix(src); } }, el('img', { src:'/' + src, loading:'lazy' }))));
+      onclick: () => { fermerChoix(); surChoix(src); } }, el('img', { src:srcPhoto(src), loading:'lazy' }))));
     corps.appendChild(g);
   });
   if (!sections.length) corps.appendChild(el('p', { class:'sous', text:'Aucune photo disponible pour l\'instant.' }));
@@ -366,17 +382,20 @@ $('#choix').addEventListener('click', e => { if (e.target === $('#choix')) ferme
 document.addEventListener('keydown', e => { if (e.key === 'Escape') fermerChoix(); });
 
 async function envoyer(fichiers, dest, apres){
+  let faites = 0;
   for (let i = 0; i < fichiers.length; i++){
     etat('Envoi ' + (i+1) + ' sur ' + fichiers.length + '…');
     try {
-      const q = dest.dossier ? 'dossier=' + dest.dossier : 'serie=' + encodeURIComponent(dest.serie);
+      const q = dest.dossier ? 'dossier=' + dest.dossier : 'evt=' + encodeURIComponent(dest.evt);
       const r = await fetch(api('upload', q + '&name=' + encodeURIComponent(fichiers[i].name)),
         ecriture({ body: fichiers[i] }));
       const j = await r.json();
       if (j.erreur) throw new Error(j.erreur);
       apres(j.src, j.largeur, j.hauteur);
+      faites++;
     } catch (e) { alert('« ' + fichiers[i].name + ' » n\'a pas pu être envoyée : ' + e.message); }
   }
+  etat(faites + ' photo(s) ajoutée(s)', 'ok');
   try { LIB = await (await fetch(api('images'))).json(); } catch (e) {}
   maj();
 }
@@ -399,238 +418,177 @@ function zoneDepot(dest, apres, texte){
   return z;
 }
 
-/* ================= vue : page d'accueil ================= */
-function vueAccueil(){
+/* ================= vue : les événements ================= */
+function vueEvenements(){
   const m = $('#vue');
-  m.appendChild(el('h1', { text:"Page d'accueil" }));
+  const total = D.evenements.reduce((n, e) => n + e.photos.length, 0);
+  m.appendChild(el('h1', { text:'Événements' }));
   m.appendChild(el('p', { class:'sous', text:
-    'Vos photos à la une, celles qui défilent en grand à l\'arrivée sur le site. '
-    + 'Mettez ici vos journées les plus récentes : le bouton « Voir la galerie » ouvre directement la journée choisie.' }));
-  if (!D.slides.length) m.appendChild(el('div', { class:'vide', text:'Aucune photo à la une pour l\'instant.' }));
-  D.slides.forEach((sl, i) => m.appendChild(carteDiapo(sl, i)));
-  m.appendChild(el('div', { class:'barre', style:'margin-top:8px' },
-    el('button', { class:'b', text:'Ajouter une photo à la une', onclick: () => {
-      if (!D.series.length){ alert('Créez d\'abord une série.'); return; }
-      const s = D.series[0];
-      D.slides.push({ serie:s.key, album:'', img:s.cover||'', tag:'', title:s.title, meta:'', pos:'center 50%' });
-      maj();
-    } })));
-}
+    D.evenements.length + ' événement(s) · ' + total + ' photo(s). '
+    + 'Un événement, c\'est une compétition, un match, une séance : le visiteur y arrive directement.' }));
 
-function carteDiapo(sl, i){
-  const s = serie(sl.serie) || D.series[0] || {};
-  const pct = parseInt((String(sl.pos||'').match(/(\d+)%/) || [0,50])[1], 10);
-  const cibles = [{ v:'', l:'Toute la série' }]
-    .concat((s.albums||[]).map(a => ({ v:a.id, l:'Journée : ' + a.titre })));
-
-  const apercu = el('div', { class:'diapo',
-    style:'background-image:' + url(sl.img || s.cover || '') + ';background-position:center ' + pct + '%' },
-    el('div', { class:'voile' }),
-    el('div', { class:'txt' },
-      el('div', { class:'k', text: sl.tag || ' ' }),
-      el('div', { class:'t', text: sl.title || 'Sans titre' }),
-      el('div', { class:'m', text: sl.meta || '' })),
-    el('div', { class:'outils' },
-      el('button', { class:'b p', text:'Changer la photo',
-        onclick: () => ouvrirChoix('Photo à la une', src => { sl.img = src; maj(); }) }),
-      boutonEnvoi('Envoyer une photo', { dossier:'accueil' }, src => { sl.img = src; }, 'p')));
-
-  const curseur = el('input', { type:'range', min:'0', max:'100', step:'5', value:String(pct) });
-  curseur.addEventListener('input', () => { apercu.style.backgroundPosition = 'center ' + curseur.value + '%'; });
-  curseur.addEventListener('change', () => { sl.pos = 'center ' + curseur.value + '%'; enregistrer(); });
-
-  return el('div', { class:'bloc' }, apercu,
-    el('div', { class:'duo' },
-      champ('Grand titre', 'Le mot en très gros sur la photo.', sl.title, v => { sl.title=v; maj(); }, 'TOP 12'),
-      champ('Petite ligne orange', 'Juste au-dessus du grand titre.', sl.tag, v => { sl.tag=v; maj(); }, 'À la une · 9ᵉ journée'),
-      champ('Ligne de détail', 'Sous le grand titre, en petit.', sl.meta, v => { sl.meta=v; maj(); }, 'Interclub · Compétition'),
-      listeDer('Série', 'La série à laquelle cette photo appartient.',
-        D.series.map(x => ({ v:x.key, l:x.title })), sl.serie, v => {
-          sl.serie = v; sl.album = '';
-          const ns = serie(v); if (ns && ns.cover) sl.img = ns.cover;
-          maj();
-        }),
-      listeDer('Ouvre au clic', 'Ce que voit le visiteur en cliquant « Voir la galerie ».',
-        cibles, sl.album || '', v => { sl.album = v; maj(); })),
-    el('label', { class:'f' }, 'Partie de la photo à montrer',
-      el('i', { text:'Glissez pour remonter ou descendre le cadrage — l\'aperçu suit.' })),
-    curseur,
-    el('div', { class:'barre', style:'margin-top:16px' },
-      el('button', { class:'b s p', text:'↑ Monter', disabled: i===0 || undefined,
-        onclick: () => { D.slides.splice(i-1,0,D.slides.splice(i,1)[0]); maj(); } }),
-      el('button', { class:'b s p', text:'↓ Descendre', disabled: i===D.slides.length-1 || undefined,
-        onclick: () => { D.slides.splice(i+1,0,D.slides.splice(i,1)[0]); maj(); } }),
-      el('button', { class:'b d p pousse', text:'Retirer de la une', onclick: () => {
-        if (confirm('Retirer cette photo de la page d\'accueil ?\n(La photo elle-même est conservée.)')){
-          D.slides.splice(i,1); maj();
-        } } })));
-}
-
-/* ================= vue : une série ================= */
-function vueSerie(key){
-  const s = serie(key);
-  if (!s){ vue = { type:'accueil' }; return dessiner(); }
-  const m = $('#vue');
-  const libres = photosDe(s, '');
-  m.appendChild(el('h1', { text:s.title || 'Série sans nom' }));
-  m.appendChild(el('p', { class:'sous', text:
-    s.photos.length + ' photo(s) au total · ' + (s.albums||[]).length + ' journée(s).' }));
-
-  /* --- journées --- */
-  const bloc = el('div', { class:'bloc' },
-    el('h3', { text:'Les journées' }),
-    el('p', { class:'aide', text:'Chaque journée est une galerie datée : une compétition, un match, une séance. '
-      + 'Le visiteur les voit rangées dans cet ordre, et peut ainsi retrouver les anciennes.' }));
-  if ((s.albums||[]).length){
-    const g = el('div', { class:'journees' });
-    s.albums.forEach((a, j) => g.appendChild(carteJournee(s, a, j)));
-    bloc.appendChild(g);
-  } else {
-    bloc.appendChild(el('p', { class:'aide', style:'margin:0', text:
-      'Aucune journée : toutes les photos de la série s\'affichent ensemble.' }));
-  }
-  bloc.appendChild(el('div', { class:'barre', style:'margin-top:14px' },
-    el('button', { class:'b', text:'+ Nouvelle journée', onclick: () => {
-      const nom = prompt('Nom de la journée ?\n(ex : TOP 12 — 10ᵉ journée, Championnat régional…)');
-      if (!nom) return;
-      const id = slug(nom);
-      if (!id || album(s, id)){ alert('Ce nom est déjà utilisé ou invalide.'); return; }
-      s.albums.unshift({ id, titre:nom.trim(), date:'', cover:'', prive:false });
-      vue = { type:'album', key:s.key, id };
-      maj();
-    } }),
-    (s.albums||[]).length > 1 ? el('button', { class:'b s', text:'Trier par date (récentes d\'abord)',
-      onclick: () => {
-        s.albums.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-        maj();
-      } }) : null));
-  m.appendChild(bloc);
-
-  /* --- photos non classées --- */
-  const blocL = el('div', { class:'bloc' },
-    el('h3', { text: (s.albums||[]).length ? 'Photos hors journée' : 'Les photos' }),
-    el('p', { class:'aide', text: (s.albums||[]).length
-      ? 'Ces photos s\'affichent sous les journées, en bas de la galerie.'
-      : 'Faites glisser une photo sur une autre pour changer l\'ordre.' }),
-    zoneDepot({ serie:s.key }, (src, w, h) => {
-      s.photos.push({ src, album:'', legende:'', w, h });
-      if (!s.cover) s.cover = src;
-    }));
-  if (libres.length){
-    const g = el('div', { class:'photos' });
-    libres.forEach((p) => g.appendChild(cartePhoto(s, p, '')));
-    blocL.appendChild(g);
-  }
-  m.appendChild(blocL);
-
-  /* --- présentation --- */
+  /* --- créer, en une fois --- */
+  const nom = el('input', { type:'text', placeholder:'ex : TOP 12 — 10ᵉ journée' });
+  const sport = el('input', { type:'text', placeholder:'ex : Badminton', list:'sports-connus' });
+  const date = el('input', { type:'date' });
+  const liste = el('datalist', { id:'sports-connus' });
+  sportsConnus().forEach(x => liste.appendChild(el('option', { value:x })));
+  const creer = () => {
+    const t = nom.value.trim();
+    if (!t){ nom.focus(); return; }
+    const e = { id:idLibre(t), titre:t, sport:sport.value.trim(), date:date.value,
+                texte:'', cover:'', coverPos:'', une:false, prive:false, photos:[] };
+    D.evenements.push(e);
+    trierEvenements();
+    vue = { type:'evt', id:e.id };
+    maj();
+  };
+  nom.addEventListener('keydown', ev => { if (ev.key === 'Enter') creer(); });
   m.appendChild(el('div', { class:'bloc' },
-    el('h3', { text:'Présentation' }),
-    el('p', { class:'aide', text:'Ce que le visiteur lit sur la page « Le Travail » et en haut de la galerie.' }),
-    champ('Nom de la série', 'Le grand titre de la galerie.', s.title, v => { s.title=v; maj(); }),
-    champ('Petite ligne au-dessus du nom', 'En orange, discrète.', s.kicker, v => { s.kicker=v; maj(); }, 'ex : Interclubs'),
-    zone('Phrase de présentation', 'Une ou deux lignes, affichées dans « Le Travail ».', s.blurb, v => { s.blurb=v; maj(); }),
+    el('h3', { text:'Nouvel événement' }),
+    el('p', { class:'aide', text:'Le nom suffit pour commencer ; la date et le sport se changent ensuite.' }),
+    el('div', { class:'duo' },
+      el('label', { class:'f' }, 'Nom de l\'événement', nom),
+      el('label', { class:'f' }, 'Sport', sport),
+      el('label', { class:'f' }, 'Date', date)),
+    liste,
     el('div', { class:'barre', style:'margin-top:14px' },
-      el('button', { class:'b s p', text:'Changer la photo de couverture',
-        onclick: () => ouvrirChoix('Couverture de ' + s.title, src => { s.cover = src; maj(); }) })),
-    bascule('Montrer cette série dans la page « Le Travail »', s.travail, v => { s.travail=v; maj(); }),
-    bascule('Série privée (accessible seulement par son lien)', s.prive, v => { s.prive=v; maj(); }),
-    el('details', { class:'avance' },
-      el('summary', { text:'Réglages avancés' }),
-      el('p', { class:'aide', style:'margin-top:12px', text:'Adresse : ' + location.origin + '/#/serie/' + s.key }),
-      el('div', { class:'barre' },
-        el('button', { class:'b d p', text:'Supprimer la série', onclick: () => supprimerSerie(s) })))));
+      el('button', { class:'b', text:'Créer l\'événement', onclick: creer }))));
+
+  /* --- la liste --- */
+  if (!D.evenements.length){
+    m.appendChild(el('div', { class:'vide', text:'Aucun événement pour l\'instant.' }));
+    return;
+  }
+  const g = el('div', { class:'journees' });
+  D.evenements.forEach(e => g.appendChild(carteEvenement(e)));
+  m.appendChild(g);
 }
 
-function carteJournee(s, a, j){
-  const n = photosDe(s, a.id).length;
-  const bouger = d => { s.albums.splice(j+d, 0, s.albums.splice(j,1)[0]); maj(); };
-  return el('button', { class:'jr', onclick: () => { vue = { type:'album', key:s.key, id:a.id }; dessiner(); } },
-    el('img', { src:'/' + (couvAlbum(s, a) || 'image/favicon.png'), loading:'lazy' }),
-    el('div', { class:'ordre' },
-      el('span', { text:'←', title:'Avancer', onclick: e => { e.stopPropagation(); if (j>0) bouger(-1); } }),
-      el('span', { text:'→', title:'Reculer', onclick: e => { e.stopPropagation(); if (j<s.albums.length-1) bouger(1); } })),
-    a.prive ? el('span', { class:'badge', text:'Privée' }) : null,
+function carteEvenement(e){
+  const n = e.photos.length;
+  const couv = couvEvt(e);
+  return el('button', { class:'jr' + (couv ? '' : ' sans-couv'),
+      onclick: () => { vue = { type:'evt', id:e.id }; dessiner(); } },
+    couv ? el('img', { src:srcPhoto(couv), loading:'lazy' })
+         : el('div', { class:'sans-img', text:'Pas encore de photo' }),
+    e.une ? el('span', { class:'badge', text:'★ À la une' })
+          : (e.prive ? el('span', { class:'badge', text:'Masqué' }) : null),
     el('div', { class:'txt' },
-      el('div', { class:'d', text: dateLisible(a.date) || 'Sans date' }),
-      el('div', { class:'t', text:a.titre }),
-      el('div', { class:'n', text: n + (n>1 ? ' photos' : ' photo') })));
+      el('div', { class:'d', text:[dateLisible(e.date) || 'Sans date', e.sport || ''].filter(Boolean).join(' · ') }),
+      el('div', { class:'t', text:e.titre || 'Sans titre' }),
+      el('div', { class:'n', text: n ? n + (n>1 ? ' photos' : ' photo') : 'Aucune photo' })));
 }
 
-/* ================= vue : une journée ================= */
-function vueAlbum(key, id){
-  const s = serie(key);
-  const a = s && album(s, id);
-  if (!a){ vue = { type:'serie', key }; return dessiner(); }
+/* ================= vue : un événement ================= */
+function vueEvenement(id){
+  const e = evt(id);
+  if (!e){ vue = { type:'evts' }; return dessiner(); }
   const m = $('#vue');
-  const photos = photosDe(s, a.id);
 
   m.appendChild(el('p', { class:'fil' },
-    el('button', { text:s.title, onclick: () => { vue = { type:'serie', key:s.key }; dessiner(); } }),
-    ' › journée'));
-  m.appendChild(el('h1', { text:a.titre }));
-  m.appendChild(el('p', { class:'sous', text: (dateLisible(a.date) ? dateLisible(a.date) + ' · ' : '')
-    + photos.length + ' photo(s).' }));
+    el('button', { text:'Événements', onclick: () => { vue = { type:'evts' }; dessiner(); } }),
+    ' › ' + (e.titre || 'Sans titre')));
+  m.appendChild(el('h1', { text:e.titre || 'Sans titre' }));
+  m.appendChild(el('p', { class:'sous', text:
+    [dateLisible(e.date) || 'Sans date', e.sport || ''].filter(Boolean).join(' · ')
+    + ' · ' + e.photos.length + ' photo(s).' }));
 
+  /* --- les photos, en premier : c'est ce qu'on vient faire --- */
   const bloc = el('div', { class:'bloc' },
-    el('h3', { text:'Les photos de cette journée' }),
+    el('h3', { text:'Les photos' }),
     el('p', { class:'aide', text:'Glissez une photo sur une autre pour changer l\'ordre. '
-      + 'La légende s\'affiche sous la photo sur le site et dans la visionneuse.' }),
-    zoneDepot({ serie:s.key }, (src, w, h) => {
-      s.photos.push({ src, album:a.id, legende:'', w, h });
-      if (!a.cover) a.cover = src;
-      if (!s.cover) s.cover = src;
+      + 'La légende s\'affiche sous la photo sur le site.' }),
+    zoneDepot({ evt:e.id }, (src, w, h) => {
+      e.photos.push({ src, legende:'', w, h });
+      if (!e.cover) e.cover = src;
     }));
-  if (photos.length){
+  if (e.photos.length){
     const g = el('div', { class:'photos' });
-    photos.forEach(p => g.appendChild(cartePhoto(s, p, a.id)));
+    e.photos.forEach(p => g.appendChild(cartePhoto(e, p)));
     bloc.appendChild(g);
   }
   m.appendChild(bloc);
+
+  /* --- la une --- */
+  const blocUne = el('div', { class:'bloc' },
+    el('h3', { text:'Page d\'accueil' }),
+    el('p', { class:'aide', text: e.une
+      ? 'Cet événement s\'affiche en grand à l\'arrivée sur le site. Son titre et sa date sont repris tels quels.'
+      : 'Cochez pour l\'afficher en grand à l\'arrivée sur le site.' }),
+    bascule('Mettre cet événement à la une', e.une, v => { e.une = v; maj(); }));
+  if (e.une){
+    const pct = parseInt((String(e.coverPos || '').match(/(\d+)%/) || [0, 50])[1], 10);
+    const apercu = el('div', { class:'diapo',
+      style:'background-image:' + url(srcPhoto(couvEvt(e))) + ';background-position:center ' + pct + '%' },
+      el('div', { class:'voile' }),
+      el('div', { class:'txt' },
+        el('div', { class:'k', text:['À la une', e.sport || ''].filter(Boolean).join(' · ') }),
+        el('div', { class:'t', text:e.titre || 'Sans titre' }),
+        el('div', { class:'m', text: dateLisible(e.date) || e.texte || '' })));
+    const curseur = el('input', { type:'range', min:'0', max:'100', step:'5', value:String(pct) });
+    curseur.addEventListener('input', () => { apercu.style.backgroundPosition = 'center ' + curseur.value + '%'; });
+    curseur.addEventListener('change', () => { e.coverPos = 'center ' + curseur.value + '%'; enregistrer(); });
+    blocUne.appendChild(apercu);
+    blocUne.appendChild(el('label', { class:'f' }, 'Partie de la photo à montrer',
+      el('i', { text:'Glissez pour remonter ou descendre le cadrage — l\'aperçu suit.' })));
+    blocUne.appendChild(curseur);
+  }
+  m.appendChild(blocUne);
+
+  /* --- informations --- */
+  const liste = el('datalist', { id:'sports-evt' });
+  sportsConnus().forEach(x => liste.appendChild(el('option', { value:x })));
+  const champSport = champ('Sport', 'Une étiquette, affichée sur la carte et sur la galerie.',
+    e.sport, v => { e.sport = v.trim(); maj(); }, 'ex : Badminton');
+  champSport.querySelector('input').setAttribute('list', 'sports-evt');
 
   m.appendChild(el('div', { class:'bloc' },
     el('h3', { text:'Informations' }),
-    champ('Nom de la journée', 'Le grand titre affiché en haut de la galerie.', a.titre, v => {
-      if (v.trim()) a.titre = v.trim();
+    liste,
+    champ('Nom de l\'événement', 'Le grand titre affiché en haut de la galerie.', e.titre, v => {
+      if (v.trim()) e.titre = v.trim();
       maj();
     }),
-    champ('Date', 'Sert à ranger les journées de la plus récente à la plus ancienne.',
-      a.date, v => { a.date = v; maj(); }, '', 'date'),
+    champSport,
+    champ('Date', 'Range les événements du plus récent au plus ancien.',
+      e.date, v => { e.date = v; trierEvenements(); maj(); }, '', 'date'),
+    zone('Phrase de présentation', 'Facultative, une ou deux lignes en haut de la galerie.',
+      e.texte, v => { e.texte = v; maj(); }),
     champ('Lien de téléchargement des photos',
-      'Le dossier de cette journée. Le visiteur tombe alors sur ses photos plutôt '
+      'Le dossier de cet événement. Le visiteur tombe alors sur ses photos plutôt '
       + 'que sur le dossier commun à tous les sports. Laissez vide pour garder le '
       + 'lien général des réglages.',
-      a.lienHD, v => { a.lienHD = v.trim(); maj(); }, 'https://drive.google.com/…'),
-    bascule('Journée privée (visible seulement par son lien)', a.prive, v => { a.prive=v; maj(); }),
+      e.lienHD, v => { e.lienHD = v.trim(); maj(); }, 'https://drive.google.com/…'),
+    el('div', { class:'barre', style:'margin-top:14px' },
+      el('button', { class:'b s p', text:'Changer la photo de couverture',
+        onclick: () => ouvrirChoix('Couverture de ' + (e.titre || 'l\'événement'),
+          src => { e.cover = src; maj(); }) })),
+    bascule('Masquer de la liste (accessible seulement par son lien)', e.prive, v => { e.prive=v; maj(); }),
     el('details', { class:'avance' },
       el('summary', { text:'Réglages avancés' }),
       el('p', { class:'aide', style:'margin-top:12px',
-        text:'Lien à partager : ' + location.origin + '/#/serie/' + s.key + '/' + a.id }),
+        text:'Lien à partager : ' + location.origin + '/#/evenement/' + e.id }),
       el('div', { class:'barre' },
         el('button', { class:'b s p', text:'Copier le lien', onclick: () => {
-          navigator.clipboard.writeText(location.origin + '/#/serie/' + s.key + '/' + a.id);
+          navigator.clipboard.writeText(location.origin + '/#/evenement/' + e.id);
           etat('Lien copié', 'ok');
         } }),
-        el('button', { class:'b d p', text:'Supprimer la journée', onclick: () => supprimerJournee(s, a) })))));
+        el('button', { class:'b d p', text:'Supprimer l\'événement',
+          onclick: () => supprimerEvenement(e) })))));
 }
 
-function cartePhoto(s, p, albumId){
-  const liste = photosDe(s, albumId);
-  const j = liste.indexOf(p);
-  const estCouv = s.cover === p.src || (albumId && album(s, albumId) && album(s, albumId).cover === p.src);
+function cartePhoto(e, p){
+  const j = e.photos.indexOf(p);
   const carte = el('div', { class:'ph' },
     el('div', { class:'im', draggable:'true' },
-      el('img', { src:'/' + p.src, loading:'lazy' }),
-      estCouv ? el('span', { class:'badge', text:'Couverture' }) : null,
-      el('span', { class:'rang', text:(j+1) + '/' + liste.length }),
+      el('img', { src:srcPhoto(p.src), loading:'lazy' }),
+      e.cover === p.src ? el('span', { class:'badge', text:'Couverture' }) : null,
+      el('span', { class:'rang', text:(j+1) + '/' + e.photos.length }),
       el('div', { class:'outils' },
         el('button', { class:'b p', text:'Couverture', title:'Image de couverture',
-          onclick: () => {
-            if (albumId && album(s, albumId)) album(s, albumId).cover = p.src;
-            else s.cover = p.src;
-            maj();
-          } }),
-        el('button', { class:'b p', text:'Supprimer', onclick: () => supprimerPhoto(s, p) }))),
+          onclick: () => { e.cover = p.src; maj(); } }),
+        el('button', { class:'b p', text:'Supprimer', onclick: () => supprimerPhoto(e, p) }))),
     el('div', { class:'bas' },
       (() => {
         const i = el('input', { type:'text', placeholder:'Légende (facultatif)' });
@@ -638,37 +596,110 @@ function cartePhoto(s, p, albumId){
         i.addEventListener('change', () => { p.legende = i.value; enregistrer(); });
         return i;
       })(),
-      (s.albums||[]).length ? (() => {
+      /* Une photo rangée dans le mauvais événement se déplace ici, sans
+         la supprimer pour la renvoyer ailleurs. */
+      D.evenements.length > 1 ? (() => {
         const sel = el('select');
-        [{ v:'', l:'— hors journée —' }].concat(s.albums.map(a => ({ v:a.id, l:a.titre })))
-          .forEach(o => sel.appendChild(el('option', { value:o.v, text:o.l })));
-        sel.value = p.album || '';
-        sel.addEventListener('change', () => { p.album = sel.value; maj(); });
+        D.evenements.forEach(x => sel.appendChild(
+          el('option', { value:x.id, text:(x.id === e.id ? '— ici —' : 'Déplacer vers : ' + x.titre) })));
+        sel.value = e.id;
+        sel.addEventListener('change', () => {
+          const cible = evt(sel.value);
+          if (!cible || cible === e) return;
+          e.photos = e.photos.filter(x => x !== p);
+          if (e.cover === p.src) e.cover = (e.photos[0] || {}).src || '';
+          cible.photos.push(p);
+          if (!cible.cover) cible.cover = p.src;
+          maj();
+        });
         return sel;
       })() : null));
 
   const im = carte.querySelector('.im');
-  im.addEventListener('dragstart', e => {
-    e.dataTransfer.setData('text/plain', String(s.photos.indexOf(p)));
-    e.dataTransfer.effectAllowed = 'move';
+  im.addEventListener('dragstart', ev => {
+    ev.dataTransfer.setData('text/plain', String(j));
+    ev.dataTransfer.effectAllowed = 'move';
     carte.classList.add('glisse');
   });
   im.addEventListener('dragend', () => carte.classList.remove('glisse'));
-  carte.addEventListener('dragover', e => {
-    if (e.dataTransfer.types.includes('Files')) return;
-    e.preventDefault(); carte.classList.add('cible');
+  carte.addEventListener('dragover', ev => {
+    if (ev.dataTransfer.types.includes('Files')) return;
+    ev.preventDefault(); carte.classList.add('cible');
   });
   carte.addEventListener('dragleave', () => carte.classList.remove('cible'));
-  carte.addEventListener('drop', e => {
+  carte.addEventListener('drop', ev => {
     carte.classList.remove('cible');
-    const de = parseInt(e.dataTransfer.getData('text/plain'), 10);
-    const vers = s.photos.indexOf(p);
-    if (isNaN(de) || de === vers) return;
-    e.preventDefault();
-    s.photos.splice(vers, 0, s.photos.splice(de, 1)[0]);
+    const de = parseInt(ev.dataTransfer.getData('text/plain'), 10);
+    if (isNaN(de) || de === j) return;
+    ev.preventDefault();
+    e.photos.splice(j, 0, e.photos.splice(de, 1)[0]);
     maj();
   });
   return carte;
+}
+
+/* ================= vue : à la une ================= */
+function vueUne(){
+  const m = $('#vue');
+  const choisis = D.evenements.filter(x => x.une && !x.prive);
+  m.appendChild(el('h1', { text:'À la une' }));
+  m.appendChild(el('p', { class:'sous', text:
+    'Cochez les événements qui s\'affichent en grand à l\'arrivée sur le site. '
+    + 'Leur photo de couverture, leur titre et leur date sont repris tels quels — rien à ressaisir. '
+    + 'Ils défilent du plus récent au plus ancien.' }));
+
+  if (!D.evenements.length){
+    m.appendChild(el('div', { class:'vide', text:'Créez d\'abord un événement.' }));
+    return;
+  }
+  if (!choisis.length){
+    m.appendChild(el('p', { class:'aide', style:'margin:0 0 14px', text:
+      'Rien de coché : le site affiche les trois événements les plus récents.' }));
+  }
+
+  const bloc = el('div', { class:'bloc' });
+  D.evenements.forEach(e => {
+    const ligne = el('div', { class:'barre', style:'padding:10px 0;border-bottom:1px solid var(--line)' },
+      el('span', { class:'vign', style: couvEvt(e) ? 'background-image:' + url(srcPhoto(couvEvt(e))) : '' }),
+      el('span', { style:'flex:1;min-width:0' },
+        el('div', { style:'font-weight:700;font-size:14px', text:e.titre || 'Sans titre' }),
+        el('div', { class:'aide', style:'margin:2px 0 0', text:
+          [dateLisible(e.date) || 'Sans date', e.sport || '',
+           e.prive ? 'masqué' : '', e.photos.length ? '' : 'aucune photo'].filter(Boolean).join(' · ') })),
+      el('button', { class:'b ' + (e.une ? '' : 's') + ' p',
+        text: e.une ? '★ À la une' : 'Mettre à la une',
+        onclick: () => { e.une = !e.une; maj(); } }));
+    bloc.appendChild(ligne);
+  });
+  m.appendChild(bloc);
+
+  if (choisis.length){
+    m.appendChild(el('h2', { style:'font-size:16px;margin:24px 0 12px', text:'Aperçu' }));
+    choisis.forEach(e => {
+      const pct = parseInt((String(e.coverPos || '').match(/(\d+)%/) || [0, 50])[1], 10);
+      const apercu = el('div', { class:'diapo',
+        style:'background-image:' + url(srcPhoto(couvEvt(e))) + ';background-position:center ' + pct + '%' },
+        el('div', { class:'voile' }),
+        el('div', { class:'txt' },
+          el('div', { class:'k', text:['À la une', e.sport || ''].filter(Boolean).join(' · ') }),
+          el('div', { class:'t', text:e.titre || 'Sans titre' }),
+          el('div', { class:'m', text: dateLisible(e.date) || e.texte || '' })));
+      const curseur = el('input', { type:'range', min:'0', max:'100', step:'5', value:String(pct) });
+      curseur.addEventListener('input', () => { apercu.style.backgroundPosition = 'center ' + curseur.value + '%'; });
+      curseur.addEventListener('change', () => { e.coverPos = 'center ' + curseur.value + '%'; enregistrer(); });
+      m.appendChild(el('div', { class:'bloc' }, apercu,
+        el('label', { class:'f' }, 'Partie de la photo à montrer',
+          el('i', { text:'Glissez pour remonter ou descendre le cadrage.' })),
+        curseur,
+        el('div', { class:'barre', style:'margin-top:14px' },
+          el('button', { class:'b s p', text:'Changer la photo de couverture',
+            onclick: () => ouvrirChoix('Couverture de ' + (e.titre || ''), src => { e.cover = src; maj(); }) }),
+          el('button', { class:'b s p', text:'Ouvrir l\'événement',
+            onclick: () => { vue = { type:'evt', id:e.id }; dessiner(); } }),
+          el('button', { class:'b d p pousse', text:'Retirer de la une',
+            onclick: () => { e.une = false; maj(); } }))));
+    });
+  }
 }
 
 /* ================= vues : site ================= */
@@ -683,7 +714,7 @@ function vueApropos(){
     champ('Titre de la page', '', a.titre, v => { a.titre=v; maj(); }),
     zone('Votre texte', 'Laissez une ligne vide entre deux paragraphes.', a.texte, v => { a.texte=v; maj(); }, '220px'),
     el('label', { class:'f' }, 'Votre photo', el('i', { text:'Un portrait, ou vous en action.' })),
-    a.photo ? el('img', { src:'/' + a.photo, style:'max-width:220px;border-radius:8px;margin-bottom:10px' }) : null,
+    a.photo ? el('img', { src:srcPhoto(a.photo), style:'max-width:220px;border-radius:8px;margin-bottom:10px' }) : null,
     el('div', { class:'barre' },
       boutonEnvoi(a.photo ? 'Changer la photo' : 'Envoyer une photo', { dossier:'apropos' },
         src => { a.photo = src; }, 's'),
@@ -740,93 +771,75 @@ function vueReglages(){
 }
 
 /* ================= suppressions ================= */
-async function supprimerPhoto(s, p){
+async function supprimerPhoto(e, p){
   if (!confirm('Supprimer cette photo ?\n\nElle part dans « image/corbeille » : rien n\'est perdu.')) return;
-  try { await fetch(api('trash'), ecriture({ body: JSON.stringify({ src:p.src }) })); } catch (e) {}
-  s.photos = s.photos.filter(x => x !== p);
-  if (s.cover === p.src) s.cover = (s.photos[0]||{}).src || '';
-  (s.albums||[]).forEach(a => { if (a.cover === p.src) a.cover = ''; });
-  D.slides.forEach(sl => { if (sl.img === p.src) sl.img = s.cover || ''; });
+  try { await fetch(api('trash'), ecriture({ body: JSON.stringify({ src:p.src }) })); } catch (err) {}
+  e.photos = e.photos.filter(x => x !== p);
+  if (e.cover === p.src) e.cover = (e.photos[0] || {}).src || '';
   maj();
 }
-async function supprimerJournee(s, a){
-  const ph = photosDe(s, a.id);
-  if (!confirm('Supprimer la journée « ' + a.titre + ' » ?\n\n'
-    + (ph.length ? 'Ses ' + ph.length + ' photo(s) partent dans « image/corbeille ».' : 'Elle ne contient aucune photo.'))) return;
-  if (ph.length){
-    try { await fetch(api('trash'), ecriture({ body: JSON.stringify({ srcs: ph.map(p => p.src) }) })); } catch (e) {}
-    s.photos = s.photos.filter(p => (p.album||'') !== a.id);
-  }
-  s.albums = s.albums.filter(x => x !== a);
-  D.slides = D.slides.filter(sl => !(sl.serie === s.key && sl.album === a.id));
-  vue = { type:'serie', key:s.key };
-  maj();
-}
-async function supprimerSerie(s){
-  const n = s.photos.length;
-  if (!confirm('Supprimer la série « ' + s.title + ' » ?\n\n'
-    + (n ? 'Ses ' + n + ' photo(s) partent dans « image/corbeille ».\n' : '')
-    + 'Ses journées et ses photos à la une seront retirées.')) return;
-  if (n) try { await fetch(api('trash'), ecriture({ body: JSON.stringify({ srcs:s.photos.map(p => p.src) }) })); } catch (e) {}
-  D.slides = D.slides.filter(sl => sl.serie !== s.key);
-  D.series = D.series.filter(x => x !== s);
-  vue = { type:'accueil' };
+async function supprimerEvenement(e){
+  const n = e.photos.length;
+  if (!confirm('Supprimer l\'événement « ' + (e.titre || 'sans titre') + ' » ?\n\n'
+    + (n ? 'Ses ' + n + ' photo(s) partent dans « image/corbeille ».' : 'Il ne contient aucune photo.'))) return;
+  if (n) try {
+    await fetch(api('trash'), ecriture({ body: JSON.stringify({ srcs: e.photos.map(p => p.src) }) }));
+  } catch (err) {}
+  D.evenements = D.evenements.filter(x => x !== e);
+  vue = { type:'evts' };
   maj();
 }
 
 /* ================= navigation ================= */
 function dessiner(){
-  const nav = $('#navSeries');
-  nav.innerHTML = '';
-  D.series.forEach(s => {
-    nav.appendChild(el('button', {
-      class:'nav' + ((vue.type==='serie'||vue.type==='album') && vue.key===s.key ? ' on' : ''),
-      onclick: () => { vue = { type:'serie', key:s.key }; dessiner(); } },
-      el('span', { class:'vign', style: s.cover ? 'background-image:'+url(s.cover) : '' }),
-      el('span', { text:s.title || '(sans nom)' }),
-      el('span', { class:'nb', text:String(s.photos.length) })));
-  });
-  [['navAccueil','accueil'],['navApropos','apropos'],['navPresta','presta'],['navReglages','reglages'],['navLivraisons','livraisons']]
-    .forEach(([id, t]) => { $('#'+id).className = 'nav' + (vue.type===t ? ' on' : ''); });
+  [['navEvts','evts'],['navUne','une'],['navApropos','apropos'],['navPresta','presta'],
+   ['navReglages','reglages'],['navLivraisons','livraisons']]
+    .forEach(([id, t]) => {
+      const b = $('#' + id);
+      if (b) b.className = 'nav' + (vue.type === t || (t === 'evts' && vue.type === 'evt') ? ' on' : '');
+    });
 
   const m = $('#vue');
   m.innerHTML = '';
   $('#voir').href = '/';
-  if (vue.type === 'serie'){ vueSerie(vue.key); $('#voir').href = '/#/serie/' + vue.key; }
-  else if (vue.type === 'album'){ vueAlbum(vue.key, vue.id); $('#voir').href = '/#/serie/' + vue.key + '/' + vue.id; }
+  if (vue.type === 'evt'){ vueEvenement(vue.id); $('#voir').href = '/#/evenement/' + vue.id; }
+  else if (vue.type === 'une') vueUne();
   else if (vue.type === 'apropos'){ vueApropos(); $('#voir').href = '/#/a-propos'; }
   else if (vue.type === 'presta'){ vuePresta(); $('#voir').href = '/#/prestations'; }
   else if (vue.type === 'reglages') vueReglages();
   else if (vue.type === 'livraisons') window.afficherLivraisons(m);
-  else vueAccueil();
+  else { vueEvenements(); $('#voir').href = '/#/evenements'; }
   window.scrollTo(0, 0);
 }
 
-$('#navAccueil').addEventListener('click', () => { vue = { type:'accueil' }; dessiner(); });
+$('#navEvts').addEventListener('click', () => { vue = { type:'evts' }; dessiner(); });
+$('#navUne').addEventListener('click', () => { vue = { type:'une' }; dessiner(); });
 $('#navApropos').addEventListener('click', () => { vue = { type:'apropos' }; dessiner(); });
 $('#navPresta').addEventListener('click', () => { vue = { type:'presta' }; dessiner(); });
 $('#navReglages').addEventListener('click', () => { vue = { type:'reglages' }; dessiner(); });
 $('#navLivraisons').addEventListener('click', () => { vue = { type:'livraisons' }; dessiner(); });
-$('#navPlus').addEventListener('click', () => {
-  const nom = prompt('Nom de la nouvelle série ?\n(ex : Rugby, Trail, Mariage…)');
-  if (!nom) return;
-  const key = slug(nom);
-  if (!key || serie(key)){ alert('Ce nom est déjà utilisé ou invalide.'); return; }
-  D.series.push({ key, title:nom.trim(), kicker:'', blurb:'', cover:'', albums:[], travail:true, prive:false, photos:[] });
-  vue = { type:'serie', key };
-  maj();
-});
 
 /* ================= démarrage ================= */
 (async function(){
   try {
     D = await (await fetch(api('data'))).json();
-    if (!D || !Array.isArray(D.series)) D = { series:[], slides:[] };
-    D.slides = D.slides || [];
+    if (!D || typeof D !== 'object') D = {};
+    /* Un data.js d'avant la refonte ne sera pas deviné ici : la migration se
+       fait une fois pour toutes par admin/migrer_evenements.py. Mieux vaut le
+       dire que d'ouvrir une administration vide sur des données bien réelles. */
+    if (!Array.isArray(D.evenements) && Array.isArray(D.series)){
+      etat('Données à migrer', 'ko');
+      $('#vue').appendChild(el('p', { class:'sous', text:
+        'Ce site est encore rangé en séries et journées. Lancez une fois '
+        + '« python3 admin/migrer_evenements.py » pour le passer aux événements, '
+        + 'puis rouvrez cette page.' }));
+      return;
+    }
+    D.evenements = D.evenements || [];
     D.site = D.site || {};
     D.apropos = D.apropos || { actif:false, titre:'À propos', texte:'', photo:'' };
     D.prestations = D.prestations || { actif:false, titre:'Prestations', intro:'', offres:[] };
-    D.series.forEach(s => { s.albums = s.albums || []; s.photos = s.photos || []; });
+    D.evenements.forEach(e => { e.photos = e.photos || []; });
     try { LIB = await (await fetch(api('images'))).json(); } catch (e) {}
     etat('Prêt', 'ok');
     dessiner();
