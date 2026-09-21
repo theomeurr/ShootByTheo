@@ -2,7 +2,7 @@ window.SITE_DATA = {
   "slides": [
     {
       "serie": "badminton",
-      "img": "image/web/top12.jpg",
+      "img": "image/galerie/badminton/dsc-7016-j1-top-12-j1-top-12-cr.jpg",
       "tag": "À la une · 9ᵉ journée",
       "title": "TOP 12",
       "meta": "Saison 2025-2026",
