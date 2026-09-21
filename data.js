@@ -3,11 +3,11 @@ window.SITE_DATA = {
     {
       "serie": "badminton",
       "img": "image/galerie/badminton/dsc-7016-j1-top-12-j1-top-12-cr.jpg",
-      "tag": "À la une · 9ᵉ journée",
+      "tag": "À la une · 1ere journée",
       "title": "TOP 12",
-      "meta": "Saison 2025-2026",
+      "meta": "Saison 2026-2027",
       "pos": "center 60%",
-      "album": "top-12-9e-journee"
+      "album": "top-12-1ere-journee"
     },
     {
       "serie": "badminton",
