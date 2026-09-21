@@ -111,6 +111,125 @@ window.SITE_DATA = {
           "legende": "",
           "w": 2000,
           "h": 1333
+        },
+        {
+          "src": "image/galerie/badminton/dsc-6440-j1-top-12-j1-top-12-cr.jpg",
+          "album": "top-12-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1320
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5961-j1-top-12-j1-top-12-cr.jpg",
+          "album": "top-12-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1328
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5976-j1-top-12-j1-top-12-cr.jpg",
+          "album": "top-12-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
+        },
+        {
+          "src": "image/galerie/badminton/dsc-6009-j1-top-12-j1-top-12-cr.jpg",
+          "album": "top-12-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
+        },
+        {
+          "src": "image/galerie/badminton/dsc-6026-j1-top-12-j1-top-12-cr.jpg",
+          "album": "top-12-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1334
+        },
+        {
+          "src": "image/galerie/badminton/dsc-6035-j1-top-12-j1-top-12-cr.jpg",
+          "album": "top-12-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 3000
+        },
+        {
+          "src": "image/galerie/badminton/dsc-6040-j1-top-12-j1-top-12-cr.jpg",
+          "album": "top-12-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 3000
+        },
+        {
+          "src": "image/galerie/badminton/dsc-6106-j1-top-12-j1-top-12-cr.jpg",
+          "album": "top-12-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1322
+        },
+        {
+          "src": "image/galerie/badminton/dsc-6261-j1-top-12-j1-top-12-cr.jpg",
+          "album": "top-12-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 3000
+        },
+        {
+          "src": "image/galerie/badminton/dsc-6449-j1-top-12-j1-top-12-cr.jpg",
+          "album": "top-12-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1320
+        },
+        {
+          "src": "image/galerie/badminton/dsc-6575-j1-top-12-j1-top-12-cr.jpg",
+          "album": "top-12-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
+        },
+        {
+          "src": "image/galerie/badminton/dsc-6681-j1-top-12-j1-top-12-cr.jpg",
+          "album": "top-12-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1320
+        },
+        {
+          "src": "image/galerie/badminton/dsc-6706-j1-top-12-j1-top-12-cr.jpg",
+          "album": "top-12-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
+        },
+        {
+          "src": "image/galerie/badminton/dsc-6720-j1-top-12-j1-top-12-cr.jpg",
+          "album": "top-12-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1320
+        },
+        {
+          "src": "image/galerie/badminton/dsc-6798-j1-top-12-j1-top-12-cr.jpg",
+          "album": "top-12-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1320
+        },
+        {
+          "src": "image/galerie/badminton/dsc-6912-j1-top-12-j1-top-12-cr.jpg",
+          "album": "top-12-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
+        },
+        {
+          "src": "image/galerie/badminton/dsc-7016-j1-top-12-j1-top-12-cr.jpg",
+          "album": "top-12-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
         }
       ],
       "albums": [
@@ -118,7 +237,7 @@ window.SITE_DATA = {
           "id": "top-12-1ere-journee",
           "titre": "TOP 12 — 1ere journée",
           "date": "2026-09-19",
-          "cover": "",
+          "cover": "image/galerie/badminton/dsc-6440-j1-top-12-j1-top-12-cr.jpg",
           "prive": false
         },
         {
