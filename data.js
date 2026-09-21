@@ -230,6 +230,132 @@ window.SITE_DATA = {
           "legende": "",
           "w": 2000,
           "h": 1333
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5538j1-pre-nat.jpg",
+          "album": "pre-nationale-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1320
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5209j1-pre-nat.jpg",
+          "album": "pre-nationale-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5229j1-pre-nat.jpg",
+          "album": "pre-nationale-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 3000
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5310j1-pre-nat.jpg",
+          "album": "pre-nationale-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 3000
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5311j1-pre-nat.jpg",
+          "album": "pre-nationale-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 3000
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5317j1-pre-nat.jpg",
+          "album": "pre-nationale-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 3000
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5330j1-pre-nat.jpg",
+          "album": "pre-nationale-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 3005
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5440j1-pre-nat.jpg",
+          "album": "pre-nationale-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 3000
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5476j1-pre-nat.jpg",
+          "album": "pre-nationale-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 3000
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5515j1-pre-nat.jpg",
+          "album": "pre-nationale-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1320
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5518j1-pre-nat.jpg",
+          "album": "pre-nationale-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5538j1-pre-nat-2.jpg",
+          "album": "pre-nationale-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1320
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5560j1-pre-nat.jpg",
+          "album": "pre-nationale-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 3031
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5568j1-pre-nat.jpg",
+          "album": "pre-nationale-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 3000
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5574j1-pre-nat.jpg",
+          "album": "pre-nationale-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 3001
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5577j1-pre-nat.jpg",
+          "album": "pre-nationale-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 2998
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5620j1-pre-nat.jpg",
+          "album": "pre-nationale-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1334
+        },
+        {
+          "src": "image/galerie/badminton/dsc-5656j1-pre-nat.jpg",
+          "album": "pre-nationale-1ere-journee",
+          "legende": "",
+          "w": 2000,
+          "h": 1333
         }
       ],
       "albums": [
@@ -244,7 +370,7 @@ window.SITE_DATA = {
           "id": "pre-nationale-1ere-journee",
           "titre": "Pré-Nationale — 1ere journée",
           "date": "2026-09-19",
-          "cover": "",
+          "cover": "image/galerie/badminton/dsc-5538j1-pre-nat.jpg",
           "prive": false
         },
         {
