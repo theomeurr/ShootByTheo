@@ -128,37 +128,46 @@ main{flex:1;display:flex;flex-direction:column}
 .btn-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 
 /* ---------- Accueil ---------- */
-.hero{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));
-  gap:48px;align-items:center;padding:24px 0 64px;
+.hero{display:flex;flex-direction:column;gap:48px;padding:24px 0 64px}
+.hero-top{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));
+  gap:32px 48px;align-items:end;
 }
-.hero-copy{display:flex;flex-direction:column;gap:28px}
 .hero-logo{width:min(100%,340px);height:auto}
+.hero-copy{display:flex;flex-direction:column;gap:20px}
 .hero-copy .btn-row{align-self:flex-start}
-.hero-media{display:flex;flex-direction:column;gap:14px}
-.slides{position:relative;aspect-ratio:4/5;background:var(--panel);overflow:hidden}
-.slides-track{display:flex;width:100%;height:100%;transition:transform .6s ease}
-.slide{
-  position:relative;flex:0 0 100%;width:100%;min-width:0;height:100%;overflow:hidden;
-  cursor:pointer;border:none;padding:0;background:var(--panel);
+
+/* À la une : la couverture en grand, quatre photos de la galerie autour.
+   La grille s'adapte au nombre de photos disponibles (data-n). */
+.une{display:flex;flex-direction:column;gap:20px}
+.une-grid{
+  display:grid;gap:8px;aspect-ratio:2/1;
+  grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr;
+  animation:sbtFade .5s ease both;
 }
-.slide img{width:100%;height:100%;object-fit:cover}
-.slide-cap{
-  display:flex;justify-content:space-between;align-items:baseline;gap:16px;
-  font-family:var(--mono);font-size:12px;letter-spacing:.15em;text-transform:uppercase;
+.une-grid[data-n="0"]{grid-template-columns:1fr;grid-template-rows:1fr}
+.une-grid[data-n="1"]{grid-template-columns:2fr 1fr}
+.une-grid[data-n="1"] .une-ph{grid-row:1 / 3}
+.une-grid[data-n="2"]{grid-template-columns:2fr 1fr}
+.une-grid[data-n="3"] .une-ph:last-child{grid-row:1 / 3;grid-column:3}
+.une-cell{
+  position:relative;min-width:0;min-height:0;overflow:hidden;cursor:pointer;
+  border:none;padding:0;background:var(--panel);
 }
-.slide-cap button{
+.une-cell img{width:100%;height:100%;object-fit:cover;transition:transform .8s ease,opacity .3s ease}
+.une-cell:hover img,.une-cell:focus-visible img{transform:scale(1.04)}
+.une-cover{grid-row:1 / 3}
+.une-grid[data-n="0"] .une-cover{grid-row:auto}
+.une-bas{display:flex;justify-content:space-between;align-items:flex-end;gap:20px 32px;flex-wrap:wrap}
+.une-txt{display:flex;flex-direction:column;gap:10px;min-width:0}
+.une-titre{
   background:none;border:none;padding:0;cursor:pointer;color:var(--ink);text-align:left;
-  font:inherit;letter-spacing:inherit;text-transform:inherit;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;
+  font-family:var(--display);font-size:clamp(20px,2.4vw,30px);line-height:1.05;
+  text-transform:uppercase;overflow-wrap:anywhere;
 }
-.slide-cap button:hover{color:var(--accent)}
-.slide-cap span{color:var(--muted);flex:none}
-.slide-bar{display:flex;justify-content:space-between;align-items:center;gap:16px}
-.dots{display:flex;gap:8px}
-.dot{width:28px;height:3px;padding:0;border:none;cursor:pointer;background:var(--edge);transition:background .3s}
-.dot.is-on{background:var(--accent)}
-.arrows{display:flex;gap:8px}
+.une-titre:hover{color:var(--accent)}
+.une-nav{display:flex;align-items:center;gap:8px}
+.une-count{font-family:var(--mono);font-size:12px;letter-spacing:.15em;color:var(--muted);margin-right:8px}
 .arrow{
   width:44px;height:44px;background:none;border:1px solid var(--edge);color:var(--ink);
   cursor:pointer;font-size:16px;line-height:1;transition:border-color .2s,color .2s;
@@ -345,6 +354,7 @@ main{flex:1;display:flex;flex-direction:column}
 @media (max-width:900px){
   .page{padding-top:24px;gap:28px}
   .hero{gap:32px;padding-bottom:40px}
+  .une-grid{aspect-ratio:3/2}
   .apropos{grid-template-columns:1fr;gap:28px}
   .apropos-photo{aspect-ratio:3/2}
   .cook{flex-direction:column;align-items:stretch;gap:16px}
@@ -388,28 +398,29 @@ main{flex:1;display:flex;flex-direction:column}
   <!-- ============== ACCUEIL ============== -->
   <section class="view" id="view-home">
     <div class="hero">
-      <div class="hero-copy">
+      <div class="hero-top">
         <img class="hero-logo" src="image/logo.png" alt="SHOOTBYTHEO">
-        <div class="kicker" id="heroKicker">Badminton · Interclub</div>
-        <p class="lead">Photographie sportive des journées d'interclub de badminton. Chaque rencontre a sa galerie.</p>
-        <div class="btn-row">
-          <button class="btn-accent" data-go="evenements">Voir les journées →</button>
-          <a class="btn-ghost" id="heroHD" href="#" target="_blank" rel="noopener" hidden>Télécharger en HD ↓</a>
+        <div class="hero-copy">
+          <div class="kicker" id="heroKicker">Badminton · Interclub</div>
+          <p class="lead">Photographie sportive des journées d'interclub de badminton. Chaque rencontre a sa galerie.</p>
+          <div class="btn-row">
+            <button class="btn-accent" data-go="evenements">Voir les journées →</button>
+            <a class="btn-ghost" id="heroHD" href="#" target="_blank" rel="noopener" hidden>Télécharger en HD ↓</a>
+          </div>
         </div>
       </div>
-      <div class="hero-media">
-        <div class="slides">
-          <div class="slides-track" id="slidesTrack"></div>
-        </div>
-        <div class="slide-cap" id="slideCap">
-          <button type="button" id="slideTitre"></button>
-          <span id="counter"></span>
-        </div>
-        <div class="slide-bar" id="slideBar">
-          <div class="dots" id="dots"></div>
-          <div class="arrows">
+      <div class="une">
+        <div class="une-grid" id="uneGrid"></div>
+        <div class="une-bas" id="uneBas">
+          <div class="une-txt">
+            <div class="kicker" id="uneKicker"></div>
+            <button type="button" class="une-titre" id="uneTitre"></button>
+          </div>
+          <div class="une-nav">
+            <span class="une-count" id="counter"></span>
             <button class="arrow" id="prevSlide" aria-label="Journée précédente">←</button>
             <button class="arrow" id="nextSlide" aria-label="Journée suivante">→</button>
+            <button class="btn-accent" id="uneOpen" style="margin-left:8px">Voir la galerie →</button>
           </div>
         </div>
       </div>
@@ -625,8 +636,6 @@ main{flex:1;display:flex;flex-direction:column}
 
   /* ---------- État ---------- */
   var etat = { page:'home', slide:0, evt:'', sport:'' };
-  var chrono = null;
-  var sobre = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var SAISON = saison();
 
   /* ---------- Réglages du site ---------- */
@@ -658,72 +667,80 @@ main{flex:1;display:flex;flex-direction:column}
     $('navPresta').hidden  = !PRESTA.actif;
   })();
 
-  /* ================= ACCUEIL : carrousel à la une ================= */
+  /* ================= ACCUEIL : mosaïque à la une =================
+     La journée à la une s'affiche en mosaïque : sa couverture en grand,
+     quatre photos de sa galerie autour. S'il y a plusieurs journées à la
+     une, les flèches passent de l'une à l'autre. */
   var UNES = unes();
-  var pastilles = [];
+  var PHOTOS_UNE = 4;
 
-  if (UNES.length){
-    UNES.forEach(function(e, i){
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'slide';
-      b.setAttribute('aria-label', 'Voir la galerie : ' + (e.titre || ''));
-      var im = document.createElement('img');
-      im.alt = e.titre || '';
-      if (i > 0) im.loading = 'lazy';
-      /* l'accueil montre la couverture en grand : l'original, pas la vignette */
-      im.src = couverture(e);
-      im.style.objectPosition = e.coverPos || 'center';
-      b.appendChild(im);
-      b.addEventListener('click', function(){ aller('evenement/' + e.id); });
-      $('slidesTrack').appendChild(b);
-
-      var d = document.createElement('button');
-      d.type = 'button';
-      d.className = 'dot';
-      d.setAttribute('aria-label', 'Journée ' + (i + 1));
-      d.addEventListener('click', function(){ allerSlide(i); });
-      $('dots').appendChild(d);
-      pastilles.push(d);
-    });
-  } else {
-    $('slidesTrack').innerHTML = '<div class="slot"><span>SBT · À VENIR</span></div>';
-    $('slideCap').hidden = true;
+  function cellule(src, classe, titre, haute){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'une-cell ' + classe;
+    b.setAttribute('aria-label', 'Voir la galerie : ' + titre);
+    var im = document.createElement('img');
+    im.alt = '';
+    /* la couverture est affichée en grand : l'original ; les petites
+       cases se contentent de la vignette */
+    if (haute) im.src = src; else imageAvecRepli(im, src);
+    b.appendChild(im);
+    return b;
   }
-  $('slideBar').hidden = UNES.length < 2;
 
   function peindreSlide(){
+    var grille = $('uneGrid');
+    vide(grille);
     var sl = UNES[etat.slide];
-    if (!sl) return;
-    $('slidesTrack').style.transform = 'translateX(-' + (etat.slide * 100) + '%)';
-    $('slideTitre').textContent = sl.titre || '';
-    $('counter').textContent = UNES.length > 1 ? pad2(etat.slide + 1) + ' / ' + pad2(UNES.length) : '';
-    pastilles.forEach(function(el, i){
-      el.classList.toggle('is-on', i === etat.slide);
-      el.setAttribute('aria-current', i === etat.slide ? 'true' : 'false');
+    if (!sl){
+      grille.dataset.n = '0';
+      grille.innerHTML = '<div class="slot"><span>SBT · À VENIR</span></div>';
+      $('uneBas').hidden = true;
+      return;
+    }
+    var couv = couverture(sl);
+    var autres = sl.photos.filter(function(p){ return p.src !== couv; }).slice(0, PHOTOS_UNE);
+    grille.dataset.n = String(autres.length);
+    /* relance le fondu à chaque changement de journée */
+    grille.style.animation = 'none'; void grille.offsetWidth; grille.style.animation = '';
+
+    var c = cellule(couv, 'une-cover', sl.titre || '', true);
+    c.querySelector('img').style.objectPosition = sl.coverPos || 'center';
+    grille.appendChild(c);
+    autres.forEach(function(p){
+      var cel = cellule(p.src, 'une-ph', sl.titre || '', false);
+      if (p.w && p.h && p.h > p.w) cel.querySelector('img').style.objectPosition = 'center 30%';
+      grille.appendChild(cel);
     });
+    [].forEach.call(grille.children, function(el){
+      el.addEventListener('click', function(){ aller('evenement/' + sl.id); });
+    });
+
+    var nb = sl.photos.length;
+    $('uneKicker').textContent = ['À la une', datePoints(sl.date), nb ? nbPhotos(nb) : '']
+      .filter(Boolean).join(' · ');
+    $('uneTitre').textContent = sl.titre || '';
+    var plusieurs = UNES.length > 1;
+    $('prevSlide').hidden = $('nextSlide').hidden = !plusieurs;
+    $('counter').textContent = plusieurs ? pad2(etat.slide + 1) + ' / ' + pad2(UNES.length) : '';
   }
   function allerSlide(i){
     if (!UNES.length) return;
     etat.slide = (i + UNES.length) % UNES.length;
     peindreSlide();
-    lancerChrono();
   }
-  function lancerChrono(){
-    clearInterval(chrono);
-    if (sobre || etat.page !== 'home' || UNES.length < 2) return;
-    chrono = setInterval(function(){
-      etat.slide = (etat.slide + 1) % UNES.length;
-      peindreSlide();
-    }, 5000);
-  }
+  /* Pas de défilement automatique : une mosaïque qui change toute seule
+     pendant qu'on la regarde gêne plus qu'elle n'aide. Les flèches et le
+     clavier suffisent. */
 
-  $('nextSlide').addEventListener('click', function(){ allerSlide(etat.slide + 1); });
-  $('prevSlide').addEventListener('click', function(){ allerSlide(etat.slide - 1); });
-  $('slideTitre').addEventListener('click', function(){
+  function ouvrirUne(){
     var sl = UNES[etat.slide];
     if (sl) aller('evenement/' + sl.id);
-  });
+  }
+  $('nextSlide').addEventListener('click', function(){ allerSlide(etat.slide + 1); });
+  $('prevSlide').addEventListener('click', function(){ allerSlide(etat.slide - 1); });
+  $('uneTitre').addEventListener('click', ouvrirUne);
+  $('uneOpen').addEventListener('click', ouvrirUne);
 
   /* ================= JOURNÉES : la liste ================= */
   /* Le sport n'est pas un dossier à ouvrir : c'est un filtre, qui n'apparaît
@@ -1139,7 +1156,6 @@ main{flex:1;display:flex;flex-direction:column}
     if (etat.page === 'evenements') peindreEvenements();
     majTitre();
     signalerVue(route);
-    lancerChrono();
     window.scrollTo(0, 0);
   }
 
