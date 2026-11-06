@@ -7,7 +7,7 @@
 @media (max-width:700px){
 
   /* ---- Header réduit : la nav passe en bas, le logo et la mention restent ---- */
-  .hdr{padding:14px 18px;background:linear-gradient(to bottom,rgba(12,11,10,.85),rgba(12,11,10,0))}
+  .hdr{flex-wrap:nowrap;padding-bottom:14px}
   .hdr-logo{height:44px}
   /* min-width:0 + ellipsis : une mention plus longue se tronque au lieu de
      pousser le bouton HD hors de l'écran sur un petit téléphone. */
@@ -27,11 +27,13 @@
 
   /* la barre d'onglets flotte au-dessus du contenu : on lui réserve la place */
   body{padding-bottom:82px}
-  .ftr{padding:24px 18px 40px;flex-direction:column;align-items:flex-start;gap:6px;font-size:10.5px}
+  .ftr{padding:24px 0 40px;flex-direction:column;align-items:flex-start;gap:6px;font-size:10.5px}
 
   /* ---- Accueil : le diaporama desktop est remplacé par le carrousel ---- */
   .mob-on .hero{display:none}
-  .mob-home{display:block}
+  /* le carrousel va d'un bord à l'autre de l'écran, comme avant : il annule
+     la marge latérale de la colonne */
+  .mob-home{display:block;margin:0 calc(-1 * clamp(16px,4vw,48px))}
 
   /* carrousel : une photo par écran, glissement au pouce */
   .mob-slides{
@@ -53,8 +55,8 @@
     text-transform:uppercase;color:var(--accent);margin-bottom:12px;
   }
   .mob-slide .t{
-    margin:0;font-weight:900;font-size:56px;line-height:.86;
-    letter-spacing:-.03em;text-transform:uppercase;
+    margin:0;font-family:var(--display);font-weight:400;font-size:44px;line-height:.92;
+    text-transform:uppercase;overflow-wrap:anywhere;
   }
   .mob-slide .m{margin-top:12px;font-size:14px;letter-spacing:.04em;color:rgba(242,239,233,.8)}
 
@@ -87,7 +89,7 @@
     font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
     color:var(--accent);margin-bottom:7px;
   }
-  .mob-serie .n{font-weight:900;font-size:32px;line-height:.94;text-transform:uppercase;letter-spacing:-.02em}
+  .mob-serie .n{font-family:var(--display);font-size:14px;letter-spacing:.02em;line-height:1.25;text-transform:uppercase;overflow-wrap:anywhere}
   .mob-serie .b{margin:9px 0 0;font-size:12.5px;line-height:1.5;color:rgba(242,239,233,.78);max-width:30ch}
   .mob-serie .tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px;justify-content:flex-start}
   .mob-serie .tag{

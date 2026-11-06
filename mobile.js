@@ -123,7 +123,7 @@
     var pubs = evenementsPublics();
     var titre = document.createElement('div');
     titre.className = 'mob-lbl';
-    titre.textContent = 'Événements · ' + pubs.length;
+    titre.textContent = 'Journées · ' + pubs.length;
     maison.appendChild(titre);
 
     var liste = document.createElement('div');
@@ -163,8 +163,8 @@
 
   /* ---------- Barre d'onglets ---------- */
   var ONGLETS = [
-    { route:'home',        label:'À la une' },
-    { route:'evenements',  label:'Événements' },
+    { route:'home',        label:'Accueil' },
+    { route:'evenements',  label:'Journées' },
     { route:'prestations', label:'Presta',  si:function(){ return !!PRESTA.actif; } },
     { route:'a-propos',    label:'À propos',si:function(){ return !!APROPOS.actif; } },
     { route:'contact',     label:'Contact' }

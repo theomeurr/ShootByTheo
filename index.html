@@ -18,7 +18,7 @@ gtag('consent', 'default', {
 </script>
 <!-- End Google Tag Manager -->
 <title>SHOOTBYTHEO — Photographie sport &amp; documentaire</title>
-<meta name="description" content="SHOOTBYTHEO — photographie sportive et documentaire : badminton, judo, reportage de compétition.">
+<meta name="description" content="SHOOTBYTHEO — photographie sportive des journées d'interclub de badminton. Chaque rencontre a sa galerie.">
 <link rel="icon" href="image/favicon.png">
 <link rel="apple-touch-icon" href="image/favicon.png">
 <!-- Aperçu lors d'un partage (Instagram, WhatsApp, Facebook…).
@@ -26,20 +26,28 @@ gtag('consent', 'default', {
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="SHOOTBYTHEO">
 <meta property="og:title" content="SHOOTBYTHEO — Photographie sport &amp; documentaire">
-<meta property="og:description" content="Badminton, judo : reportage sportif et documentaire, du service au salut d’arbitrage.">
+<meta property="og:description" content="Photographie sportive des journées d'interclub de badminton. Chaque rencontre a sa galerie.">
 <meta property="og:image" content="image/web/top12.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
+/* ============================================================
+   SHOOTBYTHEO — design « Portfolio Interclub »
+   Une colonne centrée de 1280px, un header sobre souligné d'un
+   filet, des titres en Archivo Black, des repères en mono orange.
+   ============================================================ */
 :root{
   --bg:#0c0b0a;
   --ink:#f2efe9;
   --accent:#e2543a;
   --muted:#928c82;
-  --line:rgba(242,239,233,.14);
+  --panel:#141210;
+  --line:#1f1d1b;      /* filets de séparation */
+  --edge:#3a3734;      /* contours des boutons et pastilles */
   --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --display:'Archivo Black','Archivo','Helvetica Neue',Arial,sans-serif;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -49,346 +57,274 @@ body{
   font-family:'Archivo','Helvetica Neue',Helvetica,Arial,sans-serif;
   -webkit-font-smoothing:antialiased;
 }
+a{color:var(--ink)}
+a:hover{color:var(--accent)}
 img{display:block}
-/* les règles d'affichage ci-dessous (img, .journees…) l'emportent sur le
-   display:none que le navigateur applique à [hidden] : on le rétablit ici,
-   sinon un élément masqué continue d'occuper la place. */
+/* les règles d'affichage ci-dessous l'emportent sur le display:none que le
+   navigateur applique à [hidden] : on le rétablit ici, sinon un élément
+   masqué continue d'occuper la place. */
 [hidden]{display:none !important}
 input,textarea,button{font-family:inherit}
 ::selection{background:var(--accent);color:var(--bg)}
-input::placeholder,textarea::placeholder{color:#a29c91}
+input::placeholder,textarea::placeholder{color:#6f6a62}
 @keyframes sbtFade{from{opacity:0}to{opacity:1}}
+
+/* ---------- Colonne ---------- */
+.page{
+  min-height:100vh;max-width:1280px;margin:0 auto;
+  padding:40px clamp(16px,4vw,48px) 0;
+  display:flex;flex-direction:column;gap:40px;
+}
+main{flex:1;display:flex;flex-direction:column}
+.view{display:flex;flex-direction:column;gap:40px;animation:sbtFade .5s ease both}
 
 /* ---------- Header ---------- */
 .hdr{
-  position:fixed;top:0;left:0;right:0;z-index:60;
-  display:flex;align-items:center;justify-content:space-between;gap:24px;
-  padding:34px 48px;
-  background:linear-gradient(to bottom,rgba(12,11,10,.8),rgba(12,11,10,0));
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;
+  border-bottom:1px solid var(--line);padding-bottom:20px;
 }
-.hdr-brand{cursor:pointer;display:flex;align-items:center;gap:18px;background:none;border:none;padding:0}
-.hdr-logo{height:88px;width:auto;filter:drop-shadow(0 1px 10px rgba(0,0,0,.5))}
+.hdr-brand{cursor:pointer;display:flex;align-items:center;gap:16px;background:none;border:none;padding:0;color:inherit}
+.hdr-logo{height:44px;width:auto}
+/* la mention n'est montrée que sur téléphone (voir mobile.css) */
 .hdr-baseline{
-  font-size:11px;letter-spacing:.26em;text-transform:uppercase;
-  color:rgba(242,239,233,.62);
-  border-left:1px solid rgba(242,239,233,.28);padding-left:20px;
+  display:none;font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--muted);
+  border-left:1px solid var(--edge);padding-left:14px;
 }
-.hdr-nav{display:flex;align-items:center;gap:32px}
+.hdr-nav{display:flex;flex-wrap:wrap;gap:8px 24px}
 .navlink{
-  font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
-  cursor:pointer;padding:8px 0;background:none;border:none;
-  border-bottom:1.5px solid transparent;
-  color:rgba(242,239,233,.68);
-  transition:color .2s;
-  text-shadow:0 1px 8px rgba(0,0,0,.4);
+  font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;
+  cursor:pointer;padding:4px 0;background:none;border:none;
+  border-bottom:1px solid transparent;color:var(--muted);transition:color .2s;
 }
 .navlink:hover{color:var(--ink)}
-.navlink.is-active{border-bottom-color:var(--accent);color:var(--ink)}
+.navlink.is-active{color:var(--ink);border-bottom-color:var(--accent)}
 
-/* ---------- Boutons ---------- */
-.btn-accent{
-  display:inline-block;background:var(--accent);color:var(--bg);border:none;
-  font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
-  padding:15px 28px;cursor:pointer;text-decoration:none;transition:filter .2s;
-}
-.btn-accent:hover{filter:brightness(1.1)}
-.btn-ghost{
-  display:inline-block;text-decoration:none;color:var(--ink);
-  /* background:none — sur un <button>, le navigateur poserait sinon son fond
-     gris par défaut et le texte crème deviendrait illisible. */
-  background:none;
-  border:1px solid rgba(242,239,233,.4);
-  font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
-  padding:15px 28px;transition:background .2s,border-color .2s;
-}
-.btn-ghost:hover{background:rgba(242,239,233,.1);border-color:rgba(242,239,233,.7)}
+/* ---------- Repères, titres, boutons ---------- */
 .kicker{
-  font-family:var(--mono);font-size:12px;letter-spacing:.28em;
+  font-family:var(--mono);font-size:12px;letter-spacing:.25em;
   text-transform:uppercase;color:var(--accent);
 }
-.view{animation:sbtFade .5s ease both}
-.view[hidden]{display:none}
-
-/* ---------- Home : diaporama ---------- */
-.hero{position:relative;height:100vh;min-height:660px;overflow:hidden;background:var(--bg)}
-.hero-layer{
-  position:absolute;inset:0;opacity:0;transition:opacity 1.1s ease;
-  background-size:cover;
-}
-.hero-layer.is-on{opacity:1}
-/* le dégradé doit tenir même sous une photo très claire : le texte reste lisible */
-.hero-veil{
-  position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(to bottom,rgba(12,11,10,.45),transparent 22%,rgba(12,11,10,.18) 46%,rgba(12,11,10,.72) 72%,rgba(12,11,10,.96));
-}
-.hero-bar{
-  position:absolute;left:0;right:0;bottom:0;
-  display:flex;align-items:flex-end;justify-content:space-between;gap:40px;
-  padding:0 40px 46px;
-}
-.hero-copy{max-width:60%;text-shadow:0 2px 24px rgba(12,11,10,.65)}
-.hero-tag{margin-bottom:16px;text-shadow:0 1px 14px rgba(12,11,10,.95)}
-.hero-title{
-  font-weight:900;font-size:clamp(60px,10vw,144px);line-height:.84;
-  letter-spacing:-.03em;text-transform:uppercase;margin:0;
-}
-.hero-meta{margin-top:18px;font-size:15px;letter-spacing:.04em;color:rgba(242,239,233,.82)}
-.hero-cta{margin-top:26px;display:flex;gap:14px;flex-wrap:wrap}
-.hero-side{text-align:right;flex:none}
-.hero-nav{display:flex;align-items:center;justify-content:flex-end;gap:16px;margin-bottom:18px}
-.arrow{
-  background:rgba(242,239,233,.1);border:1px solid rgba(242,239,233,.25);
-  color:var(--ink);width:38px;height:38px;border-radius:100px;cursor:pointer;
-  font-size:15px;line-height:1;transition:background .2s;
-}
-.arrow:hover{background:rgba(242,239,233,.22)}
-.counter{font-family:var(--mono);font-size:13px;letter-spacing:.16em;color:rgba(242,239,233,.85)}
-.thumbs{display:flex;gap:10px}
-.thumb{
-  width:92px;height:58px;cursor:pointer;transition:all .3s ease;
-  border:2px solid rgba(242,239,233,.2);opacity:.5;padding:0;
-  background-size:cover;background-position:center;
-}
-.thumb.is-on{border-color:var(--accent);opacity:1}
-.progress{position:absolute;left:40px;right:40px;bottom:30px;display:flex;gap:8px}
-.progress span{flex:1;height:2px;background:rgba(242,239,233,.25);transition:background .4s ease}
-.progress span.is-on{background:var(--accent)}
-
-/* ---------- Événements : bandes et cartes ---------- */
-/* 186px = hauteur du header fixe (34+88+34) + 30, sinon le kicker passe dessous */
-.work-head{padding:186px 40px 34px}
-.work-head .kicker{display:block;margin-bottom:16px}
 .big-title{
-  margin:0;font-weight:900;font-size:clamp(48px,8vw,128px);line-height:.86;
-  letter-spacing:-.03em;text-transform:uppercase;
+  margin:0;font-family:var(--display);font-weight:400;
+  font-size:clamp(30px,4.5vw,56px);line-height:.95;text-transform:uppercase;
 }
-.band{
-  position:relative;height:60vh;min-height:400px;overflow:hidden;cursor:pointer;
-  border-top:1px solid rgba(242,239,233,.16);display:block;width:100%;
-  padding:0;background:none;border-left:none;border-right:none;border-bottom:none;
-  color:inherit;text-align:left;font:inherit;
+.lead{margin:0;font-size:18px;line-height:1.5;max-width:560px;text-wrap:pretty}
+.head{display:flex;flex-direction:column;gap:12px}
+.head .lead{margin-top:12px}
+.btn-accent{
+  display:inline-block;background:var(--accent);border:none;color:var(--bg);
+  font-family:'Archivo',sans-serif;font-weight:600;font-size:13px;letter-spacing:.15em;
+  text-transform:uppercase;cursor:pointer;padding:16px 24px;text-decoration:none;
+  transition:filter .2s;
 }
-.band-img{
-  position:absolute;inset:0;background-size:cover;background-position:center;
-  filter:brightness(.5);transition:transform 1s ease,filter .5s ease;
+.btn-accent:hover{filter:brightness(1.1);color:var(--bg)}
+.btn-ghost{
+  display:inline-block;background:none;border:1px solid var(--edge);color:var(--ink);
+  font-family:var(--mono);font-size:12px;letter-spacing:.15em;text-transform:uppercase;
+  cursor:pointer;padding:15px 18px;text-decoration:none;transition:border-color .2s,color .2s;
 }
-.band:hover .band-img,.band:focus-visible .band-img{transform:scale(1.05);filter:brightness(.72)}
-.band-veil{
-  position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(to right,rgba(12,11,10,.5),transparent 60%);
-}
-.band-inner{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;
-  gap:32px;padding:0 48px;pointer-events:none;
-}
-.band-left{display:flex;align-items:center;gap:36px}
-.band-n{font-family:var(--mono);font-size:15px;letter-spacing:.14em;color:var(--accent)}
-.band-kicker{
-  font-size:11px;letter-spacing:.24em;text-transform:uppercase;
-  color:rgba(242,239,233,.7);margin-bottom:10px;
-}
-.band-name{
-  font-weight:900;font-size:clamp(44px,7vw,96px);line-height:.9;
-  text-transform:uppercase;letter-spacing:-.02em;
-}
-.band-right{text-align:right;max-width:30%}
-.band-blurb{font-size:14px;line-height:1.55;color:rgba(242,239,233,.8);margin:0 0 16px}
-.tags{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.tag{
-  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
-  color:rgba(242,239,233,.85);border:1px solid rgba(242,239,233,.3);
-  border-radius:100px;padding:6px 13px;
-}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 
-/* ---------- Galerie ---------- */
-.gal-hero{position:relative;height:86vh;min-height:560px;overflow:hidden}
-.gal-img{position:absolute;inset:0;background-size:cover;background-position:center}
-.gal-veil{
-  position:absolute;inset:0;
-  background:linear-gradient(to bottom,rgba(12,11,10,.45),transparent 35%,transparent 55%,rgba(12,11,10,.95));
+/* ---------- Accueil ---------- */
+.hero{display:flex;flex-direction:column;gap:48px;padding:24px 0 64px}
+.hero-top{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));
+  gap:32px 48px;align-items:end;
 }
-.gal-bar{position:absolute;left:40px;right:40px;bottom:44px}
-.back{
-  background:none;border:none;color:rgba(242,239,233,.7);font-family:var(--mono);
-  font-size:11px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;
-  padding:0 0 14px;display:block;transition:color .2s;
+.hero-logo{width:min(100%,200px);height:auto}
+.hero-copy{display:flex;flex-direction:column;gap:20px}
+.hero-copy .btn-row{align-self:flex-start}
+
+/* À la une : la couverture en grand, quatre photos de la galerie autour.
+   La grille s'adapte au nombre de photos disponibles (data-n). */
+.une{display:flex;flex-direction:column;gap:20px}
+.une-grid{
+  display:grid;gap:8px;aspect-ratio:2/1;
+  grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr;
+  animation:sbtFade .5s ease both;
 }
-.back:hover{color:var(--ink)}
-.gal-kicker{
-  font-family:var(--mono);font-size:12px;letter-spacing:.24em;text-transform:uppercase;
-  color:var(--accent);margin-bottom:14px;
+.une-grid[data-n="0"]{grid-template-columns:1fr;grid-template-rows:1fr}
+.une-grid[data-n="1"]{grid-template-columns:2fr 1fr}
+.une-grid[data-n="1"] .une-ph{grid-row:1 / 3}
+.une-grid[data-n="2"]{grid-template-columns:2fr 1fr}
+.une-grid[data-n="3"] .une-ph:last-child{grid-row:1 / 3;grid-column:3}
+.une-cell{
+  position:relative;min-width:0;min-height:0;overflow:hidden;cursor:pointer;
+  border:none;padding:0;background:var(--panel);
 }
-.gal-title{
-  margin:0;font-weight:900;font-size:clamp(48px,8vw,128px);line-height:.84;
-  text-transform:uppercase;letter-spacing:-.03em;
+.une-cell img{width:100%;height:100%;object-fit:cover;transition:transform .8s ease,opacity .3s ease}
+.une-cell:hover img,.une-cell:focus-visible img{transform:scale(1.04)}
+.une-cover{grid-row:1 / 3}
+.une-grid[data-n="0"] .une-cover{grid-row:auto}
+.une-bas{display:flex;justify-content:space-between;align-items:flex-end;gap:20px 32px;flex-wrap:wrap}
+.une-txt{display:flex;flex-direction:column;gap:10px;min-width:0}
+.une-titre{
+  background:none;border:none;padding:0;cursor:pointer;color:var(--ink);text-align:left;
+  font-family:var(--display);font-size:clamp(20px,2.4vw,30px);line-height:1.05;
+  text-transform:uppercase;overflow-wrap:anywhere;
 }
-.chips{display:flex;gap:10px;flex-wrap:wrap;padding:24px 40px;border-bottom:1px solid rgba(242,239,233,.14)}
-.chip{
-  font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.1em;
-  text-transform:uppercase;cursor:pointer;padding:9px 18px;border-radius:100px;
-  border:1px solid rgba(242,239,233,.18);background:transparent;color:var(--muted);
-  transition:all .2s;
+.une-titre:hover{color:var(--accent)}
+.une-nav{display:flex;align-items:center;gap:8px}
+.une-count{font-family:var(--mono);font-size:12px;letter-spacing:.15em;color:var(--muted);margin-right:8px}
+.arrow{
+  width:44px;height:44px;background:none;border:1px solid var(--edge);color:var(--ink);
+  cursor:pointer;font-size:16px;line-height:1;transition:border-color .2s,color .2s;
 }
-.chip:hover{color:var(--ink);border-color:rgba(242,239,233,.4)}
-.chip.is-on{border-color:var(--accent);background:var(--accent);color:var(--bg)}
-/* mosaïque : colonnes adaptatives, chaque photo garde ses proportions.
-   La hauteur est calée en JS (calerGrille) sur une trame de 8px. */
-.gal-grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
-  column-gap:18px;row-gap:0;grid-auto-rows:8px;align-items:start;
-  padding:26px 40px 10px;
-}
+.arrow:hover{border-color:var(--accent);color:var(--accent)}
 .slot{
-  aspect-ratio:3/2;
+  width:100%;height:100%;
   background:repeating-linear-gradient(135deg,#141210,#141210 11px,#191715 11px,#191715 22px);
   display:flex;align-items:center;justify-content:center;
 }
 .slot span{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:#5c574e}
-/* portrait comme paysage : l'image garde son format, la légende suit dessous */
-.gal-grid .ph{cursor:pointer;margin:0 0 18px}
-.gal-grid .ph img{width:100%;height:auto;display:block;background:#141210;transition:opacity .3s ease}
-.gal-grid .ph:hover img{opacity:.86}
-.gal-grid .slot{margin:0 0 18px}
 
-/* ---------- Lightbox ---------- */
-.lb{position:fixed;inset:0;z-index:100;background:rgba(12,11,10,.96);display:flex;align-items:center;justify-content:center}
-.lb[hidden]{display:none}
-.lb img{max-width:90vw;max-height:86vh;object-fit:contain}
-.lb .arrow{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px}
-.lb .lb-prev{left:22px}
-.lb .lb-next{right:22px}
-.lb .lb-x{top:24px;right:26px;left:auto;transform:none}
-.lb-count{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:rgba(242,239,233,.8)}
+/* ---------- Journées ---------- */
+.filtres{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.filtre{
+  font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;
+  padding:8px 14px;border:1px solid var(--edge);border-radius:999px;background:none;color:var(--muted);
+}
+.filtre:hover{color:var(--ink);border-color:var(--ink)}
+.filtre.is-on{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.evts{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));
+  gap:32px 24px;padding-bottom:64px;
+}
+.carte{
+  display:flex;flex-direction:column;gap:14px;cursor:pointer;
+  background:none;border:none;padding:0;color:inherit;text-align:left;font:inherit;
+  transition:opacity .2s;
+}
+.carte:hover,.carte:focus-visible{opacity:.85}
+.carte-img{position:relative;aspect-ratio:4/3;background:var(--panel);overflow:hidden}
+.carte-img img{width:100%;height:100%;object-fit:cover}
+.carte-txt{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.carte-txt > div{display:flex;flex-direction:column;gap:6px;min-width:0}
+.carte .k{font-family:var(--mono);font-size:12px;letter-spacing:.15em;color:var(--accent);text-transform:uppercase}
+.carte .t{font-family:var(--display);font-size:13px;letter-spacing:.02em;text-transform:uppercase;line-height:1.25;overflow-wrap:anywhere}
+.carte .p{font-size:14px;color:var(--muted);line-height:1.45}
+.pill{
+  flex:none;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid var(--edge);border-radius:999px;padding:6px 12px;white-space:nowrap;
+}
+.vide-liste{margin:0;color:var(--muted);font-size:15px}
+
+/* ---------- Galerie ---------- */
+.gal-head{display:flex;flex-direction:column;gap:20px}
+.gal-head .btn-ghost{align-self:flex-start;padding:10px 16px}
+.gal-title{
+  margin:0;font-family:var(--display);font-weight:400;
+  font-size:clamp(26px,3.6vw,46px);line-height:1;text-transform:uppercase;overflow-wrap:anywhere;
+}
+.gal-texte{margin:0;font-size:16px;line-height:1.6;color:var(--muted);max-width:62ch}
+.gal-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:12px;
+}
+.ph{margin:0;position:relative;aspect-ratio:3/2;background:var(--panel);cursor:pointer;overflow:hidden}
+.ph img{width:100%;height:100%;object-fit:cover;transition:opacity .3s ease}
+.ph:hover img{opacity:.86}
+.ph figcaption{
+  position:absolute;left:0;right:0;bottom:0;padding:24px 12px 10px;
+  font-size:12.5px;line-height:1.45;color:rgba(242,239,233,.9);
+  background:linear-gradient(to top,rgba(12,11,10,.85),transparent);
+  opacity:0;transition:opacity .25s;
+}
+.ph:hover figcaption,.ph:focus-within figcaption{opacity:1}
+.gal-grid .slot{aspect-ratio:3/2;height:auto}
 .gal-foot{
   display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
-  padding:28px 40px 70px;
 }
-.gal-foot p{margin:0;font-size:13px;color:var(--muted);max-width:44ch;line-height:1.6}
-.gal-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-#galPartage{cursor:pointer;font-family:inherit}
+.gal-foot p{margin:0;font-size:14px;color:var(--muted);max-width:48ch;line-height:1.6}
 #galPartage.ok{border-color:var(--accent);color:var(--accent)}
+.gal-nav{
+  display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+  border-top:1px solid var(--line);padding:24px 0 64px;
+}
+.gal-prev{
+  background:none;border:none;color:var(--ink);cursor:pointer;padding:12px 0;
+  font-family:var(--mono);font-size:12px;letter-spacing:.15em;text-transform:uppercase;
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.gal-prev:hover{color:var(--accent)}
+.gal-next{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---------- Visionneuse ---------- */
+.lb{position:fixed;inset:0;z-index:100;background:rgba(12,11,10,.97);display:flex;align-items:center;justify-content:center}
+.lb img{max-width:90vw;max-height:84vh;object-fit:contain}
+.lb .arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(12,11,10,.6)}
+.lb .lb-prev{left:22px}
+.lb .lb-next{right:22px}
+.lb .lb-x{top:22px;right:22px;transform:none}
+.lb-count{
+  position:absolute;bottom:22px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:12px;letter-spacing:.16em;color:var(--muted);
+}
+.lb-leg{
+  position:absolute;left:50%;transform:translateX(-50%);bottom:52px;max-width:70ch;width:100%;
+  text-align:center;font-size:13.5px;line-height:1.6;color:rgba(242,239,233,.9);padding:0 20px;
+}
 
 /* ---------- Contact ---------- */
-.contact{position:relative;min-height:100vh;overflow:hidden}
-.contact-bg{
-  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  filter:brightness(.32) grayscale(.2);
+.contact{max-width:720px;padding:24px 0 64px;gap:32px}
+.liens{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.lien{
+  display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;
+  padding:20px 0;border-bottom:1px solid var(--line);text-decoration:none;
 }
-.contact-veil{position:absolute;inset:0;background:linear-gradient(to right,rgba(12,11,10,.9),rgba(12,11,10,.55))}
-.contact-grid{
-  position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:56px;
-  padding:140px 48px 70px;min-height:100vh;align-items:center;
+.lien .l{font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--muted)}
+.lien .v{font-size:20px;font-weight:600;overflow-wrap:anywhere}
+.form-titre{margin-top:16px}
+#contactForm{display:flex;flex-direction:column;gap:12px}
+.champs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px}
+#contactForm input,#contactForm textarea{
+  width:100%;background:var(--panel);border:1px solid var(--edge);color:var(--ink);
+  font-size:15px;padding:15px 16px;outline:none;transition:border-color .2s;border-radius:0;
 }
-.contact-grid .kicker{display:block;margin-bottom:18px}
-.contact-title{
-  margin:0;font-weight:900;font-size:clamp(44px,7vw,108px);line-height:.86;
-  text-transform:uppercase;letter-spacing:-.03em;
+#contactForm textarea{resize:vertical;min-height:140px}
+#contactForm input:focus,#contactForm textarea:focus{border-color:var(--accent)}
+#contactForm button{align-self:flex-start;margin-top:4px}
+#contactForm button[disabled]{opacity:.5;cursor:default}
+.note{margin:0;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted)}
+.note.ok{color:var(--accent);font-size:13px}
+.note.ko{color:#e2a03a;font-size:12px}
+
+/* ---------- À propos ---------- */
+.apropos{display:grid;grid-template-columns:.85fr 1.15fr;gap:48px;padding:24px 0 64px;align-items:start}
+.apropos.is-seul{grid-template-columns:1fr}
+.apropos-photo{width:100%;aspect-ratio:4/5;object-fit:cover;background:var(--panel)}
+.apropos-txt{display:flex;flex-direction:column;gap:12px}
+.apropos-txt .big-title{margin-bottom:16px}
+.apropos-txt p{font-size:16px;line-height:1.75;color:rgba(242,239,233,.86);margin:0 0 6px;max-width:62ch}
+.apropos-txt p:first-of-type{font-size:19px;color:var(--ink)}
+.apropos-txt .btn-row{margin-top:20px}
+
+/* ---------- Prestations ---------- */
+.offres{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:24px}
+.offre{border:1px solid var(--edge);padding:28px 24px;display:flex;flex-direction:column;gap:12px}
+.offre h3{margin:0;font-family:var(--display);font-weight:400;font-size:13px;letter-spacing:.02em;line-height:1.25;text-transform:uppercase}
+.offre .prix{font-family:var(--mono);font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent)}
+.offre p{margin:0;font-size:14px;line-height:1.6;color:rgba(242,239,233,.78)}
+.presta-fin{
+  display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  border-top:1px solid var(--line);padding:24px 0 64px;
 }
-.contact-lead{margin:26px 0 0;max-width:40ch;font-size:15px;line-height:1.65;color:rgba(242,239,233,.82)}
-.contact-mail{
-  display:block;font-weight:800;font-size:clamp(18px,2vw,28px);color:var(--ink);
-  text-decoration:none;letter-spacing:-.01em;
-}
-.contact-mail:hover{color:var(--accent)}
-.socials{margin-top:18px;display:flex;gap:16px}
-.socials a{
-  font-size:12px;letter-spacing:.14em;text-transform:uppercase;
-  color:rgba(242,239,233,.75);text-decoration:none;
-  border-bottom:1px solid rgba(242,239,233,.3);padding-bottom:3px;transition:color .2s;
-}
-.socials a:hover{color:var(--ink)}
-.card{
-  background:rgba(20,18,16,.72);backdrop-filter:blur(6px);
-  border:1px solid rgba(242,239,233,.14);padding:36px;
-}
-.card form{display:flex;flex-direction:column;gap:14px}
-.card input,.card textarea{
-  width:100%;background:rgba(12,11,10,.6);border:1px solid rgba(242,239,233,.18);
-  color:var(--ink);font-size:14px;padding:15px 16px;outline:none;transition:border-color .2s;
-}
-.card textarea{resize:vertical;min-height:120px}
-.card input:focus,.card textarea:focus{border-color:var(--accent)}
-.card button{align-self:flex-start;letter-spacing:.16em;padding:16px 32px}
-.card .note{margin:14px 0 0;font-size:11px;color:#8f8a80}
-.card .note.ok{color:var(--accent);font-size:13px;font-weight:600}
-.card .note.ko{color:#e2a03a;font-size:12px}
-.card button[disabled]{opacity:.5;cursor:default}
+.presta-fin p{margin:0;font-size:15px;color:var(--muted)}
 
 /* ---------- Footer ---------- */
 .ftr{
-  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
-  padding:26px 40px;border-top:1px solid var(--line);color:var(--muted);
-  font-size:11px;letter-spacing:.14em;text-transform:uppercase;background:var(--bg);
+  display:flex;align-items:center;justify-content:space-between;gap:12px 24px;flex-wrap:wrap;
+  padding:24px 0 40px;border-top:1px solid var(--line);color:var(--muted);
+  font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;
 }
 .ftr a{color:var(--muted);text-decoration:none}
 .ftr a:hover{color:var(--ink)}
-
-/* ---------- Journées d'une série ---------- */
-.journees{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;padding:26px 40px 10px}
-.jr{position:relative;display:block;width:100%;aspect-ratio:16/9;overflow:hidden;cursor:pointer;
-  border:none;padding:0;background:#141210;text-align:left;color:inherit;font:inherit}
-.jr img{width:100%;height:100%;object-fit:cover;filter:brightness(.5);transition:transform .8s ease,filter .4s ease}
-.jr:hover img,.jr:focus-visible img{transform:scale(1.04);filter:brightness(.7)}
-.jr .veil{position:absolute;inset:0;background:linear-gradient(to top,rgba(12,11,10,.92),transparent 62%)}
-.jr .txt{position:absolute;left:0;right:0;bottom:0;padding:22px 26px}
-.jr .d{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
-.jr .t{font-weight:900;font-size:clamp(21px,2.5vw,36px);line-height:.98;text-transform:uppercase;letter-spacing:-.01em}
-.jr .n{margin-top:9px;font-size:12px;letter-spacing:.06em;color:rgba(242,239,233,.72)}
-.sect-lbl{padding:34px 40px 0;font-family:var(--mono);font-size:11px;letter-spacing:.24em;
-  text-transform:uppercase;color:var(--muted)}
-.evts{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:10px 40px 60px}
-@media(max-width:1100px){.evts{grid-template-columns:repeat(2,1fr)}}
-/* Les cartes de journée étaient dessinées pour deux colonnes ; à trois, le
-   titre débordait. Il tient en deux lignes, la troisième est coupée net. */
-.evts .jr .txt{padding:18px 20px}
-.evts .jr .t{font-size:clamp(17px,1.35vw,24px);line-height:1.04;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.evts .jr .d{font-size:10px;letter-spacing:.16em;margin-bottom:6px}
-.evts .jr .n{margin-top:7px;font-size:11px}
-/* Sans couverture, la carte n'est qu'un aplat : une trame discrète la
-   distingue d'un trou dans la grille. */
-.evts .jr:not(:has(img)){background:
-  repeating-linear-gradient(-45deg,#171513,#171513 12px,#141210 12px,#141210 24px)}
-/* Sur téléphone, deux colonnes donnaient des cartes de 170 px : en 16/9 elles
-   étaient plus courtes que leur propre texte, qui débordait par le haut. Une
-   seule colonne, un peu plus haute. */
-@media(max-width:700px){
-  .evts{grid-template-columns:1fr;gap:12px;padding:6px 20px 50px}
-  .evts .jr{aspect-ratio:3/2}
-  .evts .jr .txt{padding:16px 18px}
-  .evts .jr .t{font-size:23px;-webkit-line-clamp:3}
+.ftr .cook-lien{
+  background:none;border:none;padding:0;cursor:pointer;font:inherit;
+  color:var(--muted);text-transform:uppercase;letter-spacing:.15em;
 }
-.filtres{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px}
-.filtre{font:inherit;font-size:11px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;
-  padding:9px 15px;border:1px solid var(--line);border-radius:999px;background:none;color:var(--muted)}
-.filtre:hover{border-color:rgba(242,239,233,.45);color:var(--ink)}
-.filtre.is-on{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:700}
-.vide-liste{padding:10px 40px 80px;color:var(--muted);font-size:15px}
-
-/* ---------- Légendes ---------- */
-.ph figcaption{padding:9px 2px 0;font-size:12.5px;line-height:1.5;color:var(--muted)}
-.lb-leg{position:absolute;left:50%;transform:translateX(-50%);bottom:52px;max-width:70ch;
-  text-align:center;font-size:13.5px;line-height:1.6;color:rgba(242,239,233,.9);padding:0 20px}
-
-/* ---------- À propos ---------- */
-.apropos{display:grid;grid-template-columns:.85fr 1.15fr;gap:56px;padding:186px 40px 80px;align-items:start}
-/* sans photo, l'image sort de la grille : le texte prendrait la colonne étroite */
-.apropos.is-seul{grid-template-columns:1fr}
-.apropos-photo{width:100%;aspect-ratio:4/5;object-fit:cover;background:#141210}
-.apropos-txt p{font-size:16px;line-height:1.75;color:rgba(242,239,233,.86);margin:0 0 18px;max-width:62ch}
-.apropos-txt p:first-of-type{font-size:19px;color:var(--ink)}
-
-/* ---------- Prestations ---------- */
-.presta{padding:186px 40px 30px}
-.presta-lead{margin:22px 0 0;max-width:62ch;font-size:16px;line-height:1.7;color:rgba(242,239,233,.84)}
-.offres{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:34px 40px 30px}
-.offre{border:1px solid var(--line);padding:28px 26px;display:flex;flex-direction:column;gap:12px}
-.offre h3{margin:0;font-size:19px;font-weight:800;letter-spacing:-.01em}
-.offre .prix{font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:var(--accent)}
-.offre p{margin:0;font-size:14px;line-height:1.6;color:rgba(242,239,233,.78)}
-.presta-fin{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
-  padding:10px 40px 80px}
-.presta-fin p{margin:0;font-size:14px;color:var(--muted)}
+.ftr .cook-lien:hover{color:var(--ink)}
 
 /* ---------- Bandeau cookies ---------- */
 /* Refuser doit être aussi simple qu'accepter : les deux boutons ont la même
@@ -396,92 +332,44 @@ input::placeholder,textarea::placeholder{color:#a29c91}
 .cook{
   position:fixed;left:0;right:0;bottom:0;z-index:120;
   display:flex;align-items:center;justify-content:space-between;gap:26px;
-  padding:20px 40px;background:rgba(20,18,16,.98);
-  border-top:1px solid rgba(242,239,233,.22);
-  box-shadow:0 -10px 40px rgba(0,0,0,.5);
+  padding:20px clamp(16px,4vw,48px);background:#141210;
+  border-top:1px solid var(--edge);box-shadow:0 -10px 40px rgba(0,0,0,.5);
 }
 .cook p{margin:0;font-size:13.5px;line-height:1.6;color:rgba(242,239,233,.86);max-width:78ch}
 .cook p strong{color:var(--ink);font-weight:700}
 .cook-btn{display:flex;gap:12px;flex:none}
 .cook-btn button{
-  font-family:inherit;font-weight:700;font-size:12px;letter-spacing:.12em;
-  text-transform:uppercase;padding:14px 26px;cursor:pointer;border:1px solid transparent;
+  font-family:'Archivo',sans-serif;font-weight:600;font-size:12px;letter-spacing:.15em;
+  text-transform:uppercase;padding:14px 24px;cursor:pointer;border:1px solid transparent;
   min-width:132px;transition:filter .2s,background .2s;
 }
 /* fond plein, comme « Accepter » : un simple liseré se lirait comme un lien
    et pousserait vers l'acceptation, ce que la CNIL proscrit */
-.cook-non{background:rgba(242,239,233,.16);border-color:rgba(242,239,233,.42);color:var(--ink)}
-.cook-non:hover{background:rgba(242,239,233,.28)}
+.cook-non{background:rgba(242,239,233,.14);border-color:var(--edge);color:var(--ink)}
+.cook-non:hover{background:rgba(242,239,233,.24)}
 .cook-oui{background:var(--accent);color:var(--bg)}
 .cook-oui:hover{filter:brightness(1.1)}
-.ftr .cook-lien{background:none;border:none;padding:0;cursor:pointer;font:inherit;
-  color:var(--muted);text-transform:uppercase;letter-spacing:.14em}
-.ftr .cook-lien:hover{color:var(--ink)}
-@media (max-width:900px){
-  .cook{flex-direction:column;align-items:stretch;gap:16px;padding:18px 20px}
-  .cook p{font-size:13px}
-  .cook-btn button{flex:1;min-width:0;padding:14px 10px}
-}
 
 /* ---------- Responsive ---------- */
 @media (max-width:900px){
-  .hdr{padding:16px 20px;gap:14px}
-  .hdr-logo{height:52px}
-  .hdr-baseline{display:none}
-  .hdr-nav{gap:18px}
-  .navlink{font-size:10px;letter-spacing:.14em}
-
-  .hero{height:100svh;min-height:560px}
-  .hero-bar{flex-direction:column;align-items:flex-start;gap:26px;padding:0 20px 44px}
-  .hero-copy{max-width:100%}
-  .hero-side{text-align:left;width:100%}
-  .hero-nav{justify-content:flex-start}
-  .thumb{width:64px;height:42px}
-  .progress{left:20px;right:20px;bottom:22px}
-
-  .work-head{padding:100px 20px 24px}
-  .band{height:auto;min-height:0}
-  .band-inner{
-    position:relative;inset:auto;flex-direction:column;align-items:flex-start;
-    gap:18px;padding:34px 20px;
-  }
-  .band-left{gap:18px}
-  .band-right{text-align:left;max-width:100%}
-  .tags{justify-content:flex-start}
-
-  .gal-hero{height:56vh;min-height:320px}
-  .gal-bar{left:20px;right:20px;bottom:28px}
-  .chips{padding:18px 20px}
-  .gal-grid{grid-template-columns:1fr;padding:20px 20px 0}
-  .gal-foot{padding:24px 20px 56px}
-
-  .contact-grid{grid-template-columns:1fr;gap:34px;padding:100px 20px 60px}
-  .card{padding:24px}
-
-  .ftr{padding:20px;gap:10px;font-size:10px}
-
-  .journees{grid-template-columns:1fr;padding:20px 20px 0}
-  .sect-lbl{padding:26px 20px 0}
-  .apropos{grid-template-columns:1fr;gap:28px;padding:110px 20px 60px}
+  .page{padding-top:24px;gap:28px}
+  .hero{gap:32px;padding-bottom:40px}
+  .une-grid{aspect-ratio:3/2}
+  .apropos{grid-template-columns:1fr;gap:28px}
   .apropos-photo{aspect-ratio:3/2}
-  .presta{padding:110px 20px 20px}
-  .offres{grid-template-columns:1fr;padding:24px 20px 20px}
-  .presta-fin{padding:10px 20px 60px}
+  .cook{flex-direction:column;align-items:stretch;gap:16px}
+  .cook p{font-size:13px}
+  .cook-btn button{flex:1;min-width:0;padding:14px 10px}
+  .lb .lb-prev{left:10px}
+  .lb .lb-next{right:10px}
   .lb-leg{bottom:46px;font-size:12.5px}
-}
-@media (max-width:600px){
-  /* les clamp du design ont un plancher pensé pour le desktop : on le rabaisse */
-  .hero-title,.big-title,.gal-title{font-size:clamp(34px,11vw,60px)}
-  .band-name{font-size:clamp(32px,9vw,52px)}
-  .contact-title{font-size:clamp(32px,10vw,60px)}
-  .hero-cta .btn-accent,.hero-cta .btn-ghost{padding:14px 20px;font-size:11px}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.001ms !important;transition-duration:.001ms !important}
 }
 </style>
-<!-- Couche mobile : chargée après le style du site pour pouvoir le neutraliser
-     en dessous de 700px. Au-dessus, le site desktop est intact. -->
+<!-- Couche mobile : chargée après le style du site pour pouvoir le compléter
+     en dessous de 700px. Au-dessus, elle ne fait rien. -->
 <link rel="stylesheet" href="mobile.css">
 </head>
 <body>
@@ -489,14 +377,16 @@ input::placeholder,textarea::placeholder{color:#a29c91}
      possible : sans JavaScript, aucun bandeau ne peut être présenté. Il est
      donc volontairement absent. -->
 
+<div class="page">
+
 <header class="hdr">
-  <button class="hdr-brand" data-go="home" aria-label="SHOOTBYTHEO — à la une">
+  <button class="hdr-brand" data-go="home" aria-label="SHOOTBYTHEO — accueil">
     <img class="hdr-logo" src="image/logo.png" alt="SHOOTBYTHEO">
     <span class="hdr-baseline">Sport · Documentaire</span>
   </button>
   <nav class="hdr-nav">
-    <button class="navlink" data-go="home">À la une</button>
-    <button class="navlink" data-go="evenements">Événements</button>
+    <button class="navlink" data-go="home">Accueil</button>
+    <button class="navlink" data-go="evenements">Journées</button>
     <button class="navlink" data-go="prestations" id="navPresta" hidden>Prestations</button>
     <button class="navlink" data-go="a-propos" id="navApropos" hidden>À propos</button>
     <button class="navlink" data-go="contact">Contact</button>
@@ -505,64 +395,67 @@ input::placeholder,textarea::placeholder{color:#a29c91}
 
 <main>
 
-  <!-- ============== HOME : DIAPORAMA IMMERSIF ============== -->
+  <!-- ============== ACCUEIL ============== -->
   <section class="view" id="view-home">
     <div class="hero">
-      <div id="heroLayers"></div>
-      <div class="hero-veil"></div>
-
-      <div class="hero-bar">
+      <div class="hero-top">
+        <img class="hero-logo" src="image/logo.png" alt="SHOOTBYTHEO">
         <div class="hero-copy">
-          <div class="kicker hero-tag" id="heroTag"></div>
-          <h1 class="hero-title" id="heroTitle"></h1>
-          <div class="hero-meta" id="heroMeta"></div>
-          <div class="hero-cta">
-            <button class="btn-accent" id="heroOpen">Voir la galerie →</button>
-            <a class="btn-ghost" id="heroHD" href="#" target="_blank" rel="noopener">Télécharger en HD ↓</a>
+          <div class="kicker" id="heroKicker">Badminton · Interclub</div>
+          <p class="lead">Photographie sportive des journées d'interclub de badminton. Chaque rencontre a sa galerie.</p>
+          <div class="btn-row">
+            <button class="btn-accent" data-go="evenements">Voir les journées →</button>
+            <a class="btn-ghost" id="heroHD" href="#" target="_blank" rel="noopener" hidden>Télécharger en HD ↓</a>
           </div>
-        </div>
-        <div class="hero-side">
-          <div class="hero-nav">
-            <button class="arrow" id="prevSlide" aria-label="Image précédente">←</button>
-            <span class="counter" id="counter"></span>
-            <button class="arrow" id="nextSlide" aria-label="Image suivante">→</button>
-          </div>
-          <div class="thumbs" id="thumbs"></div>
         </div>
       </div>
-
-      <div class="progress" id="progress"></div>
+      <div class="une">
+        <div class="une-grid" id="uneGrid"></div>
+        <div class="une-bas" id="uneBas">
+          <div class="une-txt">
+            <div class="kicker" id="uneKicker"></div>
+            <button type="button" class="une-titre" id="uneTitre"></button>
+          </div>
+          <div class="une-nav">
+            <span class="une-count" id="counter"></span>
+            <button class="arrow" id="prevSlide" aria-label="Journée précédente">←</button>
+            <button class="arrow" id="nextSlide" aria-label="Journée suivante">→</button>
+            <button class="btn-accent" id="uneOpen" style="margin-left:8px">Voir la galerie →</button>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- ============== ÉVÉNEMENTS : LA LISTE, SANS DÉTOUR ============== -->
+  <!-- ============== JOURNÉES ============== -->
   <section class="view" id="view-evenements" hidden>
-    <div class="work-head">
-      <span class="kicker" id="workKicker">Portfolio</span>
-      <h1 class="big-title">Événements</h1>
+    <div class="head">
+      <div class="kicker" id="workKicker">Saison</div>
+      <h1 class="big-title">Journées<br>d'interclub</h1>
       <div class="filtres" id="filtres" hidden role="group" aria-label="Filtrer par sport"></div>
     </div>
     <div class="evts" id="evts"></div>
   </section>
 
-  <!-- ============== GALERIE : PLEIN CADRE ============== -->
+  <!-- ============== GALERIE ============== -->
   <section class="view" id="view-gallery" hidden>
-    <div class="gal-hero">
-      <div class="gal-img" id="galImg"></div>
-      <div class="gal-veil"></div>
-      <div class="gal-bar">
-        <button class="back" id="galBack">← Tous les événements</button>
-        <div class="gal-kicker" id="galKicker"></div>
-        <h1 class="gal-title" id="galTitle"></h1>
-      </div>
+    <div class="gal-head">
+      <button class="btn-ghost" id="galBack">← Toutes les journées</button>
+      <div class="kicker" id="galKicker"></div>
+      <h1 class="gal-title" id="galTitle"></h1>
+      <p class="gal-texte" id="galTexte" hidden></p>
     </div>
     <div class="gal-grid" id="galGrid"></div>
     <div class="gal-foot">
       <p id="galHDtxt">La galerie complète en haute définition est disponible au téléchargement.</p>
-      <div class="gal-actions">
+      <div class="btn-row">
         <button class="btn-ghost" id="galPartage" type="button">Partager ↗</button>
         <a class="btn-accent" id="galHD" href="#" target="_blank" rel="noopener">Télécharger en HD ↓</a>
       </div>
+    </div>
+    <div class="gal-nav" id="galNav">
+      <button class="gal-prev" id="galPrev"></button>
+      <button class="btn-accent gal-next" id="galNext"></button>
     </div>
   </section>
 
@@ -571,10 +464,10 @@ input::placeholder,textarea::placeholder{color:#a29c91}
     <div class="apropos">
       <img class="apropos-photo" id="aproposPhoto" alt="" hidden>
       <div class="apropos-txt">
-        <span class="kicker" style="display:block;margin-bottom:16px">Le photographe</span>
-        <h1 class="big-title" id="aproposTitre" style="margin-bottom:28px">À propos</h1>
+        <div class="kicker">Le photographe</div>
+        <h1 class="big-title" id="aproposTitre">À propos</h1>
         <div id="aproposTexte"></div>
-        <div style="margin-top:34px" class="hero-cta">
+        <div class="btn-row">
           <button class="btn-accent" data-go="contact">Me contacter →</button>
         </div>
       </div>
@@ -583,10 +476,10 @@ input::placeholder,textarea::placeholder{color:#a29c91}
 
   <!-- ============== PRESTATIONS ============== -->
   <section class="view" id="view-prestations" hidden>
-    <div class="presta">
-      <span class="kicker">Travailler ensemble</span>
-      <h1 class="big-title" id="prestaTitre" style="margin-top:16px">Prestations</h1>
-      <p class="presta-lead" id="prestaIntro"></p>
+    <div class="head">
+      <div class="kicker">Travailler ensemble</div>
+      <h1 class="big-title" id="prestaTitre">Prestations</h1>
+      <p class="lead" id="prestaIntro"></p>
     </div>
     <div class="offres" id="prestaOffres"></div>
     <div class="presta-fin">
@@ -595,34 +488,33 @@ input::placeholder,textarea::placeholder{color:#a29c91}
     </div>
   </section>
 
-  <!-- ============== CONTACT : SUR IMAGE ============== -->
+  <!-- ============== CONTACT ============== -->
   <section class="view contact" id="view-contact" hidden>
-    <img class="contact-bg" src="image/web/street.jpg" alt="" loading="lazy">
-    <div class="contact-veil"></div>
-    <div class="contact-grid">
-      <div>
-        <span class="kicker">Contact</span>
-        <h1 class="contact-title">Travaillons<br>ensemble</h1>
-        <p class="contact-lead">Prestation, reportage sportif, collaboration ou simple échange — écrivez-moi, je réponds vite.</p>
-        <div style="margin-top:36px">
-          <a class="contact-mail" href="mailto:contact@shootbytheo.com">contact@shootbytheo.com</a>
-          <div class="socials">
-            <a href="https://www.instagram.com/shootby.theo/" target="_blank" rel="noopener">Instagram</a>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <form action="https://formspree.io/f/xpznqkgb" method="POST" id="contactForm">
-          <input name="nom" placeholder="Nom" required>
-          <input name="email" type="email" placeholder="Adresse e-mail" required>
-          <input name="instagram" placeholder="Votre Instagram">
-          <textarea name="message" placeholder="Message" rows="5" required></textarea>
-          <input name="ville" placeholder="Ville">
-          <button class="btn-accent" type="submit" id="contactSend">Envoyer</button>
-        </form>
-        <p class="note" id="contactNote">Les messages sont envoyés à contact@shootbytheo.com</p>
-      </div>
+    <div class="kicker">Contact</div>
+    <h1 class="big-title">Me contacter</h1>
+    <p class="lead">Pour une photo en HD, une rencontre à couvrir ou une question.</p>
+    <div class="liens">
+      <a class="lien" href="mailto:contact@shootbytheo.com">
+        <span class="l">EMAIL</span>
+        <span class="v" id="contactMail">contact@shootbytheo.com</span>
+      </a>
+      <a class="lien" href="https://www.instagram.com/shootby.theo/" target="_blank" rel="noopener">
+        <span class="l">INSTAGRAM</span>
+        <span class="v" id="contactInsta">@shootby.theo</span>
+      </a>
     </div>
+    <div class="kicker form-titre">Écrire un message</div>
+    <form action="https://formspree.io/f/xpznqkgb" method="POST" id="contactForm">
+      <div class="champs">
+        <input name="nom" placeholder="Nom" required>
+        <input name="email" type="email" placeholder="Adresse e-mail" required>
+        <input name="instagram" placeholder="Votre Instagram">
+        <input name="ville" placeholder="Ville">
+      </div>
+      <textarea name="message" placeholder="Message" rows="5" required></textarea>
+      <button class="btn-accent" type="submit" id="contactSend">Envoyer →</button>
+    </form>
+    <p class="note" id="contactNote">Les messages sont envoyés à contact@shootbytheo.com</p>
   </section>
 
 </main>
@@ -633,6 +525,8 @@ input::placeholder,textarea::placeholder{color:#a29c91}
   <a href="https://www.instagram.com/shootby.theo/" target="_blank" rel="noopener">@shootby.theo</a>
   <button class="cook-lien" id="cookRouvrir" hidden>Cookies</button>
 </footer>
+
+</div>
 
 <div class="cook" id="cook" hidden role="region" aria-label="Consentement aux cookies">
   <p><strong>Ce site peut mesurer son audience.</strong> Cela me permet de savoir
@@ -660,9 +554,9 @@ input::placeholder,textarea::placeholder{color:#a29c91}
   'use strict';
 
   /* ---------- Données (data.js, écrit par l'administration) ---------- */
-  var D      = window.SITE_DATA || {};
-  var SITE   = D.site || {};
-  var EVTS = (D.evenements || []).slice();
+  var D       = window.SITE_DATA || {};
+  var SITE    = D.site || {};
+  var EVTS    = (D.evenements || []).slice();
   var APROPOS = D.apropos || {};
   var PRESTA  = D.prestations || {};
   var idx = {};
@@ -679,38 +573,20 @@ input::placeholder,textarea::placeholder{color:#a29c91}
   function pad2(n){ return ('0' + n).slice(-2); }
   function vide(el){ while (el.firstChild) el.removeChild(el.firstChild); }
 
-  var MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août',
-              'septembre','octobre','novembre','décembre'];
-  function dateLisible(iso){
+  /* 2026-09-19 → 19.09.2026, comme dans le design */
+  function datePoints(iso){
     var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
-    if (!m) return '';
-    return parseInt(m[3], 10) + ' ' + MOIS[parseInt(m[2], 10) - 1] + ' ' + m[1];
+    return m ? m[3] + '.' + m[2] + '.' + m[1] : '';
   }
-
-  /* ---------- Mosaïque : chaque photo occupe la hauteur qu'il lui faut ----------
-     La grille avance par tranches de 8px ; on dit à chaque photo combien de
-     tranches elle occupe, une fois sa hauteur réelle connue. */
-  var TRANCHE = 8, INTERLIGNE = 18, minuteurCale = null;
-  function calerGrille(){
-    var g = $('galGrid');
-    if (!g) return;
-    [].forEach.call(g.children, function(item){
-      var h = item.getBoundingClientRect().height;
-      if (!h) return;
-      item.style.gridRowEnd = 'span ' + Math.ceil((h + INTERLIGNE) / TRANCHE);
-    });
+  function nbPhotos(n){
+    return n ? n + (n > 1 ? ' photos' : ' photo') : 'À venir';
   }
-  function calerBientot(){
-    clearTimeout(minuteurCale);
-    minuteurCale = setTimeout(calerGrille, 60);
-  }
-  window.addEventListener('resize', calerBientot);
 
   /* ---------- Lecture du modèle ---------- */
-  /* Version réduite d'une image, produite à la publication. La mosaïque et
-     les cartes de journée affichent des vignettes de quelques centaines de
-     pixels : y charger le fichier de 2000 px alourdissait la page sans rien
-     apporter. La visionneuse, elle, ouvre toujours l'original.
+  /* Version réduite d'une image, produite à la publication. Les cartes et
+     la grille affichent des vignettes de quelques centaines de pixels : y
+     charger le fichier de 2000 px alourdissait la page sans rien apporter.
+     La visionneuse, elle, ouvre toujours l'original.
      Hors publication (aperçu local), la table est vide et on sert l'original. */
   var VIGNETTES = D.vignettes || {};
   function petite(src){ return VIGNETTES[src] || src; }
@@ -730,18 +606,37 @@ input::placeholder,textarea::placeholder{color:#a29c91}
     return choisis.length ? choisis : pubs.filter(function(e){ return couverture(e); }).slice(0, 3);
   }
   function sports(){
-    var vus = [], out = [];
+    var vus = [];
     evenementsPublics().forEach(function(e){
       var sp = (e.sport || '').trim();
-      if (sp && vus.indexOf(sp) === -1){ vus.push(sp); out.push(sp); }
+      if (sp && vus.indexOf(sp) === -1) vus.push(sp);
     });
-    return out.sort();
+    return vus.sort();
+  }
+  /* La saison suit la journée la plus récente : une saison d'interclub
+     commence en septembre. 19.09.2026 → « 2026–27 ». */
+  function saison(){
+    var plusRecente = '';
+    evenementsPublics().forEach(function(e){
+      if (/^\d{4}-\d{2}-\d{2}$/.test(e.date || '') && e.date > plusRecente) plusRecente = e.date;
+    });
+    if (!plusRecente) return '';
+    var a = parseInt(plusRecente.slice(0, 4), 10), m = parseInt(plusRecente.slice(5, 7), 10);
+    var debut = m >= 8 ? a : a - 1;
+    return debut + '–' + String(debut + 1).slice(-2);
+  }
+  function imageAvecRepli(im, src){
+    im.src = petite(src);
+    /* si la vignette manque (publication sans Pillow), on retombe sur
+       l'original plutôt que d'afficher un cadre vide */
+    im.addEventListener('error', function(){
+      if (im.src.indexOf(src) === -1) im.src = src;
+    });
   }
 
   /* ---------- État ---------- */
   var etat = { page:'home', slide:0, evt:'', sport:'' };
-  var chrono = null;
-  var sobre = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var SAISON = saison();
 
   /* ---------- Réglages du site ---------- */
   (function reglages(){
@@ -749,94 +644,111 @@ input::placeholder,textarea::placeholder{color:#a29c91}
     if (SITE.email){
       document.querySelectorAll('a[href^="mailto:"]').forEach(function(a){
         a.href = 'mailto:' + SITE.email;
-        if (a.textContent.indexOf('@') > -1) a.textContent = SITE.email;
+        if (a.textContent.indexOf('@') > -1 && !a.querySelector('span')) a.textContent = SITE.email;
       });
-      var note = $('contactNote');
-      if (note) note.textContent = 'Les messages sont envoyés à ' + SITE.email;
+      $('contactMail').textContent = SITE.email;
+      $('contactNote').textContent = 'Les messages sont envoyés à ' + SITE.email;
     }
     if (SITE.instagram){
       document.querySelectorAll('a[href*="instagram.com"]').forEach(function(a){ a.href = SITE.instagram; });
+      /* https://www.instagram.com/shootby.theo/ → @shootby.theo */
+      var m = /instagram\.com\/([^\/?#]+)/.exec(SITE.instagram);
+      if (m){
+        $('contactInsta').textContent = '@' + m[1];
+        document.querySelectorAll('.ftr a[href*="instagram.com"]').forEach(function(a){ a.textContent = '@' + m[1]; });
+      }
     }
-    /* Les boutons HD de la une et des galeries sont posés à chaque affichage :
-       ils suivent la journée en cours, avec le lien du site pour défaut. */
+    $('heroKicker').textContent = 'Badminton · Interclub' + (SAISON ? ' ' + SAISON : '');
+    $('workKicker').textContent = SAISON ? 'Saison ' + SAISON : 'Toutes les journées';
+    var hd = SITE.lienHD || '';
+    $('heroHD').hidden = !hd;
+    if (hd) $('heroHD').href = hd;
     $('navApropos').hidden = !APROPOS.actif;
     $('navPresta').hidden  = !PRESTA.actif;
   })();
 
-  /* ================= ACCUEIL : diaporama ================= */
-  var couches = [], vignettes = [], segments = [];
-
+  /* ================= ACCUEIL : mosaïque à la une =================
+     La journée à la une s'affiche en mosaïque : sa couverture en grand,
+     quatre photos de sa galerie autour. S'il y a plusieurs journées à la
+     une, les flèches passent de l'une à l'autre. */
   var UNES = unes();
+  var PHOTOS_UNE = 4;
 
-  UNES.forEach(function(sl, i){
-    var c = document.createElement('div');
-    c.className = 'hero-layer';
-    c.style.backgroundImage = "url('" + couverture(sl) + "')";
-    c.style.backgroundPosition = sl.coverPos || 'center';
-    $('heroLayers').appendChild(c);
-    couches.push(c);
-
-    var v = document.createElement('button');
-    v.className = 'thumb';
-    v.style.backgroundImage = "url('" + couverture(sl) + "')";
-    v.setAttribute('aria-label', sl.titre || '');
-    v.addEventListener('click', function(){ allerSlide(i); });
-    $('thumbs').appendChild(v);
-    vignettes.push(v);
-
-    var g = document.createElement('span');
-    $('progress').appendChild(g);
-    segments.push(g);
-  });
+  function cellule(src, classe, titre, haute){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'une-cell ' + classe;
+    b.setAttribute('aria-label', 'Voir la galerie : ' + titre);
+    var im = document.createElement('img');
+    im.alt = '';
+    /* la couverture est affichée en grand : l'original ; les petites
+       cases se contentent de la vignette */
+    if (haute) im.src = src; else imageAvecRepli(im, src);
+    b.appendChild(im);
+    return b;
+  }
 
   function peindreSlide(){
+    var grille = $('uneGrid');
+    vide(grille);
     var sl = UNES[etat.slide];
-    if (!sl) return;
-    /* Plus rien à ressaisir : le tag, le titre et la date viennent de
-       l'événement lui-même. */
-    $('heroTag').textContent = ['À la une', sl.sport || ''].filter(Boolean).join(' · ');
-    $('heroTitle').textContent = sl.titre || '';
-    $('heroMeta').textContent = dateLisible(sl.date) || sl.texte || '';
-    $('counter').textContent = pad2(etat.slide + 1) + ' / ' + pad2(UNES.length);
-    var lien = sl.lienHD || SITE.lienHD || '';
-    $('heroHD').hidden = !lien;
-    if (lien) $('heroHD').href = lien;
-    couches.forEach(function(el, i){ el.classList.toggle('is-on', i === etat.slide); });
-    vignettes.forEach(function(el, i){ el.classList.toggle('is-on', i === etat.slide); });
-    segments.forEach(function(el, i){ el.classList.toggle('is-on', i <= etat.slide); });
+    if (!sl){
+      grille.dataset.n = '0';
+      grille.innerHTML = '<div class="slot"><span>SBT · À VENIR</span></div>';
+      $('uneBas').hidden = true;
+      return;
+    }
+    var couv = couverture(sl);
+    var autres = sl.photos.filter(function(p){ return p.src !== couv; }).slice(0, PHOTOS_UNE);
+    grille.dataset.n = String(autres.length);
+    /* relance le fondu à chaque changement de journée */
+    grille.style.animation = 'none'; void grille.offsetWidth; grille.style.animation = '';
+
+    var c = cellule(couv, 'une-cover', sl.titre || '', true);
+    c.querySelector('img').style.objectPosition = sl.coverPos || 'center';
+    grille.appendChild(c);
+    autres.forEach(function(p){
+      var cel = cellule(p.src, 'une-ph', sl.titre || '', false);
+      if (p.w && p.h && p.h > p.w) cel.querySelector('img').style.objectPosition = 'center 30%';
+      grille.appendChild(cel);
+    });
+    [].forEach.call(grille.children, function(el){
+      el.addEventListener('click', function(){ aller('evenement/' + sl.id); });
+    });
+
+    var nb = sl.photos.length;
+    $('uneKicker').textContent = ['À la une', datePoints(sl.date), nb ? nbPhotos(nb) : '']
+      .filter(Boolean).join(' · ');
+    $('uneTitre').textContent = sl.titre || '';
+    var plusieurs = UNES.length > 1;
+    $('prevSlide').hidden = $('nextSlide').hidden = !plusieurs;
+    $('counter').textContent = plusieurs ? pad2(etat.slide + 1) + ' / ' + pad2(UNES.length) : '';
   }
   function allerSlide(i){
+    if (!UNES.length) return;
     etat.slide = (i + UNES.length) % UNES.length;
     peindreSlide();
-    lancerChrono();
   }
-  function lancerChrono(){
-    clearInterval(chrono);
-    if (sobre || etat.page !== 'home' || UNES.length < 2) return;
-    chrono = setInterval(function(){
-      etat.slide = (etat.slide + 1) % UNES.length;
-      peindreSlide();
-    }, 6000);
-  }
+  /* Pas de défilement automatique : une mosaïque qui change toute seule
+     pendant qu'on la regarde gêne plus qu'elle n'aide. Les flèches et le
+     clavier suffisent. */
 
-  $('nextSlide').addEventListener('click', function(){ allerSlide(etat.slide + 1); });
-  $('prevSlide').addEventListener('click', function(){ allerSlide(etat.slide - 1); });
-  $('heroOpen').addEventListener('click', function(){
+  function ouvrirUne(){
     var sl = UNES[etat.slide];
     if (sl) aller('evenement/' + sl.id);
-  });
+  }
+  $('nextSlide').addEventListener('click', function(){ allerSlide(etat.slide + 1); });
+  $('prevSlide').addEventListener('click', function(){ allerSlide(etat.slide - 1); });
+  $('uneTitre').addEventListener('click', ouvrirUne);
+  $('uneOpen').addEventListener('click', ouvrirUne);
 
-  /* ================= ÉVÉNEMENTS : la liste ================= */
-  /* Une seule vue entre l'accueil et les photos. Le sport n'est plus un
-     dossier à ouvrir : c'est une étiquette sur la carte, et un filtre quand
-     les événements se comptent par dizaines. */
+  /* ================= JOURNÉES : la liste ================= */
+  /* Le sport n'est pas un dossier à ouvrir : c'est un filtre, qui n'apparaît
+     que lorsque plusieurs sports sont publiés. */
   function peindreEvenements(){
     var tous = evenementsPublics();
     var sp = sports();
     var liste = etat.sport ? tous.filter(function(e){ return e.sport === etat.sport; }) : tous;
-
-    $('workKicker').textContent = tous.length
-      + (tous.length > 1 ? ' événements' : ' événement');
 
     var barre = $('filtres');
     vide(barre);
@@ -858,33 +770,40 @@ input::placeholder,textarea::placeholder{color:#a29c91}
     if (!liste.length){
       var vid = document.createElement('p');
       vid.className = 'vide-liste';
-      vid.textContent = 'Aucun événement pour le moment.';
+      vid.textContent = 'Aucune journée pour le moment.';
       grille.appendChild(vid);
       return;
     }
     liste.forEach(function(e){
-      var nb = e.photos.length;
       var carte = document.createElement('button');
-      carte.className = 'jr';
-      carte.innerHTML = '<img loading="lazy" alt=""><div class="veil"></div><div class="txt">' +
-        '<div class="d"></div><div class="t"></div><div class="n"></div></div>';
+      carte.type = 'button';
+      carte.className = 'carte';
+      carte.innerHTML =
+        '<div class="carte-img"></div>' +
+        '<div class="carte-txt"><div><div class="k"></div><div class="t"></div></div>' +
+        '<span class="pill"></span></div>';
       var couv = couverture(e);
-      var im = carte.querySelector('img');
+      var cadre = carte.querySelector('.carte-img');
       if (couv){
-        im.src = petite(couv);
+        var im = document.createElement('img');
+        im.loading = 'lazy';
         im.alt = e.titre || '';
-        im.addEventListener('error', function(){
-          if (im.src.indexOf(couv) === -1) im.src = couv;
-        });
+        if (e.coverPos) im.style.objectPosition = e.coverPos;
+        imageAvecRepli(im, couv);
+        cadre.appendChild(im);
       } else {
-        im.remove();
+        cadre.innerHTML = '<div class="slot"><span>SBT · À VENIR</span></div>';
       }
-      carte.querySelector('.d').textContent =
-        [dateLisible(e.date), e.sport || ''].filter(Boolean).join(' · ') || (e.sport || '');
+      carte.querySelector('.k').textContent =
+        [e.sport || '', datePoints(e.date)].filter(Boolean).join(' · ');
       carte.querySelector('.t').textContent = e.titre || '';
-      carte.querySelector('.n').textContent = nb
-        ? nb + (nb > 1 ? ' photos' : ' photo')
-        : 'À venir';
+      if (e.texte){
+        var p = document.createElement('div');
+        p.className = 'p';
+        p.textContent = e.texte;
+        carte.querySelector('.carte-txt > div').appendChild(p);
+      }
+      carte.querySelector('.pill').textContent = nbPhotos(e.photos.length);
       carte.addEventListener('click', function(){ aller('evenement/' + e.id); });
       grille.appendChild(carte);
     });
@@ -905,7 +824,6 @@ input::placeholder,textarea::placeholder{color:#a29c91}
     if (SITE.domaine) return SITE.domaine.replace(/\/+$/, '') + '/' + route + '/';
     return location.origin + location.pathname + '#/' + route;
   }
-
   function majPartage(e){
     partageCible = {
       titre: [e.titre, e.sport].filter(Boolean).join(' · ') || 'SHOOTBYTHEO',
@@ -915,7 +833,6 @@ input::placeholder,textarea::placeholder{color:#a29c91}
     b.textContent = 'Partager ↗';
     b.classList.remove('ok');
   }
-
   function retourPartage(texte){
     var b = $('galPartage');
     b.textContent = texte;
@@ -926,7 +843,6 @@ input::placeholder,textarea::placeholder{color:#a29c91}
       b.classList.remove('ok');
     }, 2600);
   }
-
   $('galPartage').addEventListener('click', function(){
     if (!partageCible) return;
     if (navigator.share){
@@ -942,29 +858,44 @@ input::placeholder,textarea::placeholder{color:#a29c91}
     }
     retourPartage(partageCible.url);
   });
+  $('galBack').addEventListener('click', function(){ aller('evenements'); });
 
   function peindreGalerie(){
     var e = idx[etat.evt];
     if (!e) return aller('evenements');
 
     /* en-tête */
-    var couv = couverture(e);
-    $('galImg').style.backgroundImage = couv ? "url('" + couv + "')" : 'none';
+    var nb = e.photos.length;
     $('galKicker').textContent =
-      [dateLisible(e.date), e.sport || ''].filter(Boolean).join(' · ');
+      [e.sport || '', datePoints(e.date), nb ? nbPhotos(nb) : ''].filter(Boolean).join(' · ');
     $('galTitle').textContent = e.titre || '';
-    $('galBack').onclick = function(){ aller('evenements'); };
+    $('galTexte').textContent = e.texte || '';
+    $('galTexte').hidden = !e.texte;
 
     /* Téléchargement : le lien de l'événement s'il en a un, sinon celui du
-       site. Un visiteur venu pour sa compétition atterrit ainsi sur ses
-       photos, pas sur un dossier commun à tous les sports. */
+       site. Un visiteur venu pour sa journée atterrit ainsi sur ses photos,
+       pas sur un dossier commun à tous les sports. */
     var hd = e.lienHD || SITE.lienHD || '';
     $('galHD').hidden = !hd;
     if (hd) $('galHD').href = hd;
     $('galHDtxt').textContent = e.lienHD
-      ? 'Les photos de cet événement sont disponibles en haute définition.'
+      ? 'Les photos de cette journée sont disponibles en haute définition.'
       : 'La galerie complète en haute définition est disponible au téléchargement.';
     majPartage(e);
+
+    /* Journée précédente / suivante, dans l'ordre de la liste. Une galerie
+       privée (lien envoyé à un client) ne renvoie pas vers les autres. */
+    var pubs = evenementsPublics();
+    var pos = pubs.indexOf(e);
+    $('galNav').hidden = e.prive || pubs.length < 2 || pos === -1;
+    if (!$('galNav').hidden){
+      var avant = pubs[(pos - 1 + pubs.length) % pubs.length];
+      var apres = pubs[(pos + 1) % pubs.length];
+      $('galPrev').textContent = '← ' + (avant.titre || '');
+      $('galPrev').onclick = function(){ aller('evenement/' + avant.id); };
+      $('galNext').textContent = (apres.titre || '') + ' →';
+      $('galNext').onclick = function(){ aller('evenement/' + apres.id); };
+    }
 
     /* corps */
     var grille = $('galGrid');
@@ -975,19 +906,14 @@ input::placeholder,textarea::placeholder{color:#a29c91}
       photosCourantes.forEach(function(p, i){
         var fig = document.createElement('figure');
         fig.className = 'ph';
-        fig.style.margin = '0';
+        fig.tabIndex = 0;
         var im = document.createElement('img');
         im.loading = 'lazy';
-        /* proportions connues d'avance : la mosaïque est juste dès le premier rendu */
-        if (p.w && p.h) im.style.aspectRatio = p.w + ' / ' + p.h;
-        im.src = petite(p.src);
-        /* si la vignette manque (publication sans Pillow), on retombe
-           sur l'original plutôt que d'afficher un cadre vide */
-        im.addEventListener('error', function(){
-          if (im.src.indexOf(p.src) === -1) im.src = p.src;
-        });
         im.alt = p.legende || e.titre || '';
-        im.addEventListener('load', calerBientot);
+        imageAvecRepli(im, p.src);
+        /* les photos en hauteur gardent le haut du cadre : c'est là que
+           sont les visages */
+        if (p.w && p.h && p.h > p.w) im.style.objectPosition = 'center 30%';
         fig.appendChild(im);
         if (p.legende){
           var lg = document.createElement('figcaption');
@@ -995,6 +921,9 @@ input::placeholder,textarea::placeholder{color:#a29c91}
           fig.appendChild(lg);
         }
         fig.addEventListener('click', function(){ ouvrirLb(i); });
+        fig.addEventListener('keydown', function(ev){
+          if (ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); ouvrirLb(i); }
+        });
         grille.appendChild(fig);
       });
     } else {
@@ -1006,6 +935,7 @@ input::placeholder,textarea::placeholder{color:#a29c91}
       }
     }
   }
+
   /* ================= Visionneuse ================= */
   function ouvrirLb(i){
     iLb = i;
@@ -1026,6 +956,7 @@ input::placeholder,textarea::placeholder{color:#a29c91}
     var p = photosCourantes[iLb];
     if (!p) return;
     $('lbImg').src = p.src;
+    $('lbImg').alt = p.legende || '';
     $('lbLeg').textContent = p.legende || '';
     $('lbCount').textContent = pad2(iLb + 1) + ' / ' + pad2(photosCourantes.length);
     $('lbPrev').hidden = $('lbNext').hidden = photosCourantes.length < 2;
@@ -1068,10 +999,11 @@ input::placeholder,textarea::placeholder{color:#a29c91}
     if (PRESTA.actif){
       $('prestaTitre').textContent = PRESTA.titre || 'Prestations';
       $('prestaIntro').textContent = PRESTA.intro || '';
+      $('prestaIntro').hidden = !PRESTA.intro;
       (PRESTA.offres || []).forEach(function(o){
         var d = document.createElement('div');
         d.className = 'offre';
-        d.innerHTML = '<h3></h3><div class="prix"></div><p></p>';
+        d.innerHTML = '<div class="prix"></div><h3></h3><p></p>';
         d.querySelector('h3').textContent = o.titre || '';
         d.querySelector('.prix').textContent = o.prix || '';
         d.querySelector('p').textContent = o.texte || '';
@@ -1095,7 +1027,7 @@ input::placeholder,textarea::placeholder{color:#a29c91}
         form.reset();
         note.className = 'note ok';
         note.textContent = '✓ Message envoyé — merci, je vous réponds vite.';
-        envoi.textContent = 'Envoyer';
+        envoi.textContent = 'Envoyer →';
       })
       .catch(function(){
         note.className = 'note ko';
@@ -1169,7 +1101,7 @@ input::placeholder,textarea::placeholder{color:#a29c91}
   var TITRE = 'SHOOTBYTHEO';
   function majTitre(){
     var t = '';
-    if (etat.page === 'evenements') t = 'Événements';
+    if (etat.page === 'evenements') t = 'Journées d\'interclub';
     else if (etat.page === 'contact') t = 'Contact';
     else if (etat.page === 'a-propos') t = APROPOS.titre || 'À propos';
     else if (etat.page === 'prestations') t = PRESTA.titre || 'Prestations';
@@ -1220,11 +1152,10 @@ input::placeholder,textarea::placeholder{color:#a29c91}
         (etat.page === 'gallery' && cible === 'evenements'));
     });
 
-    if (etat.page === 'gallery'){ peindreGalerie(); calerBientot(); }
+    if (etat.page === 'gallery') peindreGalerie();
     if (etat.page === 'evenements') peindreEvenements();
     majTitre();
     signalerVue(route);
-    lancerChrono();
     window.scrollTo(0, 0);
   }
 
